@@ -1,0 +1,28 @@
+# Config file for automatic testing at travis-ci.org
+
+language: python
+python:
+  - "2.7"
+  - "3.6"
+
+install:
+  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
+      wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
+    else
+      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+    fi
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - hash -r
+  - conda config --set always_yes yes
+  - conda update -q conda
+  - conda install conda-build anaconda-client pytest pytest-cov
+  - conda config --set auto_update_conda no
+  - conda build conda.recipe --no-test
+  - conda install --use-local cmip6_preprocessing
+  - conda info -a
+script:
+  - pytest -v --color=yes --cov=cmip6_preprocessing tests
+after_success:
+  - conda install -c conda-forge codecov
+  - codecov
