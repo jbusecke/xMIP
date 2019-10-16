@@ -1,0 +1,8 @@
+---
+exclude_paths:
+  - 'cmip6_preprocessing/_version.py'
+  - 'tests/**/*'
+  - 'tests/*'
+  - 'benchmarks/**/*'
+  - 'setup.py'
+  - 'versioneer.py'

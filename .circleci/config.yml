@@ -1,0 +1,47 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: continuumio/miniconda3
+
+    working_directory: ~/repo
+
+    steps:
+      - checkout
+
+      
+      # - restore_cache:
+      #     keys:
+      #     - v1-dependencies-{{ checksum "environment.yml" }}
+      #     - v1-dependencies-
+      
+
+      - run:
+          name: install dependencies
+          command: |
+            # conda env create -q || conda env update -q
+            # source activate adj
+            conda install -qy conda-build anaconda-client pytest pytest-cov
+            conda config --set auto_update_conda no
+            conda info -a
+            conda build conda.recipe --no-test
+            conda install --use-local cmip6_preprocessing
+
+      
+      # - save_cache:
+      #     paths:
+      #       - /opt/conda
+      #     key: v1-dependencies-{{ checksum "environment.yml" }}
+      
+
+      - run:
+          name: run tests
+          command: |
+            # source activate adj
+            pytest --color=yes -v --cov=cmip6_preprocessing tests
+            conda install -c conda-forge codecov
+            codecov
+
+      - store_artifacts:
+          path: test-reports
+          destination: test-reports

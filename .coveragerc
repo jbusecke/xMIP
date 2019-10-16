@@ -1,0 +1,7 @@
+[report]
+omit =
+    setup.py
+    cmip6_preprocessing/__main__.py
+    cmip6_preprocessing/_version.py
+    versioneer.py
+    tests/*
