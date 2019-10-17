@@ -64,6 +64,7 @@ def import_data(col, preview=False, required_variable_id=True, **kwargs):
                 print(cat[k].df[cat[k].df.source_id == model])
                 print(v)
                 raise ValueError('You loaded two different datasets for model [%s] variable [%s]. Tighten your criteria and loop over them.' %(model,k))
+    
     # pick models that have all the specified variables           
     if required_variable_id:
         if required_variable_id == True:
