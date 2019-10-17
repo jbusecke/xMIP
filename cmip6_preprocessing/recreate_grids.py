@@ -5,6 +5,67 @@ from xgcm import Grid
 import pyproj
 import matplotlib.pyplot as plt
 
+# now sort all other variables in accordingly
+def rename(da, da_tracer, da_u, da_v, grid_type, position, verbose=False):
+    # check with which variable the lon and lat agree
+    rename_dict = {
+        "B": {
+            "u": {
+                "x": "x_" + position["X"][1],
+                "y": "y_" + position["Y"][1],
+                "lon": "lon_ne",
+                "lat": "lat_ne",
+                "vertices_latitude": "vertices_latitude_ne",
+                "vertices_longitude": "vertices_longitude_ne",
+            },
+            "v": {
+                "x": "x_" + position["X"][1],
+                "y": "y_" + position["Y"][1],
+                "lon": "lon_ne",
+                "lat": "lat_ne",
+                "vertices_latitude": "vertices_latitude_ne",
+                "vertices_longitude": "vertices_longitude_ne",
+            },
+        },
+        "C": {
+            "u": {
+                "x": "x_" + position["X"][1],
+                "lon": "lon_e",
+                "lat": "lat_e",
+                "vertices_latitude": "vertices_latitude_e",
+                "vertices_longitude": "vertices_longitude_e",
+            },
+            "v": {
+                "y": "y_" + position["Y"][1],
+                "lon": "lon_n",
+                "lat": "lat_n",
+                "vertices_latitude": "vertices_latitude_n",
+                "vertices_longitude": "vertices_longitude_n",
+            },
+        },
+    }
+
+    loc = []
+
+    for data, name in zip([da_tracer, da_u, da_v], ["tracer", "u", "v"]):
+        if da.lon.equals(data.lon):
+            loc.append(name)
+    if len(loc) != 1:
+        if grid_type == "B" and set(loc) == set(["u", "v"]):
+            loc = ["u"]
+        else:
+            raise RuntimeError("somthing went wrong")
+
+    loc = loc[0]
+    if loc != "tracer":
+        re_dict = {
+            k: v
+            for k, v in rename_dict[grid_type][loc].items()
+            if k in da.variables
+        }
+        da = da.rename(re_dict)
+    return da
+
 
 def merge_variables_on_staggered_grid(
     data_dict,
@@ -17,29 +78,35 @@ def merge_variables_on_staggered_grid(
 ):
     """Parses datavariables according to their staggered grid position.
     Should also work for gr variables, which are assumed to be on an A-grid."""
-
-    # extract reference dataarrays (those need to be in there)
-    tracer = data_dict[tracer_ref]
-    u = data_dict[u_ref]
-    v = data_dict[v_ref]
-
-    # determine grid type
-    if tracer.lon.equals(u.lon):
-        grid_type = "A"
+    
+    if any([not a in data_dict.keys() for a in [tracer_ref, u_ref, v_ref]]):
+        print('NON-REFERENCE MODE. This should just be used for a bunch of variables on the same grid')
+        grid_type = 'A'
+        
     else:
-        if u.lon.equals(v.lon):
-            grid_type = "B"
-        else:
-            grid_type = "C"
+        
+        # extract reference dataarrays (those need to be in there)
+        tracer = data_dict[tracer_ref]
+        u = data_dict[u_ref]
+        v = data_dict[v_ref]
 
-    print("Grid Type: %s detected" % grid_type)
+        # determine grid type
+        if tracer.lon.equals(u.lon):
+            grid_type = "A"
+        else:
+            if u.lon.equals(v.lon):
+                grid_type = "B"
+            else:
+                grid_type = "C"
+
+        print("Grid Type: %s detected" % grid_type)
 
     if grid_type == "A":
         # this should also work with interpolated and obs datasets
         # Just merge everything together
         ds_combined = xr.merge([v for v in data_dict.values()])
         ds_full = generate_grid_ds(
-            ds_combined, {"X": "x", "Y": "y"}, position=("center", "left")
+            ds_combined, {"X": "x", "Y": "y"}, position=("center", "right")
         )
     else:
         # now determine the axis shift
@@ -96,67 +163,6 @@ def merge_variables_on_staggered_grid(
 
         ds_full = generate_grid_ds(tracer, {"X": "x", "Y": "y"}, position=position)
 
-        # now sort all other variables in accordingly
-        def rename(da, da_tracer, da_u, da_v, grid_type, position, verbose=False):
-            # check with which variable the lon and lat agree
-            rename_dict = {
-                "B": {
-                    "u": {
-                        "x": "x_" + position["X"][1],
-                        "y": "y_" + position["Y"][1],
-                        "lon": "lon_ne",
-                        "lat": "lat_ne",
-                        "vertices_latitude": "vertices_latitude_ne",
-                        "vertices_longitude": "vertices_longitude_ne",
-                    },
-                    "v": {
-                        "x": "x_" + position["X"][1],
-                        "y": "y_" + position["Y"][1],
-                        "lon": "lon_ne",
-                        "lat": "lat_ne",
-                        "vertices_latitude": "vertices_latitude_ne",
-                        "vertices_longitude": "vertices_longitude_ne",
-                    },
-                },
-                "C": {
-                    "u": {
-                        "x": "x_" + position["X"][1],
-                        "lon": "lon_e",
-                        "lat": "lat_e",
-                        "vertices_latitude": "vertices_latitude_e",
-                        "vertices_longitude": "vertices_longitude_e",
-                    },
-                    "v": {
-                        "y": "y_" + position["Y"][1],
-                        "lon": "lon_n",
-                        "lat": "lat_n",
-                        "vertices_latitude": "vertices_latitude_n",
-                        "vertices_longitude": "vertices_longitude_n",
-                    },
-                },
-            }
-
-            loc = []
-
-            for data, name in zip([da_tracer, da_u, da_v], ["tracer", "u", "v"]):
-                if da.lon.equals(data.lon):
-                    loc.append(name)
-            if len(loc) != 1:
-                if grid_type == "B" and set(loc) == set(["u", "v"]):
-                    loc = ["u"]
-                else:
-                    raise RuntimeError("somthing went wrong")
-
-            loc = loc[0]
-            if loc != "tracer":
-                re_dict = {
-                    k: v
-                    for k, v in rename_dict[grid_type][loc].items()
-                    if k in da.variables
-                }
-                da = da.rename(re_dict)
-            return da
-
         if verbose:
             print("Renaming and Merging")
         for k, da in data_dict.items():
@@ -178,7 +184,6 @@ def merge_variables_on_staggered_grid(
                     ds_full[dvar] = da_renamed[dvar]
     #             ds_full = xr.merge([ds_full, da_renamed])
     return ds_full
-
 
 def distance(lon0, lat0, lon1, lat1):
     geod = pyproj.Geod(ellps="WGS84")
@@ -233,10 +238,8 @@ def recreate_metrics(ds, grid):
 
 
 # TODO: check if all these hardcoded lines work for each CMIP6 model...
-def recreate_full_grid(ds, lon_name="lon", lat_name="lat"):
-    ds_full = generate_grid_ds(ds, {"X": "x", "Y": "y"}, position=("center", "left"))
+def recreate_grid_simple(ds, lon_name="lon", lat_name="lat"):
+    ds_full = generate_grid_ds(ds, {"X": "x", "Y": "y"}, position=("center", "right"))
     grid = Grid(ds_full, periodic=["X"])
-
     ds_full = recreate_metrics(ds, grid)
-
     return ds_full
