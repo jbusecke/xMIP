@@ -7,7 +7,7 @@ from .recreate_grids import merge_variables_on_staggered_grid, recreate_metrics
 
 def rename_cmip6(ds, **kwargs):
     modelname = ds.attrs['source_id']
-    return cmip6_homogenization(ds, cmip6_renaming_dict()[modelname], printing=False)
+    return cmip6_homogenization(ds, cmip6_renaming_dict()[modelname], printing=False, **kwargs)
 
 
 def read_data(col, preview=False, required_variable_id=True, **kwargs):
@@ -106,17 +106,24 @@ def full_preprocessing(dat_dict, modelname,
     return ds
 
 
-def cmip6_homogenization(ds, dim_name_di, printing=False):
+def cmip6_homogenization(ds, dim_name_di, printing=False, debug=False, verbose=False):
     """Homogenizes cmip6 dadtasets to common naming and e.g. vertex order"""
+    if debug:
+        print('Scheisse')
     ds = ds.copy()
     source_id = ds.attrs['source_id']
     # rename variables
     for di in dim_name_di.keys():
         if isinstance(dim_name_di[di], str):
             dim_name_di[di] = [dim_name_di[di]]
+        if debug:
+            print(di)
+            print(dim_name_di[di])
         for wrong in dim_name_di[di]:
             if di != wrong and di not in ds.variables:
-                if wrong in ds.variables:
+                if wrong in ds.variables or wrong in ds.dims:
+                    if debug:
+                        print('Changing %s to %s' %(wrong, di))
                     ds = ds.rename({wrong: di})
                 else:
                     if wrong is None:
@@ -186,7 +193,7 @@ def cmip6_renaming_dict():
             "lev_bounds": "lev_bnds",
             "lon_bounds": None,
             "lat_bounds": None,
-            "vertex": None,
+            "vertex": 'vertices',
             #         'dzt': 'thkcello',
         },
         "CanESM5": {
@@ -260,7 +267,7 @@ def cmip6_renaming_dict():
             "lev_bounds": "lev_bnds",
             "lon_bounds": None,
             "lat_bounds": None,
-            #         'vertex': 'vertices',
+            'vertex': 'vertices',
             #         'dzt': 'thkcello',
         },
         "EC-Earth3": {
@@ -293,7 +300,7 @@ def cmip6_renaming_dict():
             "lon": "longitude",
             "lat": "latitude",
             "lev": "lev",
-            "lev_bounds": "lev_bounds",
+            "lev_bounds": "lev_bnds",
             "lon_bounds": "x_bnds",
             "lat_bounds": "y_bnds",
             #         'vertex': 'vertices',
@@ -305,7 +312,7 @@ def cmip6_renaming_dict():
             "lon": "longitude",
             "lat": "latitude",
             "lev": "lev",
-            "lev_bounds": "lev_bounds",
+            "lev_bounds": "lev_bnds",
             "lon_bounds": "x_bnds",
             "lat_bounds": "y_bnds",
             #         'vertex': 'vertices',
@@ -329,7 +336,7 @@ def cmip6_renaming_dict():
             "lon": "longitude",
             "lat": "latitude",
             "lev": "lev",
-            "lev_bounds": "lev_bounds",
+            "lev_bounds": "lev_bnds",
             "lon_bounds": None,
             "lat_bounds": None,
             #         'vertex': 'vertices',
@@ -360,11 +367,12 @@ def cmip6_renaming_dict():
             #         'dzt': 'thkcello',
         },
         "CESM2-WACCM": {
-            "x": "nlon",
-            "y": "nlat",
+            "x": ["nlon", "lon"],
+            "y": ["nlat", "lat"],
             "lon": "lon",
             "lat": "lat",
             "lev": "lev",
+            "bnds":"d2",
             "time_bounds":"time_bnds",
             "lev_bounds": "lev_bnds",
             "lon_bounds": "lon_bnds",
@@ -372,11 +380,12 @@ def cmip6_renaming_dict():
             'vertex': 'vertices',
         },
         "CESM2": {
-            "x": "nlon",
-            "y": "nlat",
+            "x": ["nlon", "lon"],
+            "y": ["nlat", "lat"],
             "lon": "lon",
             "lat": "lat",
             "lev": "lev",
+            "bnds":'d2',
             "time_bounds":"time_bnds",
             "lev_bounds": "lev_bnds",
             "lon_bounds": "lon_bnds",
@@ -384,8 +393,8 @@ def cmip6_renaming_dict():
             'vertex': 'vertices',
         },
         "GFDL-CM4": {
-            "x": "x",
-            "y": "y",
+            "x": ["x","lon"],
+            "y": ["y", "lat"],
             "lon": "lon",
             "lat": "lat",
             "lev": "lev",
@@ -396,8 +405,8 @@ def cmip6_renaming_dict():
             #         'dzt': 'thkcello',
         },
         "GFDL-ESM4": {
-            "x": "x",
-            "y": "y",
+            "x": ["x","lon"],
+            "y": ["y", "lat"],
             "lon": "lon",
             "lat": "lat",
             "lev": "lev",
@@ -416,7 +425,7 @@ def cmip6_renaming_dict():
             "lev_bounds": "lev_bnds",
             "lon_bounds": None,
             "lat_bounds": None,
-            #         'vertex': 'vertices',
+            'vertex': 'vertices',
             #         'dzt': 'thkcello',
         },
         "SAM0-UNICON": {
@@ -428,7 +437,7 @@ def cmip6_renaming_dict():
             "lev_bounds": "lev_bnds",
             "lon_bounds": None,
             "lat_bounds": None,
-            #         'vertex': 'vertices',
+            'vertex': 'vertices',
             #         'dzt': 'thkcello',
         },
         "MCM-UA-1-0": {
@@ -449,7 +458,7 @@ def cmip6_renaming_dict():
             "lon": 'nav_lon',
             "lat": 'nav_lat',
             "lev": ["lev","deptht", "olevel"],
-            "lev_bounds": "lev_bounds",
+            "lev_bounds": ["lev_bounds", "deptht_bounds",'olevel_bounds'],
             "lon_bounds": "bounds_nav_lon",
             "lat_bounds": "bounds_nav_lat",
             'vertex': 'nvertex',
