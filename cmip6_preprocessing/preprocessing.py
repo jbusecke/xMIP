@@ -97,8 +97,11 @@ def full_preprocessing(dat_dict, modelname,
     ds = merge_variables_on_staggered_grid(
         dat_dict, modelname, u_ref=u_ref, v_ref=v_ref,plot=plot, verbose=verbose
     )
+    try:
+        grid_temp = Grid(ds) 
+    except:
+        print(ds)
 
-    grid_temp = Grid(ds)
     ds = recreate_metrics(ds, grid_temp)
     return ds
 
@@ -106,10 +109,13 @@ def full_preprocessing(dat_dict, modelname,
 def cmip6_homogenization(ds, dim_name_di, printing=False):
     """Homogenizes cmip6 dadtasets to common naming and e.g. vertex order"""
     ds = ds.copy()
+    source_id = ds.attrs['source_id']
     # rename variables
     for di in dim_name_di.keys():
-        if di != dim_name_di[di]:
-            for wrong in dim_name_di[di]:
+        if isinstance(dim_name_di[di], str):
+            dim_name_di[di] = [dim_name_di[di]]
+        for wrong in dim_name_di[di]:
+            if di != wrong and di not in ds.variables:
                 if wrong in ds.variables:
                     ds = ds.rename({wrong: di})
                 else:
@@ -124,10 +130,11 @@ def cmip6_homogenization(ds, dim_name_di, printing=False):
                             ds["lat"] = ds["y"]
                             if printing:
                                 print("Filled lat with y")
-                    else:
-                        warnings.warn(
-                            "Variable [%s] not found in %s" % (wrong, ds.coords)
-                        )
+# I think this is not necessary to warn? Maybe warn about unused values....then I can remove some entries from the dict...for later
+#                     else:
+#                         warnings.warn(
+#                             "[%s]Variable [%s] not found in %s" % (source_id,wrong, list(ds.variables))
+#                         )
         else:
             if printing:
                 print("Skipped renaming for [%s]. Name already correct." % di)
@@ -186,7 +193,7 @@ def cmip6_renaming_dict():
             "lon": "longitude",
             "lat": "latitude",
             "lev": "lev",
-            "lev_bounds": "lev_bounds",
+            "lev_bounds": "lev_bnds",
             "lon_bounds": None,
             "lat_bounds": None,
             "vertex": None,
@@ -413,12 +420,24 @@ def cmip6_renaming_dict():
             "y": "y",
             "lon": 'nav_lon',
             "lat": 'nav_lat',
-            "lev": ["lev","deptht"],
+            "lev": ["lev","deptht", "olevel"],
             "lev_bounds": "lev_bounds",
             "lon_bounds": "bounds_nav_lon",
             "lat_bounds": "bounds_nav_lat",
             'vertex': 'nvertex',
             #         'dzt': 'thkcello',
+        },
+        'NorCPM1': {
+            "x": "i",
+            "y": "j",
+            "lon": 'longitude',
+            "lat": 'latitude',
+            "lev": "lev",
+            "lev_bounds": "lev_bnds",
+            "lon_bounds": None,
+            "lat_bounds": None,
+            'vertex': 'vertices',
+            'time_bounds': "time_bnds",
         },
     }
     # cast all str into lists
