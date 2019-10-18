@@ -5,7 +5,11 @@ def parse_static_thkcello(ds, debug=False):
     ds = ds.copy()
     if debug:
         print(ds.attrs['source_id'])
-    ds.coords['thkcello'] = ds['lev_bounds'].diff('bnds').squeeze()
+    dz = ds['lev_bounds'].diff('bnds').squeeze()
+    # make sure the new array is 'clean'
+    dz = dz.reset_coords(drop=True)
+    dz.attrs = {}
+    ds.coords['thkcello'] = dz
     return ds
     
 
