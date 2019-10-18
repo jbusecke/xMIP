@@ -1,6 +1,14 @@
 from .preprocessing import rename_cmip6
 import warnings
 
+def parse_static_thkcello(ds, debug=False):
+    ds = ds.copy()
+    if debug:
+        print(ds.attrs['source_id'])
+    ds.coords['thkcello'] = ds['lev_bounds'].diff('bnds').squeeze()
+    return ds
+    
+
 def extract_all_availabe_metrics(col, grid_label, source_id, varname='areacello', **kwargs):
     #Find an area for as many models as possible (no matter in which scenario, ensemble etc)
     subset = col.search(variable_id=[varname], grid_label='gn', source_id=source_id)
