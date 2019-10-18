@@ -20,7 +20,8 @@ def extract_static_metric(col, grid_label, source_id, varname='areacello', prepr
     df = subset.df.drop_duplicates(subset='source_id')
     subset.df = df
     
-    metric_dict = subset.to_dataset_dict(preprocess=preprocess)
+#     metric_dict = subset.to_dataset_dict(preprocess=preprocess) # reactivate once intake_esm is ready
+    metric_dict = subset.to_dataset_dict()
     
     if len(metric_dict) == 0:
         warnings.warn('No metric [%s] found for source_id [%s] and grid_label[%s]' %(varname, source_id, grid_label))
