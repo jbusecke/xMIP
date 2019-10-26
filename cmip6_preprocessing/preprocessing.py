@@ -229,6 +229,7 @@ def cmip6_renaming_dict():
             "lev_bounds": "lev_bounds",
             "lon_bounds": None,
             "lat_bounds": None,
+            "bnds":"axis_nbounds",
             #         'vertex': 'nvertex',
             #         'dzt': 'thkcello',
         },
@@ -462,6 +463,7 @@ def cmip6_renaming_dict():
             "lon_bounds": "bounds_nav_lon",
             "lat_bounds": "bounds_nav_lat",
             'vertex': 'nvertex',
+            "bnds":"axis_nbounds",
             #         'dzt': 'thkcello',
         },
         'NorCPM1': {
