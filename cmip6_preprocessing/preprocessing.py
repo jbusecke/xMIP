@@ -9,11 +9,37 @@ def rename_cmip6(ds, **kwargs):
     modelname = ds.attrs['source_id']
     return cmip6_homogenization(ds, cmip6_renaming_dict()[modelname], printing=False, **kwargs)
 
+def promote_empty_dims(ds):
+    ds = ds.copy()
+    for di in ds.dims:
+        if di not in ds.coords:
+            ds.coords[di] = ds[di]
+    return ds
 
-def read_data(col, preview=False, required_variable_id=True, **kwargs):
+def replace_x_y_nominal_lat_lon(ds):
+    """Approximate the dimensional values of x and y with mean lat and lon at the equator"""
+    ds = ds.copy()
+    if 'x' in ds.dims and 'y' in ds.dims:
+        
+        nominal_y = ds.lat.mean('x')
+        # extract the equatorial lat and take those lon values as nominal lon
+        eq_ind = abs(ds.lat.mean('x')).load().argmin().data
+        nominal_x = ds.lon.isel(y=eq_ind)
+        ds.coords['x'].data = nominal_x.data
+        ds.coords['y'].data = nominal_y.data
+
+        ds = ds.sortby('x')
+        ds = ds.sortby('y')
+    
+    else:
+        warnings.warn('No x and y found in dimensions for source_id:%s. This likely means that you forgot to rename the dataset or this is the German unstructured model' %ds.attrs['source_id'])
+    return ds
+
+
+def read_data(col, preview=False, required_variable_id=True, to_dataset_kwargs={}, **kwargs):
     """Read data from catalogue with correct reconstruction of staggered grid"""
     
-    data_dict = import_data(col, preview=preview, required_variable_id=required_variable_id, **kwargs)
+    data_dict = import_data(col, preview=preview, required_variable_id=required_variable_id, **kwargs, to_dataset_kwargs=to_dataset_kwargs)
         
     data_final = {}
     for modelname, v_dict in {k:v for k,v in data_dict.items() if k not in ['AWI-CM-1-1-MR']}.items():
@@ -22,7 +48,7 @@ def read_data(col, preview=False, required_variable_id=True, **kwargs):
     return data_final
     
 
-def import_data(col, preview=False, required_variable_id=True, **kwargs):
+def import_data(col, preview=False, required_variable_id=True,  to_dataset_kwargs={}, **kwargs):
     if preview:
         print(col.search(**kwargs).df)
     
@@ -43,9 +69,8 @@ def import_data(col, preview=False, required_variable_id=True, **kwargs):
     data_dict = {}
     for model in models:
         data_dict[model] = {var:cat[var].df[cat[var].df.source_id == model]['zstore'].values for var in variables}
-        
-    ds_dict = {var: cat[var].to_dataset_dict(zarr_kwargs={'consolidated': True}, 
-                                cdf_kwargs={'chunks': {20}}) for var in variables}
+    to_dataset_kwargs.setdefault(zarr_kwargs,{'consolidated': True})
+    ds_dict = {var: cat[var].to_dataset_dict(**to_dataset_kwargs) for var in variables}
 
     
     data_dict = {}
@@ -113,38 +138,41 @@ def cmip6_homogenization(ds, dim_name_di, printing=False, debug=False, verbose=F
     ds = ds.copy()
     source_id = ds.attrs['source_id']
     # rename variables
-    for di in dim_name_di.keys():
-        if isinstance(dim_name_di[di], str):
-            dim_name_di[di] = [dim_name_di[di]]
-        if debug:
-            print(di)
-            print(dim_name_di[di])
-        for wrong in dim_name_di[di]:
-            if di != wrong and di not in ds.variables:
-                if wrong in ds.variables or wrong in ds.dims:
-                    if debug:
-                        print('Changing %s to %s' %(wrong, di))
-                    ds = ds.rename({wrong: di})
-                else:
-                    if wrong is None:
-                        if printing:
-                            print("No variable available for [%s]" % di)
-                        if di == "lon":
-                            ds["lon"] = ds["x"]
+    if len(dim_name_di) == 0:
+        warnings.warn('input dictionary empty for source_id: %s. Please add values to https://github.com/jbusecke/cmip6_preprocessing/blob/master/cmip6_preprocessing/preprocessing.py' %ds.attrs['source_id'])
+    else:
+        for di in dim_name_di.keys():
+            if isinstance(dim_name_di[di], str):
+                dim_name_di[di] = [dim_name_di[di]]
+            if debug:
+                print(di)
+                print(dim_name_di[di])
+            for wrong in dim_name_di[di]:
+                if di != wrong and di not in ds.variables:
+                    if wrong in ds.variables or wrong in ds.dims:
+                        if debug:
+                            print('Changing %s to %s' %(wrong, di))
+                        ds = ds.rename({wrong: di})
+                    else:
+                        if wrong is None:
                             if printing:
-                                print("Filled lon with x")
-                        elif di == "lat":
-                            ds["lat"] = ds["y"]
-                            if printing:
-                                print("Filled lat with y")
-# I think this is not necessary to warn? Maybe warn about unused values....then I can remove some entries from the dict...for later
-#                     else:
-#                         warnings.warn(
-#                             "[%s]Variable [%s] not found in %s" % (source_id,wrong, list(ds.variables))
-#                         )
-        else:
-            if printing:
-                print("Skipped renaming for [%s]. Name already correct." % di)
+                                print("No variable available for [%s]" % di)
+                            if di == "lon":
+                                ds["lon"] = ds["x"]
+                                if printing:
+                                    print("Filled lon with x")
+                            elif di == "lat":
+                                ds["lat"] = ds["y"]
+                                if printing:
+                                    print("Filled lat with y")
+    # I think this is not necessary to warn? Maybe warn about unused values....then I can remove some entries from the dict...for later
+    #                     else:
+    #                         warnings.warn(
+    #                             "[%s]Variable [%s] not found in %s" % (source_id,wrong, list(ds.variables))
+    #                         )
+            else:
+                if printing:
+                    print("Skipped renaming for [%s]. Name already correct." % di)
     return ds
 
 
@@ -158,6 +186,7 @@ def broadcast_lonlat(ds):
 # preprocess the data (this is manual and annoying. We should have one central `renamer` function)
 def cmip6_renaming_dict():
     dim_name_dict = {
+        "AWI-CM-1-1-MR":{},
         "BCC-CSM2-MR": {
             "x": "lon",
             "y": "lat",
@@ -356,6 +385,18 @@ def cmip6_renaming_dict():
             #         'dzt': 'thkcello',
         },
         "GISS-E2-1-G": {
+            "x": "lon",
+            "y": "lat",
+            "lon": None,
+            "lat": None,
+            "lev": "lev",
+            "lev_bounds": "lev_bnds",
+            "lon_bounds": "lon_bnds",
+            "lat_bounds": "lat_bnds",
+            #         'vertex': None,
+            #         'dzt': 'thkcello',
+        },
+        "GISS-E2-1-H": {
             "x": "lon",
             "y": "lat",
             "lon": None,
