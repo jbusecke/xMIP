@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite errors="0" failures="1" hostname="jupyter-0000-2d0001-2d8571-2d865x" name="pytest" skipped="0" tests="1" time="2.110" timestamp="2019-10-26T04:01:43.012213"><testcase classname="cmip6_preprocessing.tests.test_preprocess" file="cmip6_preprocessing/tests/test_preprocess.py" line="4" name="test_renaming_dict" time="0.002"><failure message="AssertionError: assert {&apos;AWI-CM-1-1-...2-WACCM&apos;, ...} == {&apos;AWI-CM-1-1-...2-WACCM&apos;, ...}
+  Extra items in the right set:
+  &apos;FGOALS-g3&apos;
+  &apos;FIO-ESM-2-0&apos;
+  &apos;MRI-ESM2-0&apos;
+  &apos;HadGEM3-GC31-MM&apos;
+  Full diff:
+  {&apos;AWI-CM-1-1-MR&apos;,
+  &apos;BCC-CSM2-MR&apos;,
+  &apos;BCC-ESM1&apos;,
+  &apos;CAMS-CSM1-0&apos;,
+  &apos;CESM2&apos;,
+  &apos;CESM2-WACCM&apos;,
+  &apos;CNRM-CM6-1&apos;,
+  &apos;CNRM-ESM2-1&apos;,
+  &apos;CanESM5&apos;,
+  &apos;E3SM-1-0&apos;,
+  &apos;EC-Earth3&apos;,
+  &apos;EC-Earth3-LR&apos;,
+  &apos;EC-Earth3-Veg&apos;,
+  &apos;FGOALS-f3-L&apos;,
+  +  &apos;FGOALS-g3&apos;,
+  +  &apos;FIO-ESM-2-0&apos;,
+  &apos;GFDL-CM4&apos;,
+  &apos;GFDL-ESM4&apos;,
+  &apos;GISS-E2-1-G&apos;,
+  &apos;GISS-E2-1-G-CC&apos;,
+  &apos;GISS-E2-1-H&apos;,
+  &apos;HadGEM3-GC31-LL&apos;,
+  +  &apos;HadGEM3-GC31-MM&apos;,
+  &apos;IPSL-CM6A-LR&apos;,
+  &apos;MCM-UA-1-0&apos;,
+  &apos;MIROC-ES2L&apos;,
+  &apos;MIROC6&apos;,
+  +  &apos;MRI-ESM2-0&apos;,
+  &apos;NESM3&apos;,
+  &apos;NorCPM1&apos;,
+  &apos;SAM0-UNICON&apos;,
+  &apos;UKESM1-0-LL&apos;}">Traceback (most recent call last):
+  File &quot;/home/jovyan/cmip6_preprocessing/cmip6_preprocessing/tests/test_preprocess.py&quot;, line 16, in test_renaming_dict
+    assert set(list(cmip6_renaming_dict().keys())) == all_models
+AssertionError: assert {&apos;AWI-CM-1-1-...2-WACCM&apos;, ...} == {&apos;AWI-CM-1-1-...2-WACCM&apos;, ...}
+  Extra items in the right set:
+  &apos;FGOALS-g3&apos;
+  &apos;FIO-ESM-2-0&apos;
+  &apos;MRI-ESM2-0&apos;
+  &apos;HadGEM3-GC31-MM&apos;
+  Full diff:
+  {&apos;AWI-CM-1-1-MR&apos;,
+  &apos;BCC-CSM2-MR&apos;,
+  &apos;BCC-ESM1&apos;,
+  &apos;CAMS-CSM1-0&apos;,
+  &apos;CESM2&apos;,
+  &apos;CESM2-WACCM&apos;,
+  &apos;CNRM-CM6-1&apos;,
+  &apos;CNRM-ESM2-1&apos;,
+  &apos;CanESM5&apos;,
+  &apos;E3SM-1-0&apos;,
+  &apos;EC-Earth3&apos;,
+  &apos;EC-Earth3-LR&apos;,
+  &apos;EC-Earth3-Veg&apos;,
+  &apos;FGOALS-f3-L&apos;,
+  +  &apos;FGOALS-g3&apos;,
+  +  &apos;FIO-ESM-2-0&apos;,
+  &apos;GFDL-CM4&apos;,
+  &apos;GFDL-ESM4&apos;,
+  &apos;GISS-E2-1-G&apos;,
+  &apos;GISS-E2-1-G-CC&apos;,
+  &apos;GISS-E2-1-H&apos;,
+  &apos;HadGEM3-GC31-LL&apos;,
+  +  &apos;HadGEM3-GC31-MM&apos;,
+  &apos;IPSL-CM6A-LR&apos;,
+  &apos;MCM-UA-1-0&apos;,
+  &apos;MIROC-ES2L&apos;,
+  &apos;MIROC6&apos;,
+  +  &apos;MRI-ESM2-0&apos;,
+  &apos;NESM3&apos;,
+  &apos;NorCPM1&apos;,
+  &apos;SAM0-UNICON&apos;,
+  &apos;UKESM1-0-LL&apos;}</failure></testcase></testsuite></testsuites>
