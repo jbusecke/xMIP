@@ -3,12 +3,17 @@ import xarray as xr
 import pandas as pd
 import numpy as np
 import warnings
-from xgcm import Grid
+# from xgcm import Grid
 from .recreate_grids import merge_variables_on_staggered_grid, recreate_metrics
 
 def rename_cmip6(ds, **kwargs):
     modelname = ds.attrs['source_id']
-    return cmip6_homogenization(ds, cmip6_renaming_dict()[modelname], printing=False, **kwargs)
+    rename_dict = cmip6_renaming_dict()
+    if modelname not in rename_dict.keys():
+        warnings.warn('No input dictionary entry for source_id: `%s`. Please add values to https://github.com/jbusecke/cmip6_preprocessing/blob/master/cmip6_preprocessing/preprocessing.py' %ds.attrs['source_id'])
+        return ds
+    else:
+        return cmip6_homogenization(ds, rename_dict[modelname],**kwargs)
 
 def promote_empty_dims(ds):
     ds = ds.copy()
@@ -98,82 +103,95 @@ def import_data(col, preview=False, required_variable_id=True,  to_dataset_kwarg
         data_dict = {k:v for k,v in data_dict.items() if set(required_variable_id).issubset(set(v.keys()))}
     return data_dict
 
-def full_preprocessing(dat_dict, modelname,
-                       tracer_ref="thetao",
-                       u_ref="uo",
-                       v_ref="vo",
-                       plot=True,
-                       verbose=False):
-    """Fully preprocess data for one model ensemble .
-    The input needs to be a dictionary in the form:
-    {'<source_id>':{'<varname_a>':'<uri_a>', '<varname_b>':'<uri_b>', ...}}
-    """
-    renaming_dict = cmip6_renaming_dict()
-    # homogenize the naming
-    dat_dict = {
-        var: cmip6_homogenization(data, renaming_dict[modelname])
-        for var, data in dat_dict.items()
-    }
+# def full_preprocessing(dat_dict, modelname,
+#                        tracer_ref="thetao",
+#                        u_ref="uo",
+#                        v_ref="vo",
+#                        plot=True,
+#                        verbose=False):
+#     """Fully preprocess data for one model ensemble .
+#     The input needs to be a dictionary in the form:
+#     {'<source_id>':{'<varname_a>':'<uri_a>', '<varname_b>':'<uri_b>', ...}}
+#     """
+#     renaming_dict = cmip6_renaming_dict()
+#     # homogenize the naming
+#     dat_dict = {
+#         var: cmip6_homogenization(data, renaming_dict[modelname])
+#         for var, data in dat_dict.items()
+#     }
 
-    # broadcast lon and lat values if they are 1d
-    if renaming_dict[modelname]["lon"] is None:
-        dat_dict = {var: broadcast_lonlat(data) for var, data in dat_dict.items()}
+#     # broadcast lon and lat values if they are 1d
+#     if renaming_dict[modelname]["lon"] is None:
+#         dat_dict = {var: broadcast_lonlat(data) for var, data in dat_dict.items()}
     
-    # merge all variables together on the correct staggered grid
-    ds = merge_variables_on_staggered_grid(
-        dat_dict, modelname, u_ref=u_ref, v_ref=v_ref,plot=plot, verbose=verbose
-    )
-    try:
-        grid_temp = Grid(ds) 
-    except:
-        print(ds)
+#     # merge all variables together on the correct staggered grid
+#     ds = merge_variables_on_staggered_grid(
+#         dat_dict, modelname, u_ref=u_ref, v_ref=v_ref,plot=plot, verbose=verbose
+#     )
+#     try:
+#         grid_temp = Grid(ds) 
+#     except:
+#         print(ds)
 
-    ds = recreate_metrics(ds, grid_temp)
-    return ds
+#     ds = recreate_metrics(ds, grid_temp)
+#     return ds
 
 
 def cmip6_homogenization(ds, dim_name_di, printing=False, debug=False, verbose=False):
     """Homogenizes cmip6 dadtasets to common naming and e.g. vertex order"""
-    if debug:
-        print('Scheisse')
     ds = ds.copy()
     source_id = ds.attrs['source_id']
+    
+    # Check if there is an entry in the dict matching the source id
+    if debug:
+        print(dim_name_di.keys())
     # rename variables
     if len(dim_name_di) == 0:
-        warnings.warn('input dictionary empty for source_id: %s. Please add values to https://github.com/jbusecke/cmip6_preprocessing/blob/master/cmip6_preprocessing/preprocessing.py' %ds.attrs['source_id'])
+        warnings.warn('input dictionary empty for source_id: `%s`. Please add values to https://github.com/jbusecke/cmip6_preprocessing/blob/master/cmip6_preprocessing/preprocessing.py' %ds.attrs['source_id'])
     else:
+        
         for di in dim_name_di.keys():
-            if isinstance(dim_name_di[di], str):
-                dim_name_di[di] = [dim_name_di[di]]
-            if debug:
+            
+            if debug or printing or verbose:
                 print(di)
                 print(dim_name_di[di])
-            for wrong in dim_name_di[di]:
-                if di != wrong and di not in ds.variables:
+            
+            # make sure the input is a list
+            if isinstance(dim_name_di[di], str):
+                dim_name_di[di] = [dim_name_di[di]]
+            
+            
+            if di in ds.variables:
+                # if the desired key is already present do nothing
+                if printing:
+                    print("Skipped renaming for [%s]. Name already correct." % di)
+                
+            else:
+                
+                # Track if the dimension was renamed already...
+                # For some source ids (e.g. CNRM-ESM2-1) the key 'x':['x', 'lon'], leads to problems
+                # because it renames the 2d lon in the gr grid into x. Ill try to fix this, below.
+                # But longterm its probably better to go and put out another rename dict for gn and 
+                # go back to not support lists of dim names. 
+            
+                # For now just stop in the list if the dimension is already there, or one 'hit'
+                # was already encountered.
+                trigger = False
+                for wrong in dim_name_di[di]:
+                    if printing:
+                        print('Processing %s. Trying to replace %s' %(di, wrong))
                     if wrong in ds.variables or wrong in ds.dims:
-                        if debug:
-                            print('Changing %s to %s' %(wrong, di))
-                        ds = ds.rename({wrong: di})
+                        if not trigger:
+                            if debug:
+                                print('Changing %s to %s' %(wrong, di))
+                            ds = ds.rename({wrong: di})
+                            trigger = True
+                            if printing:
+                                print('Renamed.')
                     else:
                         if wrong is None:
                             if printing:
                                 print("No variable available for [%s]" % di)
-                            if di == "lon":
-                                ds["lon"] = ds["x"]
-                                if printing:
-                                    print("Filled lon with x")
-                            elif di == "lat":
-                                ds["lat"] = ds["y"]
-                                if printing:
-                                    print("Filled lat with y")
-    # I think this is not necessary to warn? Maybe warn about unused values....then I can remove some entries from the dict...for later
-    #                     else:
-    #                         warnings.warn(
-    #                             "[%s]Variable [%s] not found in %s" % (source_id,wrong, list(ds.variables))
-    #                         )
-            else:
-                if printing:
-                    print("Skipped renaming for [%s]. Name already correct." % di)
     return ds
 
 
@@ -192,6 +210,10 @@ def broadcast_lonlat(ds, verbose=True):
 
 
 def cmip6_renaming_dict():
+    # I could probably simplify this with a generalized single dict, 
+    # which has every single possible `wrong` name and then for each model
+    # the renaming function just goes through them...
+    
     """central database for """
     dim_name_dict = {
         "AWI-CM-1-1-MR":{},
@@ -220,8 +242,8 @@ def cmip6_renaming_dict():
             "vertex": "vertex",
         },
         "CAMS-CSM1-0": {
-            "x": "i",
-            "y": "j",
+            "x": ["i", 'lon'],
+            "y": ["j", 'lat'],
             "lon": "longitude",
             "lat": "latitude",
             "lev": "lev",
@@ -231,30 +253,32 @@ def cmip6_renaming_dict():
             "vertex": 'vertices',
         },
         "CanESM5": {
-            "x": "i",
-            "y": "j",
+            "x": ["i", 'lon'],
+            "y": ["j", 'lat'],
             "lon": "longitude",
             "lat": "latitude",
             "lev": "lev",
             "lev_bounds": "lev_bnds",
             "lon_bounds": None,
             "lat_bounds": None,
+            "time_bounds": "time_bnds",
             "vertex": "vertices",
         },
         "CNRM-CM6-1": {
-            "x": "x",
-            "y": "y",
+            "x": ["x", 'lon'],
+            "y": ["y", 'lat'],
             "lon": "lon",
             "lat": "lat",
             "lev": "lev",
+            "bnds": "axis_nbounds",
             "lev_bounds": "lev_bounds",
-            "lon_bounds": None,
-            "lat_bounds": None,
-            'vertex': None,
+            "lon_bounds": "bounds_lon",
+            "lat_bounds": "bounds_lat",
+            'vertex': "nvertex",
         },
         "CNRM-ESM2-1": {
-            "x": "x",
-            "y": "y",
+            "x": ["x", "lon"],
+            "y": ["y", "lat"],
             "lon": "lon",
             "lat": "lat",
             "lev": "lev",
@@ -278,8 +302,8 @@ def cmip6_renaming_dict():
             'vertex': None,
         },
         "EC-Earth3-LR": {
-            "x": "i",
-            "y": "j",
+            "x": ["i", 'lon'],
+            "y": ["j", 'lat'],
             "lon": "longitude",
             "lat": "latitude",
             "lev": "lev",
@@ -290,8 +314,8 @@ def cmip6_renaming_dict():
             #         'dzt': 'thkcello',
         },
         "EC-Earth3-Veg": {
-            "x": "i",
-            "y": "j",
+            "x": ["i", 'lon'],
+            "y": ["j", 'lat'],
             "lon": "longitude",
             "lat": "latitude",
             "lev": "lev",
@@ -302,8 +326,8 @@ def cmip6_renaming_dict():
             #         'dzt': 'thkcello',
         },
         "EC-Earth3": {
-            "x": "i",
-            "y": "j",
+            "x": ["i", 'lon'],
+            "y": ["j", 'lat'],
             "lon": "longitude",
             "lat": "latitude",
             "lev": "lev",
@@ -314,8 +338,20 @@ def cmip6_renaming_dict():
             #         'dzt': 'thkcello',
         },
         "FGOALS-f3-L": {
-            "x": "i",
-            "y": "j",
+            "x": ["i", 'lon'],
+            "y": ["j", 'lat'],
+            "lon": "longitude",
+            "lat": "latitude",
+            "lev": "lev",
+            "lev_bounds": "lev_bnds",
+            "lon_bounds": None,
+            "lat_bounds": None,
+            #         'vertex': 'vertices',
+            #         'dzt': 'thkcello',
+        },
+        "FGOALS-g3": {
+            "x": ["i", 'lon'],
+            "y": ["j", 'lat'],
             "lon": "longitude",
             "lat": "latitude",
             "lev": "lev",
@@ -326,8 +362,8 @@ def cmip6_renaming_dict():
             #         'dzt': 'thkcello',
         },
         "MIROC-ES2L": {
-            "x": "x",
-            "y": "y",
+            "x": ["x", 'lon'],
+            "y": ["y", 'lat'],
             "lon": "longitude",
             "lat": "latitude",
             "lev": ["lev", "zlev"],
@@ -338,8 +374,8 @@ def cmip6_renaming_dict():
             'vertex': 'vertices',
         },
         "MIROC6": {
-            "x": "x",
-            "y": "y",
+            "x": ["x", 'lon'],
+            "y": ["y", 'lat'],
             "lon": "longitude",
             "lat": "latitude",
             "lev": "lev",
@@ -348,8 +384,8 @@ def cmip6_renaming_dict():
             "lat_bounds": "y_bnds",
         },
         "HadGEM3-GC31-LL": {
-            "x": "i",
-            "y": "j",
+            "x": ["i", 'lon'],
+            "y": ["j", 'lat'],
             "lon": "longitude",
             "lat": "latitude",
             "lev": "lev",
@@ -358,8 +394,8 @@ def cmip6_renaming_dict():
             "lat_bounds": None,
         },
         "HadGEM3-GC31-MM": {
-            "x": "i",
-            "y": "j",
+            "x": ["i", 'lon'],
+            "y": ["j", 'lat'],
             "lon": "longitude",
             "lat": "latitude",
             "lev": "lev",
@@ -368,8 +404,8 @@ def cmip6_renaming_dict():
             "lat_bounds": None,
         },
         "UKESM1-0-LL": {
-            "x": "i",
-            "y": "j",
+            "x": ["i", 'lon'],
+            "y": ["j", 'lat'],
             "lon": "longitude",
             "lat": "latitude",
             "lev": "lev",
@@ -469,8 +505,8 @@ def cmip6_renaming_dict():
             #         'dzt': 'thkcello',
         },
         "NESM3": {
-            "x": "i",
-            "y": "j",
+            "x": ['i', "lon"],
+            "y": ['j', "lat"],
             "lon": "longitude",
             "lat": "latitude",
             "lev": "lev",
@@ -480,9 +516,22 @@ def cmip6_renaming_dict():
             'vertex': 'vertices',
             #         'dzt': 'thkcello',
         },
+        "MRI-ESM2-0": {
+            "x": ['x', "lon"],
+            "y": ['y', "lat"],
+            "lon": "longitude",
+            "lat": "latitude",
+            "lev": "lev",
+            "bnds":'bnds',
+            "lev_bounds": "lev_bnds",
+            "lon_bounds": ["x_bnds", 'lon_bnds'],
+            "lat_bounds": ["y_bnds", 'lat_bnds'],
+            "time_bounds": "time_bnds",
+            'vertex': 'vertices',
+        },
         "SAM0-UNICON": {
-            "x": "i",
-            "y": "j",
+            "x": ["i", 'lon'],
+            "y": ["j", 'lat'],
             "lon": "longitude",
             "lat": "latitude",
             "lev": "lev",
@@ -505,8 +554,8 @@ def cmip6_renaming_dict():
             #         'dzt': 'thkcello',
          },  
         'IPSL-CM6A-LR': {
-            "x": "x",
-            "y": "y",
+            "x": ['x', "lon"],
+            "y": ['y', "lat"],
             "lon": 'nav_lon',
             "lat": 'nav_lat',
             "lev": ["lev","deptht", "olevel"],
@@ -518,8 +567,8 @@ def cmip6_renaming_dict():
             #         'dzt': 'thkcello',
         },
         'NorCPM1': {
-            "x": "i",
-            "y": "j",
+            "x": ["i", 'lon'],
+            "y": ["j", 'lat'],
             "lon": 'longitude',
             "lat": 'latitude',
             "lev": "lev",
@@ -530,8 +579,8 @@ def cmip6_renaming_dict():
             'time_bounds': "time_bnds",
         },
         'NorESM1-F': {
-            "x": "i",
-            "y": "j",
+            "x": ["i", 'lon'],
+            "y": ["j", 'lat'],
             "lon": 'longitude',
             "lat": 'latitude',
             "lev": "lev",
@@ -542,8 +591,8 @@ def cmip6_renaming_dict():
             'time_bounds': "time_bnds",
         },
         'MPI-ESM1-2-HR': {
-            "x": "i",
-            "y": "j",
+            "x": ["i", 'lon'],
+            "y": ["j", 'lat'],
             "lon": 'longitude',
             "lat": 'latitude',
             "lev": "lev",
@@ -562,7 +611,7 @@ def cmip6_renaming_dict():
     return dim_name_dict
 
 
-def correct_units(ds, stric=False):
+def correct_units(ds, verbose=False, stric=False):
     "Converts coordinates into SI units using `unit_conversion_dict`"
     unit_dict = unit_conversion_dict()
     ds = ds.copy()
@@ -584,7 +633,8 @@ def correct_units(ds, stric=False):
                 print('%s: No units found' %ds.attrs['source_id'])
                       
         else:
-            print('`%s` not found as coordinate' %co)
+            if verbose:
+                print('`%s` not found as coordinate' %co)
     return ds
 
 def unit_conversion_dict():

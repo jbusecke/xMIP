@@ -17,8 +17,8 @@ all_models = set([ 'BCC-CSM2-MR', 'BCC-ESM1', 'CAMS-CSM1-0',
 # omit this one
 #'AWI-CM-1-1-MR',
 
-required_coords = ['x', 'y', 'lon', 'lat', 'lev', "lev_bounds"]
-additonal_coords = ['bnds', "time_bounds", 'vertex', "lat_bounds", "lon_bounds"]
+required_coords = ['x', 'y', 'lon', 'lat', 'lev', "lev_bounds", "time_bounds"]
+additonal_coords = ['bnds', 'vertex', "lat_bounds", "lon_bounds"]
 
 def test_renaming_dict_keys():
     # check that each model has an entry
