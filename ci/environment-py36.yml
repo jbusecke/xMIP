@@ -1,4 +1,6 @@
 name: test_env_cmip6_preprocessing
+channels:
+  - conda-forge
 dependencies:
   - python=3.6
   - xarray
