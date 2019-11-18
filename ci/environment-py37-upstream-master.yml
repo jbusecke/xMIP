@@ -11,3 +11,4 @@ dependencies:
     - git+https://github.com/numpy/numpy.git
     - git+https://github.com/pandas-dev/pandas.git
     - git+https://github.com/NCAR/intake-esm.git
+    - git+https://github.com/xgcm/xgcm.git
