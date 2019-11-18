@@ -25,7 +25,7 @@ before_install:
 
 install:
   - conda env create --file ci/environment-$CONDA_ENV.yml
-  - source activate test_env_xgcm
+  - source activate test_env_cmip6_preprocessing
   - python -c "import cmip6_preprocessing; print(cmip6_preprocessing.__version__)"
   - pip install -e .
 script:
