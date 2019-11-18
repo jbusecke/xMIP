@@ -1,0 +1,9 @@
+name: test_env_cmip6_preprocessing
+dependencies:
+  - python=3.6
+  - xarray
+  - numpy
+  - pandas
+  - intake-esm
+  - pip:
+    - black

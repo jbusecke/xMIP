@@ -1,0 +1,9 @@
+name: test_env_cmip6_preprocessing
+dependencies:
+  - python=3.7
+  - pip:
+    - black
+    - git+https://github.com/pydata/xarray.git
+    - git+https://github.com/numpy/numpy.git
+    - git+https://github.com/pandas-dev/pandas.git
+    - git+https://github.com/NCAR/intake-esm.git

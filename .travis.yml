@@ -1,31 +1,37 @@
 # Config file for automatic testing at travis-ci.org
 
 language: python
-python:
-  - "2.7"
-  - "3.6"
 
-install:
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-      wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
-    else
-      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
-    fi
+matrix:
+  fast_finish: true
+  include:
+  - python: 3.6
+    env: CONDA_ENV=py36
+  - python: 3.7
+    env: CONDA_ENV=py37
+  - python: 3.7
+    env: CONDA_ENV=py37-upstream-master
+
+before_install:
+  - wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
+  - bash miniconda.sh -b -p $HOME/miniconda
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
   - hash -r
   - conda config --set always_yes yes
   - conda update -q conda
-  - conda install conda-build anaconda-client pytest pytest-cov
-  - conda config --set auto_update_conda no
-    # deactivate until I have a proper conda setup
-    #  - conda build conda.recipe --no-test
-    #  - conda install --use-local cmip6_preprocessing
-    #
-  - pip install -e cmip6_preprocessing
-  - conda info -a
+  - conda info -a 
+  - conda list
+
+install:
+  - conda env create --file ci/environment-$CONDA_ENV.yml
+  - source activate test_env_xgcm
+  - python -c "import cmip6_preprocessing; print(cmip6_preprocessing.__version__)"
+  - pip install -e .
 script:
-  - pytest -v --color=yes --cov=cmip6_preprocessing tests
+  - py.test xgcm -v --cov=xgcm --cov-config .coveragerc --cov-report term-missing
+    #- pytest -v --color=yes --cov=cmip6_preprocessing tests
+
 after_success:
   - conda install -c conda-forge codecov
   - codecov
