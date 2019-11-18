@@ -9,6 +9,7 @@ dependencies:
   - intake-esm
   - xgcm
   - pyproj
+  - matplotlib
   - pip:
     - codecov
     - pytest-cov
