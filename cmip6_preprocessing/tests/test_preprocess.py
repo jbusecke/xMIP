@@ -11,8 +11,6 @@ all_models = set([ 'BCC-CSM2-MR', 'BCC-ESM1', 'CAMS-CSM1-0',
        'GISS-E2-1-G-CC', 'GISS-E2-1-G', 'GISS-E2-1-H', 'CESM2-WACCM',
        'CESM2', 'NorCPM1', 'GFDL-CM4', 'GFDL-ESM4', 'NESM3',
        'SAM0-UNICON', 'MCM-UA-1-0', 'MPI-ESM1-2-HR','NorESM1-F','FGOALS-g3','MRI-ESM2-0'])
-# not implemented
-#,'MRI-ESM2-0', 'FIO-ESM-2-0','FGOALS-g3'
 
 # omit this one
 #'AWI-CM-1-1-MR',

@@ -3,218 +3,13 @@ import xarray as xr
 import pandas as pd
 import numpy as np
 import warnings
-# from xgcm import Grid
-from .recreate_grids import merge_variables_on_staggered_grid, recreate_metrics
-
-def rename_cmip6(ds, **kwargs):
-    modelname = ds.attrs['source_id']
-    rename_dict = cmip6_renaming_dict()
-    if modelname not in rename_dict.keys():
-        warnings.warn('No input dictionary entry for source_id: `%s`. Please add values to https://github.com/jbusecke/cmip6_preprocessing/blob/master/cmip6_preprocessing/preprocessing.py' %ds.attrs['source_id'])
-        return ds
-    else:
-        return cmip6_homogenization(ds, rename_dict[modelname],**kwargs)
-
-def promote_empty_dims(ds):
-    ds = ds.copy()
-    for di in ds.dims:
-        if di not in ds.coords:
-            ds.coords[di] = ds[di]
-    return ds
-
-def replace_x_y_nominal_lat_lon(ds):
-    """Approximate the dimensional values of x and y with mean lat and lon at the equator"""
-    ds = ds.copy()
-    if 'x' in ds.dims and 'y' in ds.dims:
-        
-        nominal_y = ds.lat.mean('x')
-        # extract the equatorial lat and take those lon values as nominal lon
-        eq_ind = abs(ds.lat.mean('x')).load().argmin().data
-        nominal_x = ds.lon.isel(y=eq_ind)
-        ds.coords['x'].data = nominal_x.data
-        ds.coords['y'].data = nominal_y.data
-
-        ds = ds.sortby('x')
-        ds = ds.sortby('y')
-    
-    else:
-        warnings.warn('No x and y found in dimensions for source_id:%s. This likely means that you forgot to rename the dataset or this is the German unstructured model' %ds.attrs['source_id'])
-    return ds
-
-
-def read_data(col, preview=False, required_variable_id=True, to_dataset_kwargs={}, **kwargs):
-    """Read data from catalogue with correct reconstruction of staggered grid"""
-    
-    data_dict = import_data(col, preview=preview, required_variable_id=required_variable_id, **kwargs, to_dataset_kwargs=to_dataset_kwargs)
-        
-    data_final = {}
-    for modelname, v_dict in {k:v for k,v in data_dict.items() if k not in ['AWI-CM-1-1-MR']}.items():
-        print(modelname)
-        data_final[modelname] = full_preprocessing(v_dict, modelname, plot=False)
-    return data_final
-    
-
-def import_data(col, preview=False, required_variable_id=True,  to_dataset_kwargs={}, **kwargs):
-    if preview:
-        print(col.search(**kwargs).df)
-    
-    variables = kwargs.pop('variable_id', None)
-    if variables is None:
-        raise ValueError('You need to pass at least one value for `variable_id`')
-    elif isinstance(variables, str):
-        variables = [variables]
-    
-    # read each variables in separate catalogue
-    cat = {}
-    for var in variables:
-        cat[var] = col.search(variable_id=var, **kwargs)
-    
-    # determine unique model names
-    models = pd.concat([k.df for k in cat.values()])['source_id'].unique()
-
-    data_dict = {}
-    for model in models:
-        data_dict[model] = {var:cat[var].df[cat[var].df.source_id == model]['zstore'].values for var in variables}
-    to_dataset_kwargs.setdefault(zarr_kwargs,{'consolidated': True})
-    ds_dict = {var: cat[var].to_dataset_dict(**to_dataset_kwargs) for var in variables}
-
-    
-    data_dict = {}
-    for model in models:
-        data_dict[model] = {
-            var:[ds_dict[var][key] for key in ds_dict[var].keys() if '.'+model+'.' in key] for var in variables
-        }
-        # clean up the entries
-        #erase empty cells
-        data_dict[model] = {k:v for k,v in data_dict[model].items() if len(v) > 0}
-        #Check for double entries
-        for k, v in data_dict[model].items():
-            if len(v) == 1:
-                data_dict[model][k] = v[0]
-            elif len(v) > 1:
-                print(cat[k].df[cat[k].df.source_id == model])
-                print(v)
-                raise ValueError('You loaded two different datasets for model [%s] variable [%s]. Tighten your criteria and loop over them.' %(model,k))
-    
-    # pick models that have all the specified variables           
-    if required_variable_id:
-        if required_variable_id == True:
-            required_variable_id = variables
-        data_dict = {k:v for k,v in data_dict.items() if set(required_variable_id).issubset(set(v.keys()))}
-    return data_dict
-
-# def full_preprocessing(dat_dict, modelname,
-#                        tracer_ref="thetao",
-#                        u_ref="uo",
-#                        v_ref="vo",
-#                        plot=True,
-#                        verbose=False):
-#     """Fully preprocess data for one model ensemble .
-#     The input needs to be a dictionary in the form:
-#     {'<source_id>':{'<varname_a>':'<uri_a>', '<varname_b>':'<uri_b>', ...}}
-#     """
-#     renaming_dict = cmip6_renaming_dict()
-#     # homogenize the naming
-#     dat_dict = {
-#         var: cmip6_homogenization(data, renaming_dict[modelname])
-#         for var, data in dat_dict.items()
-#     }
-
-#     # broadcast lon and lat values if they are 1d
-#     if renaming_dict[modelname]["lon"] is None:
-#         dat_dict = {var: broadcast_lonlat(data) for var, data in dat_dict.items()}
-    
-#     # merge all variables together on the correct staggered grid
-#     ds = merge_variables_on_staggered_grid(
-#         dat_dict, modelname, u_ref=u_ref, v_ref=v_ref,plot=plot, verbose=verbose
-#     )
-#     try:
-#         grid_temp = Grid(ds) 
-#     except:
-#         print(ds)
-
-#     ds = recreate_metrics(ds, grid_temp)
-#     return ds
-
-
-def cmip6_homogenization(ds, dim_name_di, printing=False, debug=False, verbose=False):
-    """Homogenizes cmip6 dadtasets to common naming and e.g. vertex order"""
-    ds = ds.copy()
-    source_id = ds.attrs['source_id']
-    
-    # Check if there is an entry in the dict matching the source id
-    if debug:
-        print(dim_name_di.keys())
-    # rename variables
-    if len(dim_name_di) == 0:
-        warnings.warn('input dictionary empty for source_id: `%s`. Please add values to https://github.com/jbusecke/cmip6_preprocessing/blob/master/cmip6_preprocessing/preprocessing.py' %ds.attrs['source_id'])
-    else:
-        
-        for di in dim_name_di.keys():
-            
-            if debug or printing or verbose:
-                print(di)
-                print(dim_name_di[di])
-            
-            # make sure the input is a list
-            if isinstance(dim_name_di[di], str):
-                dim_name_di[di] = [dim_name_di[di]]
-            
-            
-            if di in ds.variables:
-                # if the desired key is already present do nothing
-                if printing:
-                    print("Skipped renaming for [%s]. Name already correct." % di)
-                
-            else:
-                
-                # Track if the dimension was renamed already...
-                # For some source ids (e.g. CNRM-ESM2-1) the key 'x':['x', 'lon'], leads to problems
-                # because it renames the 2d lon in the gr grid into x. Ill try to fix this, below.
-                # But longterm its probably better to go and put out another rename dict for gn and 
-                # go back to not support lists of dim names. 
-            
-                # For now just stop in the list if the dimension is already there, or one 'hit'
-                # was already encountered.
-                trigger = False
-                for wrong in dim_name_di[di]:
-                    if printing:
-                        print('Processing %s. Trying to replace %s' %(di, wrong))
-                    if wrong in ds.variables or wrong in ds.dims:
-                        if not trigger:
-                            if debug:
-                                print('Changing %s to %s' %(wrong, di))
-                            ds = ds.rename({wrong: di})
-                            trigger = True
-                            if printing:
-                                print('Renamed.')
-                    else:
-                        if wrong is None:
-                            if printing:
-                                print("No variable available for [%s]" % di)
-    return ds
-
-
-# some of the models do not have 2d lon lats, correct that.
-def broadcast_lonlat(ds, verbose=True):
-    if 'lon' not in ds.variables:
-        ds.coords['lon'] = ds['x']
-    if 'lat' not in ds.variables:
-        ds.coords['lat'] = ds['y']
-        
-    if len(ds['lon'].dims) < 2:
-        ds.coords["lon"] = ds["lon"] * xr.ones_like(ds["lat"])
-    if len(ds['lat'].dims) < 2:
-        ds.coords["lat"] = xr.ones_like(ds["lon"]) * ds["lat"]
-    return ds
-
 
 def cmip6_renaming_dict():
     # I could probably simplify this with a generalized single dict, 
     # which has every single possible `wrong` name and then for each model
     # the renaming function just goes through them...
     
-    """central database for """
+    """central database for renaming the dataset."""
     dim_name_dict = {
         "AWI-CM-1-1-MR":{},
         "BCC-CSM2-MR": {
@@ -630,6 +425,122 @@ def cmip6_renaming_dict():
                 dim_name_dict[model][field] = [dim_name_dict[model][field]]
     return dim_name_dict
 
+def rename_cmip6_raw(ds, dim_name_di, printing=False, debug=False, verbose=False):
+    """Homogenizes cmip6 dadtasets to common naming and e.g. vertex order"""
+    ds = ds.copy()
+    source_id = ds.attrs['source_id']
+    
+    # Check if there is an entry in the dict matching the source id
+    if debug:
+        print(dim_name_di.keys())
+    # rename variables
+    if len(dim_name_di) == 0:
+        warnings.warn('input dictionary empty for source_id: `%s`. Please add values to https://github.com/jbusecke/cmip6_preprocessing/blob/master/cmip6_preprocessing/preprocessing.py' %ds.attrs['source_id'])
+    else:
+        
+        for di in dim_name_di.keys():
+            
+            if debug or printing or verbose:
+                print(di)
+                print(dim_name_di[di])
+            
+            # make sure the input is a list
+            if isinstance(dim_name_di[di], str):
+                dim_name_di[di] = [dim_name_di[di]]
+            
+            
+            if di in ds.variables:
+                # if the desired key is already present do nothing
+                if printing:
+                    print("Skipped renaming for [%s]. Name already correct." % di)
+                
+            else:
+                
+                # Track if the dimension was renamed already...
+                # For some source ids (e.g. CNRM-ESM2-1) the key 'x':['x', 'lon'], leads to problems
+                # because it renames the 2d lon in the gr grid into x. Ill try to fix this, below.
+                # But longterm its probably better to go and put out another rename dict for gn and 
+                # go back to not support lists of dim names. 
+            
+                # For now just stop in the list if the dimension is already there, or one 'hit'
+                # was already encountered.
+                trigger = False
+                for wrong in dim_name_di[di]:
+                    if printing:
+                        print('Processing %s. Trying to replace %s' %(di, wrong))
+                    if wrong in ds.variables or wrong in ds.dims:
+                        if not trigger:
+                            if debug:
+                                print('Changing %s to %s' %(wrong, di))
+                            ds = ds.rename({wrong: di})
+                            trigger = True
+                            if printing:
+                                print('Renamed.')
+                    else:
+                        if wrong is None:
+                            if printing:
+                                print("No variable available for [%s]" % di)
+    return ds
+
+def rename_cmip6(ds, **kwargs):
+    """rename dataset to a uniform dim/coords naming structure"""
+    modelname = ds.attrs['source_id']
+    rename_dict = cmip6_renaming_dict()
+    if modelname not in rename_dict.keys():
+        warnings.warn('No input dictionary entry for source_id: `%s`. Please add values to https://github.com/jbusecke/cmip6_preprocessing/blob/master/cmip6_preprocessing/preprocessing.py' %ds.attrs['source_id'])
+        return ds
+    else:
+        return rename_cmip6_raw(ds, rename_dict[modelname],**kwargs)
+
+def promote_empty_dims(ds):
+    """Convert empty dimensions to actual coordinates"""
+    ds = ds.copy()
+    for di in ds.dims:
+        if di not in ds.coords:
+            ds.coords[di] = ds[di]
+    return ds
+
+def replace_x_y_nominal_lat_lon(ds):
+    """Approximate the dimensional values of x and y with mean lat and lon at the equator"""
+    ds = ds.copy()
+    if 'x' in ds.dims and 'y' in ds.dims:
+        
+        nominal_y = ds.lat.mean('x')
+        # extract the equatorial lat and take those lon values as nominal lon
+        eq_ind = abs(ds.lat.mean('x')).load().argmin().data
+        nominal_x = ds.lon.isel(y=eq_ind)
+        ds.coords['x'].data = nominal_x.data
+        ds.coords['y'].data = nominal_y.data
+
+        ds = ds.sortby('x')
+        ds = ds.sortby('y')
+    
+    else:
+        warnings.warn('No x and y found in dimensions for source_id:%s. This likely means that you forgot to rename the dataset or this is the German unstructured model' %ds.attrs['source_id'])
+    return ds
+
+
+# some of the models do not have 2d lon lats, correct that.
+def broadcast_lonlat(ds, verbose=True):
+    """Some models (all `gr` grid_labels) have 1D lon lat arrays
+    This functions broadcasts those so lon/lat are always 2d arrays."""
+    if 'lon' not in ds.variables:
+        ds.coords['lon'] = ds['x']
+    if 'lat' not in ds.variables:
+        ds.coords['lat'] = ds['y']
+        
+    if len(ds['lon'].dims) < 2:
+        ds.coords["lon"] = ds["lon"] * xr.ones_like(ds["lat"])
+    if len(ds['lat'].dims) < 2:
+        ds.coords["lat"] = xr.ones_like(ds["lon"]) * ds["lat"]
+    return ds
+
+def unit_conversion_dict():
+    """Units conversion database"""
+    unit_dict = {
+        'm':{'centimeters':1/100}
+    }
+    return unit_dict
 
 def correct_units(ds, verbose=False, stric=False):
     "Converts coordinates into SI units using `unit_conversion_dict`"
@@ -657,19 +568,12 @@ def correct_units(ds, verbose=False, stric=False):
                 print('`%s` not found as coordinate' %co)
     return ds
 
-def unit_conversion_dict():
-    """Units conversion database"""
-    unit_dict = {
-        'm':{'centimeters':1/100}
-    }
-    return unit_dict
-
 def correct_coordinates(ds, verbose=False):
     """converts wrongly assigned data_vars to coordinates"""
     ds = ds.copy()
     for co in ['x', 'y', 'lon', 'lat', 'lev',
                "bnds", "lev_bounds", "lon_bounds", "lat_bounds", "time_bounds",
-               'vertices_latitude', 'vertices_longitude', # these should be renamed too
+               'vertices_latitude', 'vertices_longitude',
               ]:
         if co in ds.variables:
             if verbose:
@@ -708,3 +612,100 @@ def combined_preprocessing(ds):
         # fix the units
         ds = correct_units(ds)
     return ds
+
+
+# These are all the old high level ones... they should be deprecated
+
+# def read_data(col, preview=False, required_variable_id=True, to_dataset_kwargs={}, **kwargs):
+#     """Read data from catalogue with correct reconstruction of staggered grid"""
+    
+#     data_dict = import_data(col, preview=preview, required_variable_id=required_variable_id, **kwargs, to_dataset_kwargs=to_dataset_kwargs)
+        
+#     data_final = {}
+#     for modelname, v_dict in {k:v for k,v in data_dict.items() if k not in ['AWI-CM-1-1-MR']}.items():
+#         print(modelname)
+#         data_final[modelname] = full_preprocessing(v_dict, modelname, plot=False)
+#     return data_final
+    
+
+# def import_data(col, preview=False, required_variable_id=True,  to_dataset_kwargs={}, **kwargs):
+#     if preview:
+#         print(col.search(**kwargs).df)
+    
+#     variables = kwargs.pop('variable_id', None)
+#     if variables is None:
+#         raise ValueError('You need to pass at least one value for `variable_id`')
+#     elif isinstance(variables, str):
+#         variables = [variables]
+    
+#     # read each variables in separate catalogue
+#     cat = {}
+#     for var in variables:
+#         cat[var] = col.search(variable_id=var, **kwargs)
+    
+#     # determine unique model names
+#     models = pd.concat([k.df for k in cat.values()])['source_id'].unique()
+
+#     data_dict = {}
+#     for model in models:
+#         data_dict[model] = {var:cat[var].df[cat[var].df.source_id == model]['zstore'].values for var in variables}
+#     to_dataset_kwargs.setdefault(zarr_kwargs,{'consolidated': True})
+#     ds_dict = {var: cat[var].to_dataset_dict(**to_dataset_kwargs) for var in variables}
+
+    
+#     data_dict = {}
+#     for model in models:
+#         data_dict[model] = {
+#             var:[ds_dict[var][key] for key in ds_dict[var].keys() if '.'+model+'.' in key] for var in variables
+#         }
+#         # clean up the entries
+#         #erase empty cells
+#         data_dict[model] = {k:v for k,v in data_dict[model].items() if len(v) > 0}
+#         #Check for double entries
+#         for k, v in data_dict[model].items():
+#             if len(v) == 1:
+#                 data_dict[model][k] = v[0]
+#             elif len(v) > 1:
+#                 print(cat[k].df[cat[k].df.source_id == model])
+#                 print(v)
+#                 raise ValueError('You loaded two different datasets for model [%s] variable [%s]. Tighten your criteria and loop over them.' %(model,k))
+    
+#     # pick models that have all the specified variables           
+#     if required_variable_id:
+#         if required_variable_id == True:
+#             required_variable_id = variables
+#         data_dict = {k:v for k,v in data_dict.items() if set(required_variable_id).issubset(set(v.keys()))}
+#     return data_dict
+
+# def full_preprocessing(dat_dict, modelname,
+#                        tracer_ref="thetao",
+#                        u_ref="uo",
+#                        v_ref="vo",
+#                        plot=True,
+#                        verbose=False):
+#     """Fully preprocess data for one model ensemble .
+#     The input needs to be a dictionary in the form:
+#     {'<source_id>':{'<varname_a>':'<uri_a>', '<varname_b>':'<uri_b>', ...}}
+#     """
+#     renaming_dict = cmip6_renaming_dict()
+#     # homogenize the naming
+#     dat_dict = {
+#         var: rename_cmip6_raw(data, renaming_dict[modelname])
+#         for var, data in dat_dict.items()
+#     }
+
+#     # broadcast lon and lat values if they are 1d
+#     if renaming_dict[modelname]["lon"] is None:
+#         dat_dict = {var: broadcast_lonlat(data) for var, data in dat_dict.items()}
+    
+#     # merge all variables together on the correct staggered grid
+#     ds = merge_variables_on_staggered_grid(
+#         dat_dict, modelname, u_ref=u_ref, v_ref=v_ref,plot=plot, verbose=verbose
+#     )
+#     try:
+#         grid_temp = Grid(ds) 
+#     except:
+#         print(ds)
+
+#     ds = recreate_metrics(ds, grid_temp)
+#     return ds

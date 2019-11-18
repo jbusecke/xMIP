@@ -1,15 +1,8 @@
-===============================
-cmip6_preprocessing
-===============================
+[![Build Status](https://travis-ci.org/jbusecke/cmip6_preprocessing.svg?branch=master)](https://travis-ci.org/jbusecke/cmip6_preprocessing)
+[![codecov](https://codecov.io/gh/jbusecke/cmip6_preprocessing/branch/master/graph/badge.svg)](https://codecov.io/gh/jbusecke/cmip6_preprocessing)
+[![License:MIT](https://img.shields.io/badge/License-MIT-lightgray.svg?style=flt-square)](https://opensource.org/licenses/MIT)
 
-
-.. image:: https://img.shields.io/travis/jbusecke/cmip6_preprocessing.svg
-        :target: https://travis-ci.org/jbusecke/cmip6_preprocessing
-.. image:: https://circleci.com/gh/jbusecke/cmip6_preprocessing.svg?style=svg
-    :target: https://circleci.com/gh/jbusecke/cmip6_preprocessing
-.. image:: https://codecov.io/gh/jbusecke/cmip6_preprocessing/branch/master/graph/badge.svg
-   :target: https://codecov.io/gh/jbusecke/cmip6_preprocessing
-
+# cmip6_preprocessing
 
 Frustrated with how 'dirty' CMIP6 data still is? Do you just want to run a simple (or complicated) analysis on various models and end up having to write logic for each seperate case? Then this package is for you.
 
