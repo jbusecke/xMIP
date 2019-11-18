@@ -1,6 +1,7 @@
 # Config file for automatic testing at travis-ci.org
 
 language: python
+sudo: false # use container based build
 
 matrix:
   fast_finish: true
