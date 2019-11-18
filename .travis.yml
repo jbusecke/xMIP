@@ -1,0 +1,37 @@
+# Config file for automatic testing at travis-ci.org
+
+language: python
+sudo: false # use container based build
+
+matrix:
+  fast_finish: true
+  include:
+  - python: 3.6
+    env: CONDA_ENV=py36
+  - python: 3.7
+    env: CONDA_ENV=py37
+  - python: 3.7
+    env: CONDA_ENV=py37-upstream-master
+
+before_install:
+  - wget https://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh -O miniconda.sh;
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  - conda info -a 
+  - conda list
+
+install:
+  - conda env create --file ci/environment-$CONDA_ENV.yml
+  - source activate test_env_cmip6_preprocessing
+  - python -c "import cmip6_preprocessing; print(cmip6_preprocessing.__version__)"
+  - pip install -e .
+script:
+  - py.test cmip6_preprocessing -v --cov=cmip6_preprocessing --cov-config .coveragerc --cov-report term-missing
+    #- pytest -v --color=yes --cov=cmip6_preprocessing tests
+
+after_success:
+  - conda install -c conda-forge codecov
+  - codecov

@@ -1,0 +1,2 @@
+cmip6_preprocessing/_version.py export-subst
+* text=auto eol=lf

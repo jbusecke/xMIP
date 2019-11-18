@@ -1,11 +1,22 @@
-# Pangeo cloud demo - Princeton Geoclim Group
+[![Build Status](https://travis-ci.org/jbusecke/cmip6_preprocessing.svg?branch=master)](https://travis-ci.org/jbusecke/cmip6_preprocessing)
+[![codecov](https://codecov.io/gh/jbusecke/cmip6_preprocessing/branch/master/graph/badge.svg)](https://codecov.io/gh/jbusecke/cmip6_preprocessing)
+[![License:MIT](https://img.shields.io/badge/License-MIT-lightgray.svg?style=flt-square)](https://opensource.org/licenses/MIT)
 
-To explore the data available in the cloud check out the full [catalogue](https://pangeo-data.github.io/pangeo-datastore/cmip6_pangeo.html).
+# cmip6_preprocessing
 
-Then head to [pangeo.ocean.io](https://ocean.pangeo.io/) and spawn a jupyterlab notebook
+Frustrated with how 'dirty' CMIP6 data still is? Do you just want to run a simple (or complicated) analysis on various models and end up having to write logic for each seperate case? Then this package is for you.
 
-![login](pics/login.png)
+Developed during the [cmip6-hackathon](https://cmip6hack.github.io/#/) this package provides utility functions that play nicely with [intake-esm](https://github.com/NCAR/intake-esm).
 
-> In order to use [cmip6_preprocessing](https://github.com/jbusecke/cmip6_preprocessing), you need to install it manually whenever you start a new session (it is wiped when you close the session). You can achieve this by either opening a new terminal (+ in the upper left corner) and executing the setup script with `./setup_script`. Or open a notebook and execute `!pip install git+https://github.com/jbusecke/cmip6_preprocessing.git` (You can execute shell commands in notebooks by appending `!`). **In the later case you have to restart the notebook once**.
+We currently support the following functions
 
-Have fun exploring the cloud.
+1. Fix inconsistent naming of dimensions and coordinates
+2. Fix inconsistent values,shape and dataset location of coordinates
+3. Homogenize longitude conventions
+4. Fix inconsistent units
+
+The following issues are under development:
+1. Reconstruct/find grid metrics
+2. Arrange different variables on their respective staggered grid, so they can work seamlessly with [xgcm](https://xgcm.readthedocs.io/en/latest/)
+
+Please check out the [tutorial](notebooks/tutorial.ipynb) for some examples using the [pangeo cloud](ocean.pangeo.io).

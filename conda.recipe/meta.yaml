@@ -1,0 +1,51 @@
+
+{% set data = load_setup_py_data() %}
+
+package:
+  name: cmip6_preprocessing
+  
+  version: {{ data['version'] }}
+
+source:
+  path: ..
+
+build:
+  # If the installation is complex, or different between Unix and Windows, use
+  # separate bld.bat and build.sh files instead of this key.  Add the line
+  # "skip: True  # [py<35]" (for example) to limit to Python 3.5 and newer, or
+  # "skip: True  # [not win]" to limit to Windows.
+  script: {{ PYTHON }} -m pip install --no-deps --ignore-installed -vv .
+  noarch: python
+  
+  
+
+requirements:
+  # if you need compilers, uncomment these
+  #    read more at https://docs.conda.io/projects/conda-build/en/latest/resources/compiler-tools.html
+  # build:
+  #   - {{ compilers('c') }}
+  host:
+    - python
+    - pip
+  run:
+    - python
+    # dependencies are defined in setup.py
+    {% for dep in data['install_requires'] %}
+    - {{ dep.lower() }}
+    {% endfor %}
+    {# raw is for ignoring templating with cookiecutter, leaving it for use with conda-build #}
+
+test:
+  source_files:
+    - tests
+  requires:
+    - pytest
+    - pytest-cov
+  commands:
+    - pytest tests
+
+about:
+  home: https://github.com/jbusecke/cmip6_preprocessing
+  summary: Some useful functions to make analysis across cmip6 modesl easier
+  license: {{ setup_py.get('license') }}
+  license_file: LICENSE
