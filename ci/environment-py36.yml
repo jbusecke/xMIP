@@ -8,6 +8,7 @@ dependencies:
   - pandas
   - intake-esm
   - xgcm
+  - pyproj
   - pip:
     - codecov
     - pytest-cov
