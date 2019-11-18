@@ -228,6 +228,7 @@ def cmip6_renaming_dict():
             "lon_bounds": "lon_bnds",
             "lat_bounds": "lat_bnds",
             "vertex": None,
+            'time_bounds': "time_bnds",
         },
         "BCC-ESM1": {
             "x": "lon",
@@ -240,6 +241,7 @@ def cmip6_renaming_dict():
             "lon_bounds": "lon_bnds",
             "lat_bounds": "lat_bnds",
             "vertex": "vertex",
+            'time_bounds': "time_bnds",
         },
         "CAMS-CSM1-0": {
             "x": ["i", 'lon'],
@@ -251,6 +253,7 @@ def cmip6_renaming_dict():
             "lon_bounds": None,
             "lat_bounds": None,
             "vertex": 'vertices',
+            'time_bounds': "time_bnds",
         },
         "CanESM5": {
             "x": ["i", 'lon'],
@@ -275,6 +278,7 @@ def cmip6_renaming_dict():
             "lon_bounds": "bounds_lon",
             "lat_bounds": "bounds_lat",
             'vertex': "nvertex",
+            'time_bounds': "time_bnds",
         },
         "CNRM-ESM2-1": {
             "x": ["x", "lon"],
@@ -287,6 +291,7 @@ def cmip6_renaming_dict():
             "lat_bounds": "bounds_lat",
             "bnds":"axis_nbounds",
             'vertex': None,
+            'time_bounds': "time_bnds",
         },
         "E3SM-1-0": {
             "x": "lon",
@@ -310,6 +315,7 @@ def cmip6_renaming_dict():
             "lev_bounds": "lev_bnds",
             "lon_bounds": None,
             "lat_bounds": None,
+            'time_bounds': "time_bnds",
             #         'vertex': 'vertices',
             #         'dzt': 'thkcello',
         },
@@ -323,6 +329,7 @@ def cmip6_renaming_dict():
             "lon_bounds": None,
             "lat_bounds": None,
             'vertex': 'vertices',
+            'time_bounds': "time_bnds",
             #         'dzt': 'thkcello',
         },
         "EC-Earth3": {
@@ -334,6 +341,7 @@ def cmip6_renaming_dict():
             "lev_bounds": "lev_bnds",
             "lon_bounds": None,
             "lat_bounds": None,
+            'time_bounds': "time_bnds",
             #         'vertex': 'vertices',
             #         'dzt': 'thkcello',
         },
@@ -346,6 +354,7 @@ def cmip6_renaming_dict():
             "lev_bounds": "lev_bnds",
             "lon_bounds": None,
             "lat_bounds": None,
+            'time_bounds': "time_bnds",
             #         'vertex': 'vertices',
             #         'dzt': 'thkcello',
         },
@@ -358,6 +367,7 @@ def cmip6_renaming_dict():
             "lev_bounds": "lev_bnds",
             "lon_bounds": None,
             "lat_bounds": None,
+            'time_bounds': "time_bnds",
             #         'vertex': 'vertices',
             #         'dzt': 'thkcello',
         },
@@ -382,6 +392,7 @@ def cmip6_renaming_dict():
             "lev_bounds": "lev_bnds",
             "lon_bounds": "x_bnds",
             "lat_bounds": "y_bnds",
+            'time_bounds': "time_bnds",
         },
         "HadGEM3-GC31-LL": {
             "x": ["i", 'lon'],
@@ -392,6 +403,7 @@ def cmip6_renaming_dict():
             "lev_bounds": "lev_bounds",
             "lon_bounds": None,
             "lat_bounds": None,
+            'time_bounds': "time_bnds",
         },
         "HadGEM3-GC31-MM": {
             "x": ["i", 'lon'],
@@ -402,6 +414,7 @@ def cmip6_renaming_dict():
             "lev_bounds": "lev_bounds",
             "lon_bounds": None,
             "lat_bounds": None,
+            'time_bounds': "time_bnds",
         },
         "UKESM1-0-LL": {
             "x": ["i", 'lon'],
@@ -425,6 +438,7 @@ def cmip6_renaming_dict():
             "lev_bounds": "lev_bnds",
             "lon_bounds": "lon_bnds",
             "lat_bounds": "lat_bnds",
+            'time_bounds': "time_bnds",
             #         'vertex': None,
             #         'dzt': 'thkcello',
         },
@@ -437,6 +451,7 @@ def cmip6_renaming_dict():
             "lev_bounds": "lev_bnds",
             "lon_bounds": "lon_bnds",
             "lat_bounds": "lat_bnds",
+            'time_bounds': "time_bnds",
             #         'vertex': None,
             #         'dzt': 'thkcello',
         },
@@ -449,6 +464,7 @@ def cmip6_renaming_dict():
             "lev_bounds": "lev_bnds",
             "lon_bounds": "lon_bnds",
             "lat_bounds": "lat_bnds",
+            'time_bounds': "time_bnds",
             #         'vertex': None,
             #         'dzt': 'thkcello',
         },
@@ -514,6 +530,7 @@ def cmip6_renaming_dict():
             "lon_bounds": None,
             "lat_bounds": None,
             'vertex': 'vertices',
+            'time_bounds': "time_bnds",
             #         'dzt': 'thkcello',
         },
         "MRI-ESM2-0": {
@@ -539,6 +556,7 @@ def cmip6_renaming_dict():
             "lon_bounds": None,
             "lat_bounds": None,
             'vertex': 'vertices',
+            'time_bounds': "time_bnds",
             #         'dzt': 'thkcello',
         },
         "MCM-UA-1-0": {
@@ -550,6 +568,7 @@ def cmip6_renaming_dict():
             "lev_bounds": "lev_bnds",
             "lon_bounds": "lon_bnds",
             "lat_bounds": "lat_bnds",
+            'time_bounds': "time_bnds",
             #         'vertex': 'vertices',
             #         'dzt': 'thkcello',
          },  
@@ -564,6 +583,7 @@ def cmip6_renaming_dict():
             "lat_bounds": "bounds_nav_lat",
             'vertex': 'nvertex',
             "bnds":"axis_nbounds",
+            'time_bounds': "time_bnds",
             #         'dzt': 'thkcello',
         },
         'NorCPM1': {

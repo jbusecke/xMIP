@@ -20,7 +20,9 @@ install:
   - conda config --set auto_update_conda no
     # deactivate until I have a proper conda setup
     #  - conda build conda.recipe --no-test
-  - conda install --use-local cmip6_preprocessing
+    #  - conda install --use-local cmip6_preprocessing
+    #
+  - pip install -e cmip6_preprocessing
   - conda info -a
 script:
   - pytest -v --color=yes --cov=cmip6_preprocessing tests

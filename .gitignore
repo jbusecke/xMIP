@@ -61,4 +61,4 @@ target/
 # pyenv python configuration file
 .python-version
 
-*checkpoint.ipynb
+*.ipynb_checkpoints
