@@ -8,4 +8,6 @@ dependencies:
   - pandas
   - intake-esm
   - pip:
+    - codecov
+    - pytest-cov
     - black
