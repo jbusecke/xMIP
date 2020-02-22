@@ -2,6 +2,7 @@
 [![Build Status](https://travis-ci.com/jbusecke/cmip6_preprocessing.svg?branch=master)](https://travis-ci.com/jbusecke/cmip6_preprocessing)
 [![codecov](https://codecov.io/gh/jbusecke/cmip6_preprocessing/branch/master/graph/badge.svg)](https://codecov.io/gh/jbusecke/cmip6_preprocessing)
 [![License:MIT](https://img.shields.io/badge/License-MIT-lightgray.svg?style=flt-square)](https://opensource.org/licenses/MIT)
+[![DOI](https://zenodo.org/badge/215606850.svg)](https://zenodo.org/badge/latestdoi/215606850)
 
 # cmip6_preprocessing
 
