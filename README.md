@@ -23,3 +23,14 @@ The following issues are under development:
 2. Arrange different variables on their respective staggered grid, so they can work seamlessly with [xgcm](https://xgcm.readthedocs.io/en/latest/)
 
 Please check out the [tutorial](notebooks/tutorial.ipynb) for some examples using the [pangeo cloud](ocean.pangeo.io).
+
+## Installation
+
+Install `cmip6_preprocessing` via pip:
+
+`pip install cmip6_preprocessing`
+
+or conda:
+
+`conda install -c conda-forge cmip6_preprocessing`
+
