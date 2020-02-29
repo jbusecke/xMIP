@@ -14,7 +14,6 @@ all_models = ocean_models
 
 required_coords = ['x', 'y', 'lon', 'lat']
 additonal_coords = ['lev', "lev_bounds",'bnds', "time_bounds", 'vertex', "lat_bounds", "lon_bounds"]
->>>>>>> added more model to renaming, maintenance notebook, modified tests
 
 def test_renaming_dict_keys():
     # check that each model has an entry
