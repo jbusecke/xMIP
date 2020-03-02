@@ -26,6 +26,11 @@ def test_renaming_dict_entry_keys(model):
         # check that all required coords are there
         for co in  required_coords:
             assert co in cmip6_renaming_dict()[model].keys()
+        # check that (if present) x and y contain lon and lat entries
+        if 'x' in cmip6_renaming_dict()[model].keys():
+            assert 'lon' in cmip6_renaming_dict()[model]['x']
+        if 'y' in cmip6_renaming_dict()[model].keys():
+            assert 'lat' in cmip6_renaming_dict()[model]['y']
 
         # check that there are no extra entries
         assert len(set(cmip6_renaming_dict()[model].keys()) - set(required_coords + additonal_coords)) == 0

@@ -678,6 +678,14 @@ def cmip6_renaming_dict():
         for field in dim_name_dict[model].keys():
             if isinstance(dim_name_dict[model][field], str) or dim_name_dict[model][field] is None :
                 dim_name_dict[model][field] = [dim_name_dict[model][field]]
+#     add 'lon' and 'lat' as possible logical indicies for all models. This should take care of all regridded ocean output and all atmosphere models.
+        if 'x' in dim_name_dict[model].keys():
+            if not 'lon' in dim_name_dict[model]['x']:
+                dim_name_dict[model]['x'].append('lon')
+                
+        if 'y' in dim_name_dict[model].keys():
+            if not 'lat' in dim_name_dict[model]['y']:
+                dim_name_dict[model]['y'].append('lat') 
     return dim_name_dict
 
 def rename_cmip6_raw(ds, dim_name_di, printing=False, debug=False, verbose=False):
