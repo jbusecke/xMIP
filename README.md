@@ -17,12 +17,16 @@ We currently support the following functions
 2. Fix inconsistent values,shape and dataset location of coordinates
 3. Homogenize longitude conventions
 4. Fix inconsistent units
+5. Unify 
 
 The following issues are under development:
 1. Reconstruct/find grid metrics
 2. Arrange different variables on their respective staggered grid, so they can work seamlessly with [xgcm](https://xgcm.readthedocs.io/en/latest/)
 
-Please check out the [tutorial](notebooks/tutorial.ipynb) for some examples using the [pangeo cloud](ocean.pangeo.io).
+## Examples
+Please check out the [tutorial](doc/tutorial.ipynb) for some examples using the [pangeo cloud](ocean.pangeo.io).
+
+For a demo of tools to unify various time conventions for e.g. control runs, see [time processing](docs/time_utils.ipynb).
 
 ## Installation
 
