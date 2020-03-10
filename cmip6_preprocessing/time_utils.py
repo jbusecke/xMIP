@@ -5,7 +5,7 @@ import numpy as np
 def _decode_wrapper(da):
     return xr.decode_cf(da.to_dataset(name='time'), use_cftime=True).time
 
-def branched_time_adjust(source, target, force=False, verbose=False):
+def branched_time_adjust(source, target, force=False):
     """Adjusts the source time convention to match the target using the meta data of target.
     This is helpful to align e.g. piControl runs with historic or scenario timelines. 
     
@@ -20,9 +20,7 @@ def branched_time_adjust(source, target, force=False, verbose=False):
         The target dataset.
     force : bool, optional
         If enabled (True) the data is not checked for parent chile consistency (default: False)
-    verbose : bool, optional
-        If enabled (True) then more output is generated (default: False)
-
+        
     Returns
     -------
     source_corrected : xr.Dataset
@@ -32,51 +30,49 @@ def branched_time_adjust(source, target, force=False, verbose=False):
     source = source.copy()
     target = target.copy()
     
-    # make sure the source and target are compatible
-    source_id = source.attrs['experiment_id'].replace(' ', '')
-    target_parent_id = target.attrs['parent_experiment_id'].replace(' ', '')
-    # this is necessary because the `CNRM-CM6-1-HR` model has values like this: `p i C o n t r o l`
-    if not source_id == target_parent_id:
-        raise ValueError(f"Source({source.attrs['source_id']}) not consistent with Target({target.attrs['source_id']}) [source experiment_id: {source_id} | target parent_experiment_id: {target_parent_id}]. ")
-        
+    # retrieve calendars
+    source_calendar = source.time.data[0].calendar
+    target_calendar = target.time.data[0].calendar
     
-    # put in an error for the case when branch time is not in attrs...this seems to be the case for some yearly data
-    
-    
-    branch_time_source = xr.DataArray(target.attrs['branch_time_in_parent'])
-    branch_time_source.attrs = target.time.attrs
-    
-    calendar_type = None # if not changed this will default to gregorian
-    if 'calendar_type' in branch_time_source.attrs.keys():
-        calendar_type = source.time.attrs['calendar_type']
-    
-    if calendar_type:
-        branch_time_source.attrs['calendar'] = calendar_type
+    if source_calendar != target_calendar:
+        warnings.warn(f"Source and Target did not have the same calendar ({source_calendar},{target_calendar}) [{source.attrs['source_id']}]. Returning unmodified datasets")
+        return source
     else:
-        if verbose:
-            warnings.warn(f"No calendar type found in source[{source.attrs['source_id']}]. Applying default.")
-    
-    # this gives relative time?
-    branch_time_source.attrs['units'] = target.attrs['parent_time_units']
-    branch_time_source = _decode_wrapper(branch_time_source)
-
-    new_attrs = {'units':target.attrs['parent_time_units']}
-    if calendar_type:
-        new_attrs['calendar'] = calendar_type
+        calendar = source_calendar
+        # make sure the source and target are compatible
+        source_id = source.attrs['experiment_id'].replace(' ', '')
+        target_parent_id = target.attrs['parent_experiment_id'].replace(' ', '')
+        # this is necessary because the `CNRM-CM6-1-HR` model has values like this: `p i C o n t r o l`
         
-    null_time = xr.DataArray(0, attrs=new_attrs)
-    null_time = _decode_wrapper(null_time)
-    delta_branch_time_source = branch_time_source.data - null_time.data
-    
-    # This gives the time in absolute units of the source run.
-    branch_time_adjusted = source.time[0].data+delta_branch_time_source
-    
-    #Now adjust the source array, so that the branch time corresponds to the first time step of the target
-    source.coords['time'].data = source.time.data - branch_time_adjusted + target.time[0].data
-    #  This is somehow required to get correct dates
-    source = xr.decode_cf(source)
+        if not source_id == target_parent_id:
+            raise ValueError(f"Source({source.attrs['source_id']}) not consistent with Target({target.attrs['source_id']}) [source experiment_id: {source_id} | target parent_experiment_id: {target_parent_id}]. ")
 
-    return source
+        # this is the timestamp of the branch in the conventions of source
+        branch_time_source = xr.DataArray(target.attrs['branch_time_in_parent'])
+#         branch_time_source.attrs = target.time.attrs
+        branch_time_source.attrs['calendar'] = calendar
+        branch_time_source.attrs['units'] = target.attrs['parent_time_units']
+        branch_time_source = _decode_wrapper(branch_time_source)
+        
+        # now we assume that the historical run is present right from the branching point. E.g. time[0] is the branching point
+        branch_time_target = target.time[0]
+        
+        # # now remove the time since year 0 to the branch point from the source time (setting branch date to year 0)
+        delta_time = branch_time_target.data - branch_time_source.data
+        source.coords['time'].data = source.time.data + delta_time
+        source = xr.decode_cf(source)
+        return source
+        
+#         # now remove the time since year 0 to the branch point from the source time (setting branch date to year 0)
+        
+#         null_time = _decode_wrapper(xr.DataArray(0, attrs={'units':target.attrs['parent_time_units'], 'calendar':calendar}))
+#         delta_time_origin = branch_time_source.data - null_time.data
+        
+        
+#         # Finally add the branch time of the target and set as new time
+#         source.coords['time'].data = source.time.data - (source.time[0].data + delta_time_origin) + branch_time_target.data
+#         source = xr.decode_cf(source)
+#         return source
 
 # build dependency graph for branched runs (do this later, at the moment I do have all experiments)
 # TODO: add
@@ -101,6 +97,7 @@ def unify_branched_time(in_dict, experiment_id_order, verbose=False):
         Dictionary of xarray.Datasets with adjusted time conventions.
 
     """
+    out_dict = {}
     source_ids = np.unique([ds.attrs['source_id'] for ds in in_dict.values()])
     for source_id in source_ids:
         if verbose:
@@ -115,12 +112,12 @@ def unify_branched_time(in_dict, experiment_id_order, verbose=False):
             
             # TODO: I do this repeatedly. I should probably factor this out in a utils module.
             if (len(target_keys) != 1) | (len(source_keys) != 1):
-                raise RuntimeError(f"Found more than 1 key for source:{source_keys} or target:{target_keys}. This would need some additional logic")
+                raise RuntimeError(f"Found more than 1 key or no key for source:{source_keys} or target:{target_keys}. This would need some additional logic")
             else:
                 target_key = target_keys[0]
                 source_key = source_keys[0]
             if verbose:
                 print(f"target:{target_key}")
                 print(f"source:{source_key}")
-            in_dict[source_key] = branched_time_adjust(in_dict[source_key],in_dict[target_key])
-    return in_dict
+            out_dict[source_key] = branched_time_adjust(in_dict[source_key],in_dict[target_key])
+    return out_dict
