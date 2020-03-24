@@ -18,7 +18,7 @@ We currently support the following functions
     b. Fix inconsistent values,shape and dataset location of coordinates
     c. Homogenize longitude conventions
     d. Fix inconsistent units
-2. [Creating large scale ocean basin masks for arbitrary model output](notebooks/regionmask.ipynb)
+2. [Creating large scale ocean basin masks for arbitrary model output](doc/regionmask.ipynb)
 
 The following issues are under development:
 1. Reconstruct/find grid metrics
