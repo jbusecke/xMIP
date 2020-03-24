@@ -11,7 +11,7 @@ def test_merge_mask():
     # import example cloud datasets
     col_url = "https://raw.githubusercontent.com/NCAR/intake-esm-datastore/master/catalogs/pangeo-cmip6.json"
     col = intake.open_esm_datastore(col_url)
-    cat = col.search(source_id=['CAMS-CSM1-0'],experiment_id='historical', variable_id='thetao')
+    cat = col.search(source_id=['CNRM-CM6-1'],experiment_id='historical', variable_id='thetao')
     data_dict = cat.to_dataset_dict(zarr_kwargs={'consolidated': True, 'decode_times': False},
                                     preprocess=combined_preprocessing)
     ds = data_dict[list(data_dict.keys())[0]]
