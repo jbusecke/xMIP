@@ -97,7 +97,7 @@ def unify_branched_time(in_dict, experiment_id_order, verbose=False):
         Dictionary of xarray.Datasets with adjusted time conventions.
 
     """
-    out_dict = {}
+    out_dict = {k:ds for k,ds in in_dict.items()}
     source_ids = np.unique([ds.attrs['source_id'] for ds in in_dict.values()])
     for source_id in source_ids:
         if verbose:
