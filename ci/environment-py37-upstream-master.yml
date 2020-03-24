@@ -8,6 +8,7 @@ dependencies:
   - intake
   - cartopy
   - gcsfs # needed for google cloud storage
+  - zarr # needed for google cloud storage tests
   - pip:
     - codecov
     - pytest-cov
