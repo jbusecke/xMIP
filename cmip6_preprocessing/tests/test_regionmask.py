@@ -4,7 +4,7 @@ import numpy as np
 from cmip6_preprocessing.preprocessing import combined_preprocessing
 from cmip6_preprocessing.regionmask import merged_mask, _default_merge_dict
 
-regionmask = pytest.importorskip("regionmask", minversion="'0.5.0+dev'") # All tests get skipped if the version of regionmask is not > 0.5.0
+regionmask = pytest.importorskip("regionmask", minversion='0.5.0+dev') # All tests get skipped if the version of regionmask is not > 0.5.0
 
 def test_merge_mask():
     # load test dataset in the cloud
