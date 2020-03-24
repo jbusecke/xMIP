@@ -13,16 +13,18 @@ Developed during the [cmip6-hackathon](https://cmip6hack.github.io/#/) this pack
 
 We currently support the following functions
 
-1. Fix inconsistent naming of dimensions and coordinates
-2. Fix inconsistent values,shape and dataset location of coordinates
-3. Homogenize longitude conventions
-4. Fix inconsistent units
+1. Preprocessing CMIP6 data (Please check out the [tutorial](notebooks/tutorial.ipynb) for some examples using the [pangeo cloud](ocean.pangeo.io)). The preprocessig includes:
+    a. Fix inconsistent naming of dimensions and coordinates
+    b. Fix inconsistent values,shape and dataset location of coordinates
+    c. Homogenize longitude conventions
+    d. Fix inconsistent units
+2. [Creating large scale ocean basin masks for arbitrary model output](notebooks/regionmask.ipynb)
 
 The following issues are under development:
 1. Reconstruct/find grid metrics
 2. Arrange different variables on their respective staggered grid, so they can work seamlessly with [xgcm](https://xgcm.readthedocs.io/en/latest/)
 
-Please check out the [tutorial](notebooks/tutorial.ipynb) for some examples using the [pangeo cloud](ocean.pangeo.io).
+
 
 ## Installation
 
