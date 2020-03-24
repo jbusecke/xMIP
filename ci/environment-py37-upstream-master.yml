@@ -6,6 +6,7 @@ dependencies:
   - pyproj
   - matplotlib
   - intake
+  - cartopy
   - pip:
     - codecov
     - pytest-cov
