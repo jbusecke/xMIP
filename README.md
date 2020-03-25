@@ -13,7 +13,7 @@ Developed during the [cmip6-hackathon](https://cmip6hack.github.io/#/) this pack
 
 We currently support the following functions
 
-1. Preprocessing CMIP6 data (Please check out the [tutorial](notebooks/tutorial.ipynb) for some examples using the [pangeo cloud](ocean.pangeo.io)). The preprocessig includes:
+1. Preprocessing CMIP6 data (Please check out the [tutorial](doc/tutorial.ipynb) for some examples using the [pangeo cloud](ocean.pangeo.io)). The preprocessig includes:
     a. Fix inconsistent naming of dimensions and coordinates
     b. Fix inconsistent values,shape and dataset location of coordinates
     c. Homogenize longitude conventions
