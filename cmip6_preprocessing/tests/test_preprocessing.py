@@ -2,8 +2,13 @@ import pytest
 import intake
 import pandas as pd
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<<< HEAD:cmip6_preprocessing/tests/test_preprocessing.py
+=======
+import numpy as np
+import xarray as xr
+>>>>>>> fix import errors
 from cmip6_preprocessing.preprocessing import cmip6_renaming_dict, replace_x_y_nominal_lat_lon
 ========
 >>>>>>> rename preprocessing
