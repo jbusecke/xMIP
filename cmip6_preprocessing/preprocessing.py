@@ -788,8 +788,8 @@ def replace_x_y_nominal_lat_lon(ds):
         # extract the equatorial lat and take those lon values as nominal lon
         eq_ind = abs(ds.lat.mean("x")).load().argmin().data
         nominal_x = ds.lon.isel(y=eq_ind)
-        ds.coords["x"].data = nominal_x.data
-        ds.coords["y"].data = nominal_y.data
+
+        ds.assign_coords(x=nominal_x.data, y=nominal_y.data)
 
         ds = ds.sortby("x")
         ds = ds.sortby("y")
