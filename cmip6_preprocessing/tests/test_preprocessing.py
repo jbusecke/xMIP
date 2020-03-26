@@ -1,7 +1,7 @@
 import pytest
 import intake
 import pandas as pd
-from cmip6_preprocessing.preprocessing import cmip6_renaming_dict
+from cmip6_preprocessing.preprocessing import cmip6_renaming_dict, replace_x_y_nominal_lat_lon
 
 # get all available ocean models from the cloud. 
 url = 'https://storage.googleapis.com/cmip6/pangeo-cmip6.csv'
@@ -34,4 +34,13 @@ def test_renaming_dict_entry_keys(model):
 
         # check that there are no extra entries
         assert len(set(cmip6_renaming_dict()[model].keys()) - set(required_coords + additonal_coords)) == 0
-    
+
+
+def test_replace_x_y_nominal_lat_lon():
+    x = np.linspace(0,360,720)
+    y = np.linspace(-90, 90, 360)
+    data = np.random.rand(len(x), len(y))
+    ds = xr.DataArray(data, coords=[('x', x), ('y', y)]).to_dataset(name='data')
+    ds['lon'] = ds['x'] * xr.ones_like(ds['y'])
+    ds['lat'] = xr.ones_like(ds['x']) * ds['y']
+    replaced_ds = replace_x_y_nominal_lat_lon(ds)
