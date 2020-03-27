@@ -85,6 +85,7 @@ def test_replace_x_y_nominal_lat_lon():
     ds['lon'] = ds['x'] * xr.ones_like(ds['y'])
     ds['lat'] = xr.ones_like(ds['x']) * ds['y']
     replaced_ds = replace_x_y_nominal_lat_lon(ds)
+<<<<<<< HEAD
 ========
 >>>>>>> rename preprocessing
         assert (
@@ -240,3 +241,5 @@ def test_correct_lon(shift):
 =======
 >>>>>>>> rename preprocessing:cmip6_preprocessing/tests/test_preprocess.py
 >>>>>>> rename preprocessing
+=======
+>>>>>>> linting, newline end of file
