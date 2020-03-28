@@ -849,11 +849,9 @@ def correct_lon(ds):
     longitude names expected to be corrected with `rename_cmip6`"""
     ds = ds.copy()
     x = ds['x'].data
-    ds['x'].data = np.where(x < 0 , 360 + x, x)
-
     lon = ds['lon'].data
-    ds['lon'].data = np.where(lon < 0 , 360 + lon, lon)
-    
+    ds = ds.assign_coords(x=np.where(x < 0 , 360 + x, x))
+    ds['lon'].data =np.where(lon < 0 , 360 + lon, lon)
     ds = ds.sortby('x')
     return ds
 
