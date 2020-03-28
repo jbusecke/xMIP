@@ -851,7 +851,7 @@ def correct_lon(ds):
     x = ds['x'].data
     lon = ds['lon'].data
     ds = ds.assign_coords(x=np.where(x < 0 , 360 + x, x))
-    ds['lon'].data =np.where(lon < 0 , 360 + lon, lon)
+    ds['lon'].data = np.where(lon < 0 , 360 + lon, lon)
     ds = ds.sortby('x')
     return ds
 
