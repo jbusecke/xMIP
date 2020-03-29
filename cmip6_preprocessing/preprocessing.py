@@ -788,17 +788,12 @@ def replace_x_y_nominal_lat_lon(ds):
         # extract the equatorial lat and take those lon values as nominal lon
         eq_ind = abs(ds.lat.mean("x")).load().argmin().data
         nominal_x = ds.lon.isel(y=eq_ind)
-<<<<<<< HEAD
 
         ds.assign_coords(x=nominal_x.data, y=nominal_y.data)
 
         ds = ds.sortby("x")
         ds = ds.sortby("y")
 
-=======
-        ds = ds.assign_coords(x=nominal_x.data, y=nominal_y.data)
-
->>>>>>> rebased on last PR
     else:
         warnings.warn(
             "No x and y found in dimensions for source_id:%s. This likely means that you forgot to rename the dataset or this is the German unstructured model"

@@ -1,43 +1,16 @@
 import pytest
 import intake
 import pandas as pd
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-<<<<<<<< HEAD:cmip6_preprocessing/tests/test_preprocessing.py
-=======
 import numpy as np
 import xarray as xr
-<<<<<<< HEAD
->>>>>>> fix import errors
-from cmip6_preprocessing.preprocessing import cmip6_renaming_dict, replace_x_y_nominal_lat_lon
-========
->>>>>>> rename preprocessing
-import numpy as np
-import xarray as xr
-=======
->>>>>>> rebased on last PR
 from cmip6_preprocessing.preprocessing import (
     cmip6_renaming_dict,
     rename_cmip6,
     promote_empty_dims,
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> rebased on last PR
     replace_x_y_nominal_lat_lon,
     correct_coordinates,
     correct_lon,
 )
-<<<<<<< HEAD
-=======
-    correct_coordinates,
-    correct_lon,
-)
->>>>>>>> rename preprocessing:cmip6_preprocessing/tests/test_preprocess.py
->>>>>>> rename preprocessing
-=======
->>>>>>> rebased on last PR
 
 # get all available ocean models from the cloud.
 url = "https://storage.googleapis.com/cmip6/pangeo-cmip6.csv"
@@ -80,121 +53,6 @@ def test_renaming_dict_entry_keys(model):
             assert "lat" in cmip6_renaming_dict()[model]["y"]
 
         # check that there are no extra entries
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-<<<<<<<< HEAD:cmip6_preprocessing/tests/test_preprocessing.py
-        assert len(set(cmip6_renaming_dict()[model].keys()) - set(required_coords + additonal_coords)) == 0
-=======
-        assert (
-            len(
-                set(cmip6_renaming_dict()[model].keys())
-                - set(required_coords + additonal_coords)
-            )
-            == 0
-        )
-
-
-def create_test_ds(xname, yname, zname, xlen, ylen, zlen):
-    x = np.linspace(0, 359, 10)
-    y = np.linspace(-90, 89, 5)
-    z = np.linspace(0, 5000, 6)
-    data = np.random.rand(len(x), len(y), len(z))
-    ds = xr.DataArray(data, coords=[(xname, x), (yname, y), (zname, z)]).to_dataset(
-        name="test"
-    )
-    ds.attrs["source_id"] = "test_id"
-    # if x and y are not lon and lat, add lon and lat to make sure there are no conflicts
-    lon = ds[xname] * xr.ones_like(ds[yname])
-    lat = xr.ones_like(ds[xname]) * ds[yname]
-    if xname != "lon" and yname != "lat":
-        ds = ds.assign_coords(lon=lon, lat=lat)
-    else:
-        ds = ds.assign_coords(longitude=lon, latitude=lat)
-    return ds
-
-
-@pytest.mark.parametrize("xname", ["i", "x", "lon"])
-@pytest.mark.parametrize("yname", ["j", "y", "lat"])
-@pytest.mark.parametrize("zname", ["lev", "olev", "olevel", "deptht", "deptht"])
-# @pytest.mark.parametrize("lonname", ["lon", "longitude"])
-# @pytest.mark.parametrize("latname", ["lat", "latitude"])
-def test_rename_cmip6(xname, yname, zname):
-    xlen, ylen, zlen = (10, 5, 6)
-    ds = create_test_ds(xname, yname, zname, xlen, ylen, zlen)
-    # TODO: Build the bounds into this.
-    # Eventually I can use a universal dict will all possible combos instead
-    # of the lenghty beast I am using now.
-    universal_dict = {
-        "test_id": {
-            "x": ["i", "x", "lon"],
-            "y": ["j", "y", "lat"],
-            "lev": ["lev", "olev", "olevel", "deptht", "deptht"],
-            "lon": ["lon", "longitude"],
-            "lat": ["lat", "latitude"],
-            # "lev_bounds": "lev_bounds",
-            # "lon_bounds": "bounds_lon",
-            # "lat_bounds": "bounds_lat",
-            # "bnds": "axis_nbounds",
-            # "vertex": None,
-            # "time_bounds": "time_bnds",
-        }
-    }
-
-    ds_renamed = rename_cmip6(ds, universal_dict)
-    assert set(ds_renamed.dims) == set(["x", "y", "lev"])
-    assert (set(ds_renamed.coords) - set(ds_renamed.dims)) == set(["lon", "lat"])
-    assert xlen == len(ds_renamed.x)
-    assert ylen == len(ds_renamed.y)
-    assert zlen == len(ds_renamed.lev)
-
-
-@pytest.mark.parametrize("source_id", ["test", "other"])
-def test_rename_cmip6_unkown_name(source_id):
-    xlen, ylen, zlen = (10, 5, 6)
-    ds = create_test_ds("x", "y", "z", xlen, ylen, zlen)
-    ds.attrs["source_id"] = source_id
-    # input dictionary empty for source_id: `%s`
-
-    # Test when there is no dict entry for the source_id
-    universal_dict = {}
-    with pytest.warns(
-        UserWarning,
-        match=f"No input dictionary entry for source_id: `{ds.attrs['source_id']}`",
-    ):
-        ds_renamed = rename_cmip6(ds, universal_dict)
-
-    # and now if the entry is there but its empty itself
-    # TODO: These can probably go as soon as I have implemented the single renaming dict
-    universal_dict = {source_id: {}}
-    with pytest.warns(
-        UserWarning,
-        match=f"input dictionary empty for source_id: `{ds.attrs['source_id']}`",
-    ):
-        ds_renamed = rename_cmip6(ds, universal_dict)
-
-
-def test_promote_empty_dims():
-    xlen, ylen, zlen = (10, 5, 6)
-    ds = create_test_ds("x", "y", "z", xlen, ylen, zlen)
-    ds = ds.drop(["x", "y", "z"])
-    ds_promoted = promote_empty_dims(ds)
-    assert set(["x", "y", "z"]).issubset(set(ds_promoted.coords))
->>>>>>> rebased on last PR
-
-
-def test_replace_x_y_nominal_lat_lon():
-    x = np.linspace(0, 360, 720)
-    y = np.linspace(-90, 90, 360)
-    data = np.random.rand(len(x), len(y))
-    ds = xr.DataArray(data, coords=[("x", x), ("y", y)]).to_dataset(name="data")
-    ds["lon"] = ds["x"] * xr.ones_like(ds["y"])
-    ds["lat"] = xr.ones_like(ds["x"]) * ds["y"]
-    replaced_ds = replace_x_y_nominal_lat_lon(ds)
-<<<<<<< HEAD
-<<<<<<< HEAD
-========
->>>>>>> rename preprocessing
         assert (
             len(
                 set(cmip6_renaming_dict()[model].keys())
@@ -291,7 +149,6 @@ def test_promote_empty_dims():
     assert set(["x", "y", "z"]).issubset(set(ds_promoted.coords))
 
 
-<<<<<<< HEAD
 def test_replace_x_y_nominal_lat_lon():
     x = np.linspace(0, 360, 720)
     y = np.linspace(-90, 90, 360)
@@ -302,12 +159,93 @@ def test_replace_x_y_nominal_lat_lon():
     replaced_ds = replace_x_y_nominal_lat_lon(ds)
 
 
-=======
->>>>>>> rename preprocessing
-=======
+def create_test_ds(xname, yname, zname, xlen, ylen, zlen):
+    x = np.linspace(0, 359, 10)
+    y = np.linspace(-90, 89, 5)
+    z = np.linspace(0, 5000, 6)
+    data = np.random.rand(len(x), len(y), len(z))
+    ds = xr.DataArray(data, coords=[(xname, x), (yname, y), (zname, z)]).to_dataset(
+        name="test"
+    )
+    ds.attrs["source_id"] = "test_id"
+    # if x and y are not lon and lat, add lon and lat to make sure there are no conflicts
+    lon = ds[xname] * xr.ones_like(ds[yname])
+    lat = xr.ones_like(ds[xname]) * ds[yname]
+    if xname != "lon" and yname != "lat":
+        ds = ds.assign_coords(lon=lon, lat=lat)
+    else:
+        ds = ds.assign_coords(longitude=lon, latitude=lat)
+    return ds
 
 
->>>>>>> rebased on last PR
+@pytest.mark.parametrize("xname", ["i", "x", "lon"])
+@pytest.mark.parametrize("yname", ["j", "y", "lat"])
+@pytest.mark.parametrize("zname", ["lev", "olev", "olevel", "deptht", "deptht"])
+# @pytest.mark.parametrize("lonname", ["lon", "longitude"])
+# @pytest.mark.parametrize("latname", ["lat", "latitude"])
+def test_rename_cmip6(xname, yname, zname):
+    xlen, ylen, zlen = (10, 5, 6)
+    ds = create_test_ds(xname, yname, zname, xlen, ylen, zlen)
+    # TODO: Build the bounds into this.
+    # Eventually I can use a universal dict will all possible combos instead
+    # of the lenghty beast I am using now.
+    universal_dict = {
+        "test_id": {
+            "x": ["i", "x", "lon"],
+            "y": ["j", "y", "lat"],
+            "lev": ["lev", "olev", "olevel", "deptht", "deptht"],
+            "lon": ["lon", "longitude"],
+            "lat": ["lat", "latitude"],
+            # "lev_bounds": "lev_bounds",
+            # "lon_bounds": "bounds_lon",
+            # "lat_bounds": "bounds_lat",
+            # "bnds": "axis_nbounds",
+            # "vertex": None,
+            # "time_bounds": "time_bnds",
+        }
+    }
+
+    ds_renamed = rename_cmip6(ds, universal_dict)
+    assert set(ds_renamed.dims) == set(["x", "y", "lev"])
+    assert (set(ds_renamed.coords) - set(ds_renamed.dims)) == set(["lon", "lat"])
+    assert xlen == len(ds_renamed.x)
+    assert ylen == len(ds_renamed.y)
+    assert zlen == len(ds_renamed.lev)
+
+
+@pytest.mark.parametrize("source_id", ["test", "other"])
+def test_rename_cmip6_unkown_name(source_id):
+    xlen, ylen, zlen = (10, 5, 6)
+    ds = create_test_ds("x", "y", "z", xlen, ylen, zlen)
+    ds.attrs["source_id"] = source_id
+    # input dictionary empty for source_id: `%s`
+
+    # Test when there is no dict entry for the source_id
+    universal_dict = {}
+    with pytest.warns(
+        UserWarning,
+        match=f"No input dictionary entry for source_id: `{ds.attrs['source_id']}`",
+    ):
+        ds_renamed = rename_cmip6(ds, universal_dict)
+
+    # and now if the entry is there but its empty itself
+    # TODO: These can probably go as soon as I have implemented the single renaming dict
+    universal_dict = {source_id: {}}
+    with pytest.warns(
+        UserWarning,
+        match=f"input dictionary empty for source_id: `{ds.attrs['source_id']}`",
+    ):
+        ds_renamed = rename_cmip6(ds, universal_dict)
+
+
+def test_promote_empty_dims():
+    xlen, ylen, zlen = (10, 5, 6)
+    ds = create_test_ds("x", "y", "z", xlen, ylen, zlen)
+    ds = ds.drop(["x", "y", "z"])
+    ds_promoted = promote_empty_dims(ds)
+    assert set(["x", "y", "z"]).issubset(set(ds_promoted.coords))
+
+
 @pytest.mark.parametrize(
     "coord",
     [
@@ -348,12 +286,3 @@ def test_correct_lon(shift):
     assert ds_lon_corrected.lon.min() >= 0
     assert ds_lon_corrected.lat.max() <= 360
     assert all(ds_lon_corrected.x.diff("x") > 0)
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>>> rename preprocessing:cmip6_preprocessing/tests/test_preprocess.py
->>>>>>> rename preprocessing
-=======
->>>>>>> linting, newline end of file
-=======
->>>>>>> rebased on last PR
