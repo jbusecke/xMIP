@@ -789,8 +789,6 @@ def replace_x_y_nominal_lat_lon(ds):
         eq_ind = abs(ds.lat.mean("x")).load().argmin().data
         nominal_x = ds.lon.isel(y=eq_ind)
 
-        ds.assign_coords(x=nominal_x.data, y=nominal_y.data)
-
         ds = ds.sortby("x")
         ds = ds.sortby("y")
 
