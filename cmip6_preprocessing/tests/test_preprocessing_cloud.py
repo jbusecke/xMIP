@@ -3,6 +3,8 @@ import pytest
 import numpy as np
 from cmip6_preprocessing.preprocessing import combined_preprocessing
 
+pytest.importorskip("gcsfs")
+
 
 @pytest.fixture
 def col():
