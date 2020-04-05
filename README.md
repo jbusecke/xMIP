@@ -2,6 +2,7 @@
 [![conda-forge](https://img.shields.io/conda/dn/conda-forge/cmip6_preprocessing?label=conda-forge)](https://anaconda.org/conda-forge/cmip6_preprocessing)
 [![Pypi](https://img.shields.io/pypi/v/cmip6_preprocessing.svg)](https://pypi.org/project/cmip6_preprocessing)
 [![Build Status](https://travis-ci.com/jbusecke/cmip6_preprocessing.svg?branch=master)](https://travis-ci.com/jbusecke/cmip6_preprocessing)
+[![Build Status](https://img.shields.io/circleci/project/github/jbusecke/cmip6_preprocessing/master.svg?)](https://circleci.com/gh/jbusecke/cmip6_preprocessing/tree/master)
 [![codecov](https://codecov.io/gh/jbusecke/cmip6_preprocessing/branch/master/graph/badge.svg)](https://codecov.io/gh/jbusecke/cmip6_preprocessing)
 [![License:MIT](https://img.shields.io/badge/License-MIT-lightgray.svg?style=flt-square)](https://opensource.org/licenses/MIT)
 [![DOI](https://zenodo.org/badge/215606850.svg)](https://zenodo.org/badge/latestdoi/215606850)
@@ -36,4 +37,3 @@ Install `cmip6_preprocessing` via pip:
 or conda:
 
 `conda install -c conda-forge cmip6_preprocessing`
-
