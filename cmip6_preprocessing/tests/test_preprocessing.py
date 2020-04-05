@@ -150,13 +150,23 @@ def test_promote_empty_dims():
 
 
 def test_replace_x_y_nominal_lat_lon():
-    x = np.linspace(0, 360, 720)
-    y = np.linspace(-90, 90, 360)
+    x = np.linspace(0, 720, 10)
+    y = np.linspace(-200, 140, 5)
+    lon = xr.DataArray(np.linspace(0, 360, len(x)), coords=[("x", x)])
+    lat = xr.DataArray(np.linspace(-90, 90, len(y)), coords=[("y", y)])
+    llon = lon * xr.ones_like(lat)
+    llat = xr.ones_like(lon) * lat
+
     data = np.random.rand(len(x), len(y))
     ds = xr.DataArray(data, coords=[("x", x), ("y", y)]).to_dataset(name="data")
-    ds["lon"] = ds["x"] * xr.ones_like(ds["y"])
-    ds["lat"] = xr.ones_like(ds["x"]) * ds["y"]
+    ds["lon"] = llon
+    ds["lat"] = llat
     replaced_ds = replace_x_y_nominal_lat_lon(ds)
+    print(replaced_ds.x.data)
+    print(lon.data)
+    np.testing.assert_allclose(replaced_ds.x, lon)
+    np.testing.assert_allclose(replaced_ds.y, lat)
+    # assert np.testing.assert_allclose(replaced_ds.y.data, lat.data)
 
 
 @pytest.mark.parametrize(
