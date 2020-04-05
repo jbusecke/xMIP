@@ -41,7 +41,7 @@ shared: &shared
     - run:
         name: Running Tests
         command: |
-          pytest -n 4 --junitxml=test-reports/junit.xml --cov=./ --verbose
+          pytest cmip6_preprocessing/tests/test_preprocessing_cloud.py -n 4 --junitxml=test-reports/junit.xml --cov=./ --verbose
         no_output_timeout: 30m
     - run:
         name: Uploading code coverage report
