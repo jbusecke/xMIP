@@ -1,4 +1,5 @@
 [![Anaconda Cloud](https://anaconda.org/conda-forge/cmip6_preprocessing/badges/version.svg)](https://anaconda.org/conda-forge/cmip6_preprocessing)
+[![conda-forge](https://img.shields.io/conda/dn/conda-forge/cmip6_preprocessing?label=conda-forge)](https://anaconda.org/conda-forge/cmip6_preprocessing)
 [![Pypi](https://img.shields.io/pypi/v/cmip6_preprocessing.svg)](https://pypi.org/project/cmip6_preprocessing)
 [![Build Status](https://travis-ci.com/jbusecke/cmip6_preprocessing.svg?branch=master)](https://travis-ci.com/jbusecke/cmip6_preprocessing)
 [![codecov](https://codecov.io/gh/jbusecke/cmip6_preprocessing/branch/master/graph/badge.svg)](https://codecov.io/gh/jbusecke/cmip6_preprocessing)
