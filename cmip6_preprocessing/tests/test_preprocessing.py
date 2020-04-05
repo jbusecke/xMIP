@@ -166,7 +166,6 @@ def test_replace_x_y_nominal_lat_lon():
     print(lon.data)
     np.testing.assert_allclose(replaced_ds.x, lon)
     np.testing.assert_allclose(replaced_ds.y, lat)
-    # assert np.testing.assert_allclose(replaced_ds.y.data, lat.data)
 
 
 @pytest.mark.parametrize(

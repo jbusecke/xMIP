@@ -21,6 +21,7 @@ def test_replace_x_y_nominal_lat_lon(col):
         table_id="Omon",
         member_id="r1i1p1f1",
     )
+    print(cat.df)
     ddict = cat.to_dataset_dict(
         zarr_kwargs={"consolidated": True}, preprocess=combined_preprocessing
     )
