@@ -25,12 +25,11 @@ workflows:
 shared: &shared
   steps:
     - checkout
-    - restore_cache:
-        key: deps-{{ checksum "./ci/environment.yml" }}
     - run:
-        name: Install dependencies in (base environment)
+        name: Install dependencies
         command: |
-          conda env update -n base -f ${ENV_FILE}
+          conda env create -f ${ENV_FILE}
+          conda activate test_env_cmip6_preprocessing
           python -m pip install .
     - run:
         name: List packages in the current environment (base)
@@ -51,37 +50,24 @@ shared: &shared
     - store_artifacts:
         path: test-reports
 
-    - save_cache:
-        key: deps-{{ checksum "./ci/environment.yml" }}
-        paths:
-          - "/opt/conda/pkgs"
-
 
 jobs:
   "upstream-dev":
     <<: *shared
-    docker:
-      - image: ncarxdev/miniconda:3.7
     environment:
       ENV_FILE: "./ci/environment-py37-upstream-master.yml"
 
   "python-3.6":
     <<: *shared
-    docker:
-      - image: ncarxdev/miniconda:3.6
     environment:
       ENV_FILE: "./ci/environment-py36.yml"
 
   "python-3.7":
     <<: *shared
-    docker:
-      - image: ncarxdev/miniconda:3.7
     environment:
       ENV_FILE: "./ci/environment-py37.yml"
 
   "python-3.8":
     <<: *shared
-    docker:
-      - image: ncarxdev/miniconda:3.8
     environment:
       ENV_FILE: "./ci/environment-py38.yml"
