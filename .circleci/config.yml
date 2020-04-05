@@ -30,6 +30,7 @@ shared: &shared
     - run:
         name: Install dependencies
         command: |
+          conda init bash
           conda env create -f ${ENV_FILE}
           conda activate test_env_cmip6_preprocessing
           pip install -e .
