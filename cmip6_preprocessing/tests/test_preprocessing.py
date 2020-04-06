@@ -222,13 +222,20 @@ def test_correct_coordinates(coord):
     assert coord in list(ds_corrected.coords)
 
 
+@pytest.mark.parametrize("missing_values", [False, 1e36, -1e36])
 @pytest.mark.parametrize("shift", [-70, -180, -360,])  # cant handle positive shifts yet
-def test_correct_lon(shift):
+def test_correct_lon(missing_values, shift):
     xlen, ylen, zlen = (40, 20, 6)
     ds = create_test_ds("x", "y", "lev", xlen, ylen, zlen)
     ds = ds.assign_coords(x=ds.x.data + shift)
     lon = ds["lon"].reset_coords(drop=True)
     ds = ds.assign_coords(lon=lon + shift)
+    if missing_values:
+        # CESM-FV has some super high missing values. Test removal
+        lon = ds["lon"].load().data
+        lon[10:20, 10:20] = missing_values
+        ds["lon"].data = lon
     ds_lon_corrected = correct_lon(ds)
+    print(ds_lon_corrected.lon.load().data)
     assert ds_lon_corrected.lon.min() >= 0
     assert ds_lon_corrected.lon.max() <= 360

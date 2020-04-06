@@ -915,18 +915,16 @@ def correct_lon(ds):
     """Wraps negative x and lon values around to have 0-360 lons.
     longitude names expected to be corrected with `rename_cmip6`"""
     ds = ds.copy()
-    #
-    # x = ds["x"].data
-    # x = np.where(x < 0, 360 + x, x)
-    #
-    # lon = ds["lon"].data
-    # lon = np.where(lon < 0, 360 + lon, lon)
-    #
-    # ds = ds.assign_coords(x=x, lon=(ds.lon.dims, lon))
-    # ds = ds.sortby("x")
+
+    # remove out of bounds values found in some
+    # models as missing values
+    ds["lon"] = ds["lon"].where(abs(ds["lon"]) <= 1e35)
+    ds["lat"] = ds["lat"].where(abs(ds["lat"]) <= 1e35)
 
     # only correct the actual longitude
     lon = ds["lon"].data
+
+    # then adjust lon convention
     lon = np.where(lon < 0, 360 + lon, lon)
     ds = ds.assign_coords(lon=(ds.lon.dims, lon))
     return ds
