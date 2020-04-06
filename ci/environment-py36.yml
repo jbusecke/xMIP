@@ -10,6 +10,7 @@ dependencies:
   - xgcm
   - pyproj
   - matplotlib
+  - pip
   - pip:
     - codecov
     - pytest-cov
