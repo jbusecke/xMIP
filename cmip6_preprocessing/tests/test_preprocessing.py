@@ -231,4 +231,4 @@ def test_correct_lon(shift):
     ds = ds.assign_coords(lon=lon + shift)
     ds_lon_corrected = correct_lon(ds)
     assert ds_lon_corrected.lon.min() >= 0
-    assert ds_lon_corrected.lat.max() <= 360
+    assert ds_lon_corrected.lon.max() <= 360

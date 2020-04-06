@@ -17,13 +17,11 @@ def col():
 # define a class with variable fixture...
 
 
-def all_models(var, grid_label):
+def all_models():
     col = intake.open_esm_datastore(
         "https://raw.githubusercontent.com/NCAR/intake-esm-datastore/master/catalogs/pangeo-cmip6.json"
     )
-    # this is clunky...
-    df = col.df[[co in [var] for co in col.df["variable_id"]]]
-    df = df[[co in [grid_label] for co in df["grid_label"]]]
+    df = col.df
     all_models = df["source_id"].unique()
 
     # TODO: finally get IPSL model to run and release this
@@ -39,14 +37,17 @@ def _diagnose_doubles(data):
         print(f"Missing values Indicies[{missing}]/ Values[{missing_values}]")
 
 
-@pytest.mark.parametrize("experiment_id", ["historical", "piControl", "ssp585"])
-@pytest.mark.parametrize("source_id", all_models("o2", "gn"))
-def test_gn_replace_x_y_nominal_lat_lon(col, source_id, experiment_id):
+@pytest.mark.parametrize("grid_label", ["gr", "gn"])
+@pytest.mark.parametrize("experiment_id", ["historical"])
+@pytest.mark.parametrize("variable_id", ["o2", "thetao"])
+@pytest.mark.parametrize("source_id", all_models())
+def test_lat_lon(col, source_id, experiment_id, grid_label, variable_id):
     cat = col.search(
         source_id=source_id,
         experiment_id=experiment_id,
-        variable_id="o2",
+        variable_id=variable_id,
         table_id="Omon",
+        grid_label=grid_label,
     )
     ddict = cat.to_dataset_dict(
         zarr_kwargs={"consolidated": True, "decode_times": False},
@@ -59,31 +60,10 @@ def test_gn_replace_x_y_nominal_lat_lon(col, source_id, experiment_id):
             print(di)
             _diagnose_doubles(ds[di].load().data)
             assert len(ds[di]) == len(np.unique(ds[di]))
-
-    else:
-        pytest.xfail("Model data not available")
-
-
-@pytest.mark.parametrize("experiment_id", ["historical", "piControl", "ssp585"])
-@pytest.mark.parametrize("source_id", all_models("o2", "gr"))
-def test_gr_replace_x_y_nominal_lat_lon(col, source_id, experiment_id):
-    cat = col.search(
-        source_id=source_id,
-        experiment_id=experiment_id,
-        variable_id="o2",
-        table_id="Omon",
-    )
-    ddict = cat.to_dataset_dict(
-        zarr_kwargs={"consolidated": True, "decode_times": False},
-        preprocess=combined_preprocessing,
-    )
-    if len(ddict) > 0:
-        _, ds = ddict.popitem()
-        # check all dims for duplicates
-        for di in ds.dims:
-            print(di)
-            _diagnose_doubles(ds[di].load().data)
-            assert len(ds[di]) == len(np.unique(ds[di]))
+            assert ds.lon.min() >= 0
+            assert ds.lon.max() <= 360
+            assert ds.lat.min() >= -90
+            assert ds.lat.max() <= 90
 
     else:
         pytest.xfail("Model data not available")
