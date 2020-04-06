@@ -25,23 +25,14 @@ workflows:
 shared: &shared
   steps:
     - checkout
-    # - restore_cache:
-    #     key: deps-{{ checksum "./ci/environment.yml" }}
+    - restore_cache:
+        key: deps-{{ checksum "./ci/environment.yml" }}
     - run:
-        name: Install dependencies
+        name: Install dependencies in (base environment)
         command: |
-          wget http://repo.continuum.io/miniconda/Miniconda3-3.16.0-Linux-x86_64.sh -O miniconda.sh;
-          bash miniconda.sh -b -p $HOME/miniconda
-          export PATH="$HOME/miniconda/bin:$PATH"
-          hash -r
-          conda config --set always_yes yes --set changeps1 no
-          conda update -q conda
-          conda info -a
-          conda list
-          conda init bash
-          conda env create -f ${ENV_FILE}
-          conda activate test_env_cmip6_preprocessing
+          conda env update -n base -f ${ENV_FILE}
           pip install -e .
+          # python -m pip install .
     - run:
         name: List packages in the current environment (base)
         command: |
@@ -49,8 +40,8 @@ shared: &shared
     - run:
         name: Running Tests
         command: |
-          pytest cmip6_preprocessing/tests/test_preprocessing_cloud.py -n 4 --junitxml=test-reports/junit.xml --cov=./ --verbose
-        no_output_timeout: 60m
+          pytest -n 4 --junitxml=test-reports/junit.xml --cov=./ --verbose
+        no_output_timeout: 30m
     - run:
         name: Uploading code coverage report
         command: |
@@ -61,10 +52,10 @@ shared: &shared
     - store_artifacts:
         path: test-reports
 
-    # - save_cache:
-    #     key: deps-{{ checksum "./ci/environment.yml" }}
-    #     paths:
-    #       - "/opt/conda/pkgs"
+    - save_cache:
+        key: deps-{{ checksum "./ci/environment.yml" }}
+        paths:
+          - "/opt/conda/pkgs"
 
 
 jobs:
