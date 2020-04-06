@@ -782,12 +782,43 @@ def promote_empty_dims(ds):
 def replace_x_y_nominal_lat_lon(ds):
     """Approximate the dimensional values of x and y with mean lat and lon at the equator"""
     ds = ds.copy()
+
+    def fix_non_unique_np(data):
+        """remove duplicate values by linear interpolation"""
+        ii_range = np.arange(len(data))
+        _, indicies = np.unique(data, return_index=True)
+        double_idx = np.array([ii not in indicies for ii in ii_range])
+        print(f"non-unique values found at:{ii_range[double_idx]})")
+        data[double_idx] = np.interp(
+            ii_range[double_idx], ii_range[~double_idx], data[~double_idx]
+        )
+        return data
+
+    def maybe_fix_non_unique(da, dim):
+        print(f"DEBUG ({dim}): {da}")
+        da = da.copy()
+        if len(da) == len(np.unique(da)):
+            return da.data
+        else:
+            fixed_da = fix_non_unique_np(da.load().data)
+            # repeat for as long as necessary to get unique dimensions
+            # Try 3 more times
+            iterations = 0
+            for ii in range(3):
+                if len(fixed_da) != len(np.unique(fixed_da)):
+                    fixed_da = fix_non_unique_np(fixed_da)
+                    iterations = ii
+            print(f"{iterations} iterations needed to fix non monotinic dim {dim}")
+            return fixed_da
+
     if "x" in ds.dims and "y" in ds.dims:
 
-        nominal_y = ds.lat.mean("x")
-        # extract the equatorial lat and take those lon values as nominal lon
-        eq_ind = abs(ds.lat.mean("x")).load().argmin().data
-        nominal_x = ds.lon.isel(y=eq_ind)
+        # pick the nominal lon/lat values from the eastern
+        # and southern edge, and eliminate non unique values
+        # these occour e.g. in "MPI-ESM1-2-HR"
+
+        nominal_y = maybe_fix_non_unique(ds.isel(x=0).lat, "y")
+        nominal_x = maybe_fix_non_unique(ds.isel(y=len(ds.y) // 2).lon, "x")
 
         ds = ds.assign_coords(x=nominal_x, y=nominal_y)
 

@@ -167,6 +167,30 @@ def test_replace_x_y_nominal_lat_lon():
     np.testing.assert_allclose(replaced_ds.x, lon)
     np.testing.assert_allclose(replaced_ds.y, lat)
 
+    # test a dataset that would result in duplicates with current method
+    x = np.linspace(0, 720, 4)
+    y = np.linspace(-200, 140, 3)
+    llon = xr.DataArray(
+        np.array([[0, 50, 100, 150], [0, 50, 100, 150], [0, 50, 100, 150]]),
+        coords=[("y", y), ("x", x)],
+    )
+    llat = xr.DataArray(
+        np.array([[0, 0, 10, 0], [10, 0, 0, 0], [20, 20, 20, 20]]),
+        coords=[("y", y), ("x", x)],
+    )
+    data = np.random.rand(len(x), len(y))
+    ds = xr.DataArray(data, coords=[("x", x), ("y", y)]).to_dataset(name="data")
+    ds["lon"] = llon
+    ds["lat"] = llat
+    replaced_ds = replace_x_y_nominal_lat_lon(ds)
+    assert len(replaced_ds.y) == len(np.unique(replaced_ds.y))
+    assert len(replaced_ds.x) == len(np.unique(replaced_ds.x))
+
+    # lon = xr.DataArray([-90, -40, 0, 40, 80], coords=[("x", x)])
+    # lat = xr.DataArray(np.linspace(-90, 90, len(y)), coords=[("y", y)])
+    # llon = lon * xr.ones_like(lat)
+    # llat = xr.ones_like(lon) * lat
+
 
 @pytest.mark.parametrize(
     "coord",
