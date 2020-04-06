@@ -800,11 +800,19 @@ def replace_x_y_nominal_lat_lon(ds):
     ds = ds.copy()
 
     def maybe_fix_non_unique(data, pad=False):
-        """remove duplicate values by linear interpolation if values are non-unique"""
+        """remove duplicate values by linear interpolation
+        if values are non-unique. `pad` if the last two points are the same
+        pad with -90 or 90. This is only applicable to lat values"""
         if len(data) == len(np.unique(data)):
             return data
         else:
             # pad each end with the other end.
+            if pad:
+                if len(np.unique([data[0:2]])) < 2:
+                    data[0] = -90
+                if len(np.unique([data[-2:]])) < 2:
+                    data[-1] = 90
+
             ii_range = np.arange(len(data))
             _, indicies = np.unique(data, return_index=True)
             double_idx = np.array([ii not in indicies for ii in ii_range])
@@ -819,10 +827,10 @@ def replace_x_y_nominal_lat_lon(ds):
         # pick the nominal lon/lat values from the eastern
         # and southern edge, and eliminate non unique values
         # these occour e.g. in "MPI-ESM1-2-HR"
-
-        nominal_y = maybe_fix_non_unique(ds.isel(x=0).lat.load().data, "y")
+        max_lat_idx = ds.lat.isel(y=-1).argmax("x").load().data
+        nominal_y = maybe_fix_non_unique(ds.isel(x=max_lat_idx).lat.load().data)
         eq_idx = len(ds.y) // 2
-        nominal_x = maybe_fix_non_unique(ds.isel(y=eq_idx).lon.load().data, "x")
+        nominal_x = maybe_fix_non_unique(ds.isel(y=eq_idx).lon.load().data)
 
         ds = ds.assign_coords(x=nominal_x, y=nominal_y)
         ds = ds.sortby("x")
@@ -830,7 +838,10 @@ def replace_x_y_nominal_lat_lon(ds):
 
         # do one more interpolation for the x values, in case the boundary values were
         # affected
-        ds = ds.assign_coords(x=maybe_fix_non_unique(ds.x.load().data))
+        ds = ds.assign_coords(
+            x=maybe_fix_non_unique(ds.x.load().data),
+            y=maybe_fix_non_unique(ds.y.load().data, pad=True),
+        )
 
     else:
         warnings.warn(
