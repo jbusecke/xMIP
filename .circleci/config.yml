@@ -25,14 +25,13 @@ workflows:
 shared: &shared
   steps:
     - checkout
-    - restore_cache:
-        key: deps-{{ checksum "./ci/environment.yml" }}
+    # - restore_cache:
+    #     key: deps-{{ checksum "./ci/environment.yml" }}
     - run:
         name: Install dependencies in (base environment)
         command: |
           conda env update -n base -f ${ENV_FILE}
           pip install -e .
-          # python -m pip install .
     - run:
         name: List packages in the current environment (base)
         command: |
@@ -41,7 +40,7 @@ shared: &shared
         name: Running Tests
         command: |
           pytest -n 4 --junitxml=test-reports/junit.xml --cov=./ --verbose
-        no_output_timeout: 30m
+        no_output_timeout: 90m
     - run:
         name: Uploading code coverage report
         command: |
@@ -52,10 +51,10 @@ shared: &shared
     - store_artifacts:
         path: test-reports
 
-    - save_cache:
-        key: deps-{{ checksum "./ci/environment.yml" }}
-        paths:
-          - "/opt/conda/pkgs"
+    # - save_cache:
+    #     key: deps-{{ checksum "./ci/environment.yml" }}
+    #     paths:
+    #       - "/opt/conda/pkgs"
 
 
 jobs:

@@ -193,14 +193,14 @@ def test_replace_x_y_nominal_lat_lon(dask):
     )
     data = np.random.rand(len(x), len(y))
     ds = xr.DataArray(data, coords=[("x", x), ("y", y)]).to_dataset(name="data")
-    ds["lon"] = llon
-    ds["lat"] = llat
-    
+    ds.coords["lon"] = llon
+    ds.coords["lat"] = llat
+
     if dask:
         ds = ds.chunk({"x": -1, "y": -1})
         ds.coords["lon"] = ds.coords["lon"].chunk({"x": -1, "y": -1})
         ds.coords["lat"] = ds.coords["lat"].chunk({"x": -1, "y": -1})
-    
+
     replaced_ds = replace_x_y_nominal_lat_lon(ds)
     assert len(replaced_ds.y) == len(np.unique(replaced_ds.y))
     assert len(replaced_ds.x) == len(np.unique(replaced_ds.x))
