@@ -149,7 +149,8 @@ def test_promote_empty_dims():
     assert set(["x", "y", "z"]).issubset(set(ds_promoted.coords))
 
 
-def test_replace_x_y_nominal_lat_lon():
+@pytest.mark.parametrize("dask", [True, False])
+def test_replace_x_y_nominal_lat_lon(dask):
     x = np.linspace(0, 720, 10)
     y = np.linspace(-200, 140, 5)
     lon = xr.DataArray(np.linspace(0, 360, len(x)), coords=[("x", x)])
@@ -159,13 +160,25 @@ def test_replace_x_y_nominal_lat_lon():
 
     data = np.random.rand(len(x), len(y))
     ds = xr.DataArray(data, coords=[("x", x), ("y", y)]).to_dataset(name="data")
-    ds["lon"] = llon
-    ds["lat"] = llat
+    ds.coords["lon"] = llon
+    ds.coords["lat"] = llat
+
+    if dask:
+        ds = ds.chunk({"x": -1, "y": -1})
+        ds.coords["lon"] = ds.coords["lon"].chunk({"x": -1, "y": -1})
+        ds.coords["lat"] = ds.coords["lat"].chunk({"x": -1, "y": -1})
+
     replaced_ds = replace_x_y_nominal_lat_lon(ds)
     print(replaced_ds.x.data)
     print(lon.data)
     np.testing.assert_allclose(replaced_ds.x, lon)
     np.testing.assert_allclose(replaced_ds.y, lat)
+    assert all(replaced_ds.x.diff("x") > 0)
+    assert all(replaced_ds.y.diff("y") > 0)
+    assert len(replaced_ds.lon.shape) == 2
+    assert len(replaced_ds.lat.shape) == 2
+    assert set(replaced_ds.lon.dims) == set(["x", "y"])
+    assert set(replaced_ds.lat.dims) == set(["x", "y"])
 
     # test a dataset that would result in duplicates with current method
     x = np.linspace(0, 720, 4)
@@ -182,17 +195,22 @@ def test_replace_x_y_nominal_lat_lon():
     ds = xr.DataArray(data, coords=[("x", x), ("y", y)]).to_dataset(name="data")
     ds["lon"] = llon
     ds["lat"] = llat
+    
+    if dask:
+        ds = ds.chunk({"x": -1, "y": -1})
+        ds.coords["lon"] = ds.coords["lon"].chunk({"x": -1, "y": -1})
+        ds.coords["lat"] = ds.coords["lat"].chunk({"x": -1, "y": -1})
+    
     replaced_ds = replace_x_y_nominal_lat_lon(ds)
     assert len(replaced_ds.y) == len(np.unique(replaced_ds.y))
     assert len(replaced_ds.x) == len(np.unique(replaced_ds.x))
     # make sure values are sorted in ascending order
     assert all(replaced_ds.x.diff("x") > 0)
     assert all(replaced_ds.y.diff("y") > 0)
-
-    # lon = xr.DataArray([-90, -40, 0, 40, 80], coords=[("x", x)])
-    # lat = xr.DataArray(np.linspace(-90, 90, len(y)), coords=[("y", y)])
-    # llon = lon * xr.ones_like(lat)
-    # llat = xr.ones_like(lon) * lat
+    assert len(replaced_ds.lon.shape) == 2
+    assert len(replaced_ds.lat.shape) == 2
+    assert set(replaced_ds.lon.dims) == set(["x", "y"])
+    assert set(replaced_ds.lat.dims) == set(["x", "y"])
 
 
 @pytest.mark.parametrize(
