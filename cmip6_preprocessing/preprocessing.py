@@ -784,10 +784,10 @@ def replace_x_y_nominal_lat_lon(ds):
     ds = ds.copy()
     if "x" in ds.dims and "y" in ds.dims:
 
-        nominal_y = ds.lat.mean("x")
+        nominal_y = ds.lat.mean("x").data
         # extract the equatorial lat and take those lon values as nominal lon
         eq_ind = abs(ds.lat.mean("x")).load().argmin().data
-        nominal_x = ds.lon.isel(y=eq_ind)
+        nominal_x = ds.lon.isel(y=eq_ind).data
 
         ds = ds.assign_coords(x=nominal_x, y=nominal_y)
 
