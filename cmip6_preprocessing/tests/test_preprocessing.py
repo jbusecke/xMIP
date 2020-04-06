@@ -149,7 +149,8 @@ def test_promote_empty_dims():
     assert set(["x", "y", "z"]).issubset(set(ds_promoted.coords))
 
 
-def test_replace_x_y_nominal_lat_lon():
+@pytest.mark.parametrize("dask", [True, False])
+def test_replace_x_y_nominal_lat_lon(dask):
     x = np.linspace(0, 720, 10)
     y = np.linspace(-200, 140, 5)
     lon = xr.DataArray(np.linspace(0, 360, len(x)), coords=[("x", x)])
@@ -159,14 +160,23 @@ def test_replace_x_y_nominal_lat_lon():
 
     data = np.random.rand(len(x), len(y))
     ds = xr.DataArray(data, coords=[("x", x), ("y", y)]).to_dataset(name="data")
-    ds["lon"] = llon
-    ds["lat"] = llat
+    ds.coords["lon"] = llon
+    ds.coords["lat"] = llat
+
+    if dask:
+        ds = ds.chunk({"x": -1, "y": -1})
+        ds.coords["lon"] = ds.coords["lon"].chunk({"x": -1, "y": -1})
+        ds.coords["lat"] = ds.coords["lat"].chunk({"x": -1, "y": -1})
+
     replaced_ds = replace_x_y_nominal_lat_lon(ds)
     print(replaced_ds.x.data)
     print(lon.data)
     np.testing.assert_allclose(replaced_ds.x, lon)
     np.testing.assert_allclose(replaced_ds.y, lat)
-    # assert np.testing.assert_allclose(replaced_ds.y.data, lat.data)
+    assert len(replaced_ds.lon.shape) == 2
+    assert len(replaced_ds.lat.shape) == 2
+    assert set(replaced_ds.lon.dims) == set(["x", "y"])
+    assert set(replaced_ds.lat.dims) == set(["x", "y"])
 
 
 @pytest.mark.parametrize(
