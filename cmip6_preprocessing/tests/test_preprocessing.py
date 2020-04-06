@@ -185,6 +185,9 @@ def test_replace_x_y_nominal_lat_lon():
     replaced_ds = replace_x_y_nominal_lat_lon(ds)
     assert len(replaced_ds.y) == len(np.unique(replaced_ds.y))
     assert len(replaced_ds.x) == len(np.unique(replaced_ds.x))
+    # make sure values are sorted in ascending order
+    assert all(replaced_ds.x.diff("x") > 0)
+    assert all(replaced_ds.y.diff("y") > 0)
 
     # lon = xr.DataArray([-90, -40, 0, 40, 80], coords=[("x", x)])
     # lat = xr.DataArray(np.linspace(-90, 90, len(y)), coords=[("y", y)])
@@ -227,8 +230,5 @@ def test_correct_lon(shift):
     lon = ds["lon"].reset_coords(drop=True)
     ds = ds.assign_coords(lon=lon + shift)
     ds_lon_corrected = correct_lon(ds)
-    assert ds_lon_corrected.x.min() >= 0
-    assert ds_lon_corrected.x.max() <= 360
     assert ds_lon_corrected.lon.min() >= 0
     assert ds_lon_corrected.lat.max() <= 360
-    assert all(ds_lon_corrected.x.diff("x") > 0)

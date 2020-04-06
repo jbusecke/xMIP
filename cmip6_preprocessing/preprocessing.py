@@ -779,60 +779,6 @@ def promote_empty_dims(ds):
     return ds
 
 
-def replace_x_y_nominal_lat_lon(ds):
-    """Approximate the dimensional values of x and y with mean lat and lon at the equator"""
-    ds = ds.copy()
-
-    def fix_non_unique_np(data):
-        """remove duplicate values by linear interpolation"""
-        ii_range = np.arange(len(data))
-        _, indicies = np.unique(data, return_index=True)
-        double_idx = np.array([ii not in indicies for ii in ii_range])
-        print(f"non-unique values found at:{ii_range[double_idx]})")
-        data[double_idx] = np.interp(
-            ii_range[double_idx], ii_range[~double_idx], data[~double_idx]
-        )
-        return data
-
-    def maybe_fix_non_unique(da, dim):
-        print(f"DEBUG ({dim}): {da}")
-        da = da.copy()
-        if len(da) == len(np.unique(da)):
-            return da.data
-        else:
-            fixed_da = fix_non_unique_np(da.load().data)
-            # repeat for as long as necessary to get unique dimensions
-            # Try 3 more times
-            iterations = 0
-            for ii in range(3):
-                if len(fixed_da) != len(np.unique(fixed_da)):
-                    fixed_da = fix_non_unique_np(fixed_da)
-                    iterations = ii
-            print(f"{iterations} iterations needed to fix non monotinic dim {dim}")
-            return fixed_da
-
-    if "x" in ds.dims and "y" in ds.dims:
-
-        # pick the nominal lon/lat values from the eastern
-        # and southern edge, and eliminate non unique values
-        # these occour e.g. in "MPI-ESM1-2-HR"
-
-        nominal_y = maybe_fix_non_unique(ds.isel(x=0).lat, "y")
-        nominal_x = maybe_fix_non_unique(ds.isel(y=len(ds.y) // 2).lon, "x")
-
-        ds = ds.assign_coords(x=nominal_x, y=nominal_y)
-
-        ds = ds.sortby("x")
-        ds = ds.sortby("y")
-
-    else:
-        warnings.warn(
-            "No x and y found in dimensions for source_id:%s. This likely means that you forgot to rename the dataset or this is the German unstructured model"
-            % ds.attrs["source_id"]
-        )
-    return ds
-
-
 # some of the models do not have 2d lon lats, correct that.
 def broadcast_lonlat(ds, verbose=True):
     """Some models (all `gr` grid_labels) have 1D lon lat arrays
@@ -846,6 +792,51 @@ def broadcast_lonlat(ds, verbose=True):
         ds.coords["lon"] = ds["lon"] * xr.ones_like(ds["lat"])
     if len(ds["lat"].dims) < 2:
         ds.coords["lat"] = xr.ones_like(ds["lon"]) * ds["lat"]
+    return ds
+
+
+def replace_x_y_nominal_lat_lon(ds):
+    """Approximate the dimensional values of x and y with mean lat and lon at the equator"""
+    ds = ds.copy()
+
+    def maybe_fix_non_unique(data, pad=False):
+        """remove duplicate values by linear interpolation if values are non-unique"""
+        if len(data) == len(np.unique(data)):
+            return data
+        else:
+            # pad each end with the other end.
+            ii_range = np.arange(len(data))
+            _, indicies = np.unique(data, return_index=True)
+            double_idx = np.array([ii not in indicies for ii in ii_range])
+            # print(f"non-unique values found at:{ii_range[double_idx]})")
+            data[double_idx] = np.interp(
+                ii_range[double_idx], ii_range[~double_idx], data[~double_idx]
+            )
+            return data
+
+    if "x" in ds.dims and "y" in ds.dims:
+
+        # pick the nominal lon/lat values from the eastern
+        # and southern edge, and eliminate non unique values
+        # these occour e.g. in "MPI-ESM1-2-HR"
+
+        nominal_y = maybe_fix_non_unique(ds.isel(x=0).lat.load().data, "y")
+        eq_idx = len(ds.y) // 2
+        nominal_x = maybe_fix_non_unique(ds.isel(y=eq_idx).lon.load().data, "x")
+
+        ds = ds.assign_coords(x=nominal_x, y=nominal_y)
+        ds = ds.sortby("x")
+        ds = ds.sortby("y")
+
+        # do one more interpolation for the x values, in case the boundary values were
+        # affected
+        ds = ds.assign_coords(x=maybe_fix_non_unique(ds.x.load().data))
+
+    else:
+        warnings.warn(
+            "No x and y found in dimensions for source_id:%s. This likely means that you forgot to rename the dataset or this is the German unstructured model"
+            % ds.attrs["source_id"]
+        )
     return ds
 
 
@@ -913,15 +904,20 @@ def correct_lon(ds):
     """Wraps negative x and lon values around to have 0-360 lons.
     longitude names expected to be corrected with `rename_cmip6`"""
     ds = ds.copy()
+    #
+    # x = ds["x"].data
+    # x = np.where(x < 0, 360 + x, x)
+    #
+    # lon = ds["lon"].data
+    # lon = np.where(lon < 0, 360 + lon, lon)
+    #
+    # ds = ds.assign_coords(x=x, lon=(ds.lon.dims, lon))
+    # ds = ds.sortby("x")
 
-    x = ds["x"].data
-    x = np.where(x < 0, 360 + x, x)
-
+    # only correct the actual longitude
     lon = ds["lon"].data
     lon = np.where(lon < 0, 360 + lon, lon)
-
-    ds = ds.assign_coords(x=x, lon=(ds.lon.dims, lon))
-    ds = ds.sortby("x")
+    ds = ds.assign_coords(lon=(ds.lon.dims, lon))
     return ds
 
 
@@ -932,14 +928,15 @@ def combined_preprocessing(ds):
         ds = rename_cmip6(ds)
         # promote empty dims to actual coordinates
         ds = promote_empty_dims(ds)
-        # broadcast lon/lat
-        ds = broadcast_lonlat(ds)
-        # replace x,y with nominal lon,lat
-        ds = replace_x_y_nominal_lat_lon(ds)
-        # shift all lons to consistent 0-360
-        ds = correct_lon(ds)
         # demote coordinates from data_variables (this is somehow reversed in intake)
         ds = correct_coordinates(ds)
+        # broadcast lon/lat
+        ds = broadcast_lonlat(ds)
+        # shift all lons to consistent 0-360
+        ds = correct_lon(ds)
         # fix the units
         ds = correct_units(ds)
+        # replace x,y with nominal lon,lat
+        ds = replace_x_y_nominal_lat_lon(ds)
+
     return ds
