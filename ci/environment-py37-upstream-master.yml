@@ -12,6 +12,7 @@ dependencies:
   - codecov
   - pytest-cov
   - black
+  - psutil
   - pip:
     - git+https://github.com/mathause/regionmask.git
     - git+https://github.com/pydata/xarray.git
