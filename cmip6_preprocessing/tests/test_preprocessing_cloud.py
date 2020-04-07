@@ -35,9 +35,14 @@ def _diagnose_doubles(data):
         print(f"Missing values Indicies[{missing}]/ Values[{missing_values}]")
 
 
-@pytest.mark.parametrize("grid_label", ["gr", "gn"])
+# These are too many tests. Perhaps I could load all the data first and then
+# test each dict item?
+
+# @pytest.mark.parametrize("grid_label", ["gr", "gn"])
+@pytest.mark.parametrize("grid_label", ["gn"])
 @pytest.mark.parametrize("experiment_id", ["historical"])
-@pytest.mark.parametrize("variable_id", ["o2", "thetao"])
+# @pytest.mark.parametrize("variable_id", ["o2", "thetao"])
+@pytest.mark.parametrize("variable_id", ["thetao"])
 @pytest.mark.parametrize("source_id", all_models())
 def test_lat_lon(col, source_id, experiment_id, grid_label, variable_id):
     cat = col.search(
