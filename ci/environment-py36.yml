@@ -14,4 +14,5 @@ dependencies:
   - pip:
     - codecov
     - pytest-cov
+    - pytest-xdist
     - black

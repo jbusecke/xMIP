@@ -15,4 +15,5 @@ dependencies:
   - regionmask # this will fail until the current version is released on conda
   - black
   - pytest-cov
+  - pytest-xdist
   - codecov
