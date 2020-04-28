@@ -49,12 +49,14 @@ def test_lat_lon(col, source_id, experiment_id, grid_label, variable_id):
         source_id=source_id,
         experiment_id=experiment_id,
         variable_id=variable_id,
+        member_id="r1i1p1f1",
         table_id="Omon",
         grid_label=grid_label,
     )
     ddict = cat.to_dataset_dict(
         zarr_kwargs={"consolidated": True, "decode_times": False},
         preprocess=combined_preprocessing,
+        storage_options={"token": "anon"},
     )
     if len(ddict) > 0:
         _, ds = ddict.popitem()
