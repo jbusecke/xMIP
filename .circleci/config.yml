@@ -39,8 +39,8 @@ shared: &shared
     - run:
         name: Running Tests
         command: |
-          pytest --junitxml=test-reports/junit.xml --cov=./ --verbose
-        no_output_timeout: 180m
+          pytest --junitxml=test-reports/junit.xml --cov=./ --verbose --ignore=cmip6_preprocessing/tests/test_preprocessing_cloud.py
+        no_output_timeout: 30m
     - run:
         name: Uploading code coverage report
         command: |

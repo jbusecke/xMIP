@@ -32,7 +32,6 @@ install:
   - pip install -e .
 script:
   - py.test cmip6_preprocessing -v --ignore=cmip6_preprocessing/tests/test_preprocessing_cloud.py --cov=cmip6_preprocessing --cov-config .coveragerc --cov-report term-missing
-    #- pytest -v --color=yes --cov=cmip6_preprocessing tests
 
 after_success:
   - conda install -c conda-forge codecov
