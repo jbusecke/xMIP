@@ -12,10 +12,12 @@ dependencies:
   - codecov
   - pytest-cov
   - black
+  - numpy
+  - pip
   - pip:
+    - pytest-xdist
     - git+https://github.com/mathause/regionmask.git
     - git+https://github.com/pydata/xarray.git
-    - git+https://github.com/numpy/numpy.git
     - git+https://github.com/pandas-dev/pandas.git
     - git+https://github.com/NCAR/intake-esm.git
     - git+https://github.com/xgcm/xgcm.git

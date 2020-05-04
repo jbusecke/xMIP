@@ -1,0 +1,87 @@
+version: 2
+# Tell CircleCI to use this workflow
+workflows:
+  version: 2
+  nightly:
+    triggers:
+      - schedule:
+          cron: "0 0 * * *"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - "upstream-dev"
+      - "python-3.6"
+      - "python-3.7"
+      - "python-3.8"
+  default:
+    jobs:
+      - "upstream-dev"
+      - "python-3.6"
+      - "python-3.7"
+      - "python-3.8"
+
+shared: &shared
+  steps:
+    - checkout
+    # - restore_cache:
+    #     key: deps-{{ checksum "./ci/environment.yml" }}
+    - run:
+        name: Install dependencies in (base environment)
+        command: |
+          conda env update -n base -f ${ENV_FILE}
+          pip install -e .
+    - run:
+        name: List packages in the current environment (base)
+        command: |
+          conda list
+    - run:
+        name: Running Tests
+        command: |
+          pytest --junitxml=test-reports/junit.xml --cov=./ --verbose --ignore=cmip6_preprocessing/tests/test_preprocessing_cloud.py
+        no_output_timeout: 30m
+    - run:
+        name: Uploading code coverage report
+        command: |
+          codecov
+    - store_test_results:
+        path: test-reports
+
+    - store_artifacts:
+        path: test-reports
+
+    # - save_cache:
+    #     key: deps-{{ checksum "./ci/environment.yml" }}
+    #     paths:
+    #       - "/opt/conda/pkgs"
+
+
+jobs:
+  "upstream-dev":
+    <<: *shared
+    docker:
+      - image: ncarxdev/miniconda:3.7
+    environment:
+      ENV_FILE: "./ci/environment-py37-upstream-master.yml"
+
+  "python-3.6":
+    <<: *shared
+    docker:
+      - image: ncarxdev/miniconda:3.6
+    environment:
+      ENV_FILE: "./ci/environment-py36.yml"
+
+  "python-3.7":
+    <<: *shared
+    docker:
+      - image: ncarxdev/miniconda:3.7
+    environment:
+      ENV_FILE: "./ci/environment-py37.yml"
+
+  "python-3.8":
+    <<: *shared
+    docker:
+      - image: ncarxdev/miniconda:3.8
+    environment:
+      ENV_FILE: "./ci/environment-py38.yml"

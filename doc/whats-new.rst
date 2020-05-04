@@ -10,7 +10,8 @@ v0.2.0 (unreleased)
 
 Breaking changes
 ~~~~~~~~~~~~~~~~
-
+- New implementation of `replace_x_y_nominal_lat_lon`, which avoids duplicate values in the derived dimensions (:issue:`34`) (:pull:`35`)
+By `Julius Busecke <https://github.com/jbusecke>`_
 
 New Features
 ~~~~~~~~~~~~
