@@ -673,6 +673,20 @@ def cmip6_renaming_dict():
             "vertex": "vertices",
             "time_bounds": "time_bnds",
         },
+        "TaiESM1": {  # this is a guess.
+            "x": ["i", "lon"],
+            "y": ["j", "lat"],
+            "lon": "longitude",
+            "lat": "latitude",
+            #             "lev": "lev", # no 3d data available as of now
+            #             "lev_bounds": "lev_bnds",
+            #             "lon_bounds": "vertices_longitude",
+            #             "lat_bounds": "vertices_latitude",
+            #             "lon_bounds": "vertices_longitude",
+            #             "lat_bounds": "vertices_latitude",
+            "vertex": "vertices",
+            "time_bounds": "time_bnds",
+        },
     }
     # cast all str into lists
     for model in dim_name_dict.keys():

@@ -6,10 +6,12 @@ import xarray as xr
 from cmip6_preprocessing.preprocessing import (
     cmip6_renaming_dict,
     rename_cmip6,
+    broadcast_lonlat,
     promote_empty_dims,
     replace_x_y_nominal_lat_lon,
     correct_coordinates,
     correct_lon,
+    correct_units,
 )
 
 # get all available ocean models from the cloud.
@@ -86,7 +88,8 @@ def create_test_ds(xname, yname, zname, xlen, ylen, zlen):
 @pytest.mark.parametrize("zname", ["lev", "olev", "olevel", "deptht", "deptht"])
 # @pytest.mark.parametrize("lonname", ["lon", "longitude"])
 # @pytest.mark.parametrize("latname", ["lat", "latitude"])
-def test_rename_cmip6(xname, yname, zname):
+@pytest.mark.parametrize("debug", [True, False])
+def test_rename_cmip6(xname, yname, zname, debug):
     xlen, ylen, zlen = (10, 5, 6)
     ds = create_test_ds(xname, yname, zname, xlen, ylen, zlen)
     # TODO: Build the bounds into this.
@@ -108,7 +111,7 @@ def test_rename_cmip6(xname, yname, zname):
         }
     }
 
-    ds_renamed = rename_cmip6(ds, universal_dict)
+    ds_renamed = rename_cmip6(ds, universal_dict, debug=debug)
     assert set(ds_renamed.dims) == set(["x", "y", "lev"])
     assert (set(ds_renamed.coords) - set(ds_renamed.dims)) == set(["lon", "lat"])
     assert xlen == len(ds_renamed.x)
@@ -139,6 +142,21 @@ def test_rename_cmip6_unkown_name(source_id):
         match=f"input dictionary empty for source_id: `{ds.attrs['source_id']}`",
     ):
         ds_renamed = rename_cmip6(ds, universal_dict)
+
+
+def test_broadcast_lonlat():
+    x = np.arange(-180, 179, 5)
+    y = np.arange(-90, 90, 6)
+    data = np.random.rand(len(x), len(y))
+    ds = xr.DataArray(data, dims=["x", "y"], coords={"x": x, "y": y}).to_dataset(
+        name="test"
+    )
+    expected = ds.copy()
+    expected.coords["lon"] = ds.x * xr.ones_like(ds.y)
+    expected.coords["lat"] = xr.ones_like(ds.x) * ds.y
+
+    ds_test = broadcast_lonlat(ds)
+    xr.testing.assert_identical(expected, ds_test)
 
 
 def test_promote_empty_dims():
@@ -257,3 +275,15 @@ def test_correct_lon(missing_values, shift):
     print(ds_lon_corrected.lon.load().data)
     assert ds_lon_corrected.lon.min() >= 0
     assert ds_lon_corrected.lon.max() <= 360
+
+
+def test_correct_units():
+    lev = np.arange(0, 200)
+    data = np.random.rand(*lev.shape)
+    ds = xr.DataArray(data, dims=["lev"], coords={"lev": lev}).to_dataset(name="test")
+    ds.attrs["source_id"] = "something"
+    ds.lev.attrs["units"] = "centimeters"
+
+    ds_test = correct_units(ds)
+    assert ds_test.lev.attrs["units"] == "m"
+    np.testing.assert_allclose(ds_test.lev.data, ds.lev.data / 100.0)
