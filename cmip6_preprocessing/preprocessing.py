@@ -940,7 +940,8 @@ def correct_lon(ds):
 
     # then adjust lon convention
     lon = np.where(lon < 0, 360 + lon, lon)
-    ds = ds.assign_coords(lon=(ds.lon.dims, lon))
+    lon = ds["lon"].where(ds["lon"] > 0, 360 + ds["lon"])
+    ds = ds.assign_coords(lon=lon)
     return ds
 
 
