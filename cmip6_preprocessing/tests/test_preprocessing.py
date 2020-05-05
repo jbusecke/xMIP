@@ -23,46 +23,6 @@ ocean_models = df_ocean.source_id.unique()
 # TODO: Need to adapt atmos only models
 all_models = ocean_models
 
-required_coords = ["x", "y", "lon", "lat"]
-additonal_coords = [
-    "lev",
-    "lev_bounds",
-    "bnds",
-    "time_bounds",
-    "vertex",
-    "lat_bounds",
-    "lon_bounds",
-]
-
-
-def test_renaming_dict_keys():
-    # check that each model has an entry
-    rename_dict = cmip6_renaming_dict()
-    print(set(all_models) - set(rename_dict.keys()))
-    assert set(all_models).issubset(set(rename_dict.keys()))
-
-
-@pytest.mark.parametrize("model", all_models)
-def test_renaming_dict_entry_keys(model):
-    if "AWI" not in model:  # excluding the unstructured awi model
-        # check that all required coords are there
-        for co in required_coords:
-            assert co in cmip6_renaming_dict()[model].keys()
-        # check that (if present) x and y contain lon and lat entries
-        if "x" in cmip6_renaming_dict()[model].keys():
-            assert "lon" in cmip6_renaming_dict()[model]["x"]
-        if "y" in cmip6_renaming_dict()[model].keys():
-            assert "lat" in cmip6_renaming_dict()[model]["y"]
-
-        # check that there are no extra entries
-        assert (
-            len(
-                set(cmip6_renaming_dict()[model].keys())
-                - set(required_coords + additonal_coords)
-            )
-            == 0
-        )
-
 
 def create_test_ds(xname, yname, zname, xlen, ylen, zlen):
     x = np.linspace(0, 359, 10)
@@ -86,62 +46,28 @@ def create_test_ds(xname, yname, zname, xlen, ylen, zlen):
 @pytest.mark.parametrize("xname", ["i", "x", "lon"])
 @pytest.mark.parametrize("yname", ["j", "y", "lat"])
 @pytest.mark.parametrize("zname", ["lev", "olev", "olevel", "deptht", "deptht"])
-# @pytest.mark.parametrize("lonname", ["lon", "longitude"])
-# @pytest.mark.parametrize("latname", ["lat", "latitude"])
-@pytest.mark.parametrize("debug", [True, False])
-def test_rename_cmip6(xname, yname, zname, debug):
+@pytest.mark.parametrize("missing_dim", [None, "x", "y", "z"])
+def test_rename_cmip6(xname, yname, zname, missing_dim):
     xlen, ylen, zlen = (10, 5, 6)
     ds = create_test_ds(xname, yname, zname, xlen, ylen, zlen)
-    # TODO: Build the bounds into this.
-    # Eventually I can use a universal dict will all possible combos instead
-    # of the lenghty beast I am using now.
-    universal_dict = {
-        "test_id": {
-            "x": ["i", "x", "lon"],
-            "y": ["j", "y", "lat"],
-            "lev": ["lev", "olev", "olevel", "deptht", "deptht"],
-            "lon": ["lon", "longitude"],
-            "lat": ["lat", "latitude"],
-            # "lev_bounds": "lev_bounds",
-            # "lon_bounds": "bounds_lon",
-            # "lat_bounds": "bounds_lat",
-            # "bnds": "axis_nbounds",
-            # "vertex": None,
-            # "time_bounds": "time_bnds",
-        }
-    }
 
-    ds_renamed = rename_cmip6(ds, universal_dict, debug=debug)
-    assert set(ds_renamed.dims) == set(["x", "y", "lev"])
-    assert (set(ds_renamed.coords) - set(ds_renamed.dims)) == set(["lon", "lat"])
-    assert xlen == len(ds_renamed.x)
-    assert ylen == len(ds_renamed.y)
-    assert zlen == len(ds_renamed.lev)
+    if missing_dim == "x":
+        ds = ds.drop_dims(xname)
+    elif missing_dim == "y":
+        ds = ds.drop_dims(yname)
+    elif missing_dim == "z":
+        ds = ds.drop_dims(zname)
 
-
-@pytest.mark.parametrize("source_id", ["test", "other"])
-def test_rename_cmip6_unkown_name(source_id):
-    xlen, ylen, zlen = (10, 5, 6)
-    ds = create_test_ds("x", "y", "z", xlen, ylen, zlen)
-    ds.attrs["source_id"] = source_id
-    # input dictionary empty for source_id: `%s`
-
-    # Test when there is no dict entry for the source_id
-    universal_dict = {}
-    with pytest.warns(
-        UserWarning,
-        match=f"No input dictionary entry for source_id: `{ds.attrs['source_id']}`",
-    ):
-        ds_renamed = rename_cmip6(ds, universal_dict)
-
-    # and now if the entry is there but its empty itself
-    # TODO: These can probably go as soon as I have implemented the single renaming dict
-    universal_dict = {source_id: {}}
-    with pytest.warns(
-        UserWarning,
-        match=f"input dictionary empty for source_id: `{ds.attrs['source_id']}`",
-    ):
-        ds_renamed = rename_cmip6(ds, universal_dict)
+    ds_renamed = rename_cmip6(ds, cmip6_renaming_dict())
+    assert set(ds_renamed.dims).issubset(set(["x", "y", "lev"]))
+    if missing_dim not in ["x", "y"]:
+        assert (set(ds_renamed.coords) - set(ds_renamed.dims)) == set(["lon", "lat"])
+    if not missing_dim == "x":
+        assert xlen == len(ds_renamed.x)
+    if not missing_dim == "y":
+        assert ylen == len(ds_renamed.y)
+    if not missing_dim == "z":
+        assert zlen == len(ds_renamed.lev)
 
 
 def test_broadcast_lonlat():
