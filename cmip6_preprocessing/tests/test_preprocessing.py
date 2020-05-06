@@ -12,6 +12,7 @@ from cmip6_preprocessing.preprocessing import (
     correct_coordinates,
     correct_lon,
     correct_units,
+    maybe_convert_bounds_to_vertex,
 )
 
 # get all available ocean models from the cloud.
@@ -166,6 +167,7 @@ def test_replace_x_y_nominal_lat_lon(dask):
         "lat",
         "lev",
         "bnds",
+        "vertex",
         "lev_bounds",
         "lon_bounds",
         "lat_bounds",
@@ -213,3 +215,128 @@ def test_correct_units():
     ds_test = correct_units(ds)
     assert ds_test.lev.attrs["units"] == "m"
     np.testing.assert_allclose(ds_test.lev.data, ds.lev.data / 100.0)
+
+
+def test_maybe_convert_bounds_to_vertex():
+    # create a ds with bounds
+    lon = np.arange(0, 10)
+    lat = np.arange(20, 30)
+    data = np.random.rand(len(lon), len(lat))
+    ds = xr.DataArray(
+        data, dims=["lon", "lat"], coords={"lon": lon, "lat": lat}
+    ).to_dataset(name="test")
+    for va in ["lon", "lat"]:
+        ds.coords[va + "_bounds"] = ds[va] * xr.DataArray([-0.01, 0.01], dims=["bnds"])
+
+    # create expected dataset
+    lon_b = xr.ones_like(ds.lat) * ds.coords["lon_bounds"]
+    lat_b = xr.ones_like(ds.lon) * ds.coords["lat_bounds"]
+
+    lon_v = xr.concat(
+        [lon_b.isel(bnds=ii).squeeze(drop=True) for ii in [0, 0, 1, 1]], dim="vertex"
+    )
+    lon_v = lon_v.reset_coords(drop=True)
+
+    lat_v = xr.concat(
+        [lat_b.isel(bnds=ii).squeeze(drop=True) for ii in [0, 1, 1, 0]], dim="vertex"
+    )
+    lat_v = lat_v.reset_coords(drop=True)
+
+    ds_expected = ds.copy()
+    ds_expected = ds_expected.assign_coords(
+        vertices_longitude=lon_v, vertices_latitude=lat_v
+    )
+
+    xr.testing.assert_identical(ds_expected, maybe_convert_bounds_to_vertex(ds))
+    # check that datasets that already conform to this are not changed
+    xr.testing.assert_identical(
+        ds_expected, maybe_convert_bounds_to_vertex(ds_expected)
+    )
+
+
+# def test_maybe_convert_vertex_to_bounds():
+#     # create a ds with bounds
+#     # create xarray
+#     lon_bounds = xr.DataArray(
+#         points_scrambled[:, 0],
+#         dims=["vertex"],
+#         coords={"x": 0, "y": 0},
+#         name="lon_bounds",
+#     ).expand_dims(["x", "y"])
+#     lat_bounds = xr.DataArray(
+#         points_scrambled[:, 1],
+#         dims=["vertex"],
+#         coords={"x": 0, "y": 0},
+#         name="lat_bounds",
+#     ).expand_dims(["x", "y"])
+#     da = (
+#         xr.DataArray([np.nan], coords={"x": 0, "y": 0})
+#         .expand_dims(["x", "y"])
+#         .to_dataset(name="test")
+#     )
+#     da = da.assign_coords({"lon_bounds": lon_bounds, "lat_bounds": lat_bounds})
+#
+#     lon = np.arange(0, 10)
+#     lat = np.arange(20, 30)
+#     data = np.random.rand(len(lon), len(lat))
+#     ds = xr.DataArray(
+#         data, dims=["lon", "lat"], coords={"lon": lon, "lat": lat}
+#     ).to_dataset(name="test")
+#     for va in ["lon", "lat"]:
+#         ds.coords[va + "_bounds"] = ds[va] * xr.DataArray([-0.01, 0.01], dims=["bnds"])
+#
+#     # create expected dataset
+#     lon_b = xr.ones_like(ds.lat) * ds.coords["lon_bounds"]
+#     lat_b = xr.ones_like(ds.lon) * ds.coords["lat_bounds"]
+#
+#     lon_bb = xr.concat(
+#         [lon_b.isel(bnds=ii).squeeze(drop=True) for ii in [0, 0, 1, 1]], dim="vertex"
+#     )
+#     lon_bb = lon_bb.reset_coords(drop=True)
+#
+#     lat_bb = xr.concat(
+#         [lat_b.isel(bnds=ii).squeeze(drop=True) for ii in [0, 1, 1, 0]], dim="vertex"
+#     )
+#     lat_bb = lat_bb.reset_coords(drop=True)
+#
+#     ds_expected = ds.copy()
+#     ds_expected = ds_expected.assign_coords(lon_bounds=lon_bb, lat_bounds=lat_bb)
+#
+#     xr.testing.assert_identical(ds_expected, maybe_convert_vertex_to_bounds(ds))
+#     # check that datasets that already conform to this are not changed
+#     xr.testing.assert_identical(
+#         ds_expected, maybe_convert_vertex_to_bounds(ds_expected)
+#     )
+#
+#
+# def test_sort_vertex_order():
+#     ordered_points = np.array([[1, 1, 2, 2], [3, 4, 4, 3]]).T
+#
+#     # check every permutation of the points
+#     for order in list(itertools.permutations([0, 1, 2, 3])):
+#         points_scrambled = ordered_points[order, :]
+#
+#         # create xarray
+#         lon_bounds = xr.DataArray(
+#             points_scrambled[:, 0],
+#             dims=["vertex"],
+#             coords={"x": 0, "y": 0},
+#             name="lon_bounds",
+#         ).expand_dims(["x", "y"])
+#         lat_bounds = xr.DataArray(
+#             points_scrambled[:, 1],
+#             dims=["vertex"],
+#             coords={"x": 0, "y": 0},
+#             name="lat_bounds",
+#         ).expand_dims(["x", "y"])
+#         da = (
+#             xr.DataArray([np.nan], coords={"x": 0, "y": 0})
+#             .expand_dims(["x", "y"])
+#             .to_dataset(name="test")
+#         )
+#         da = da.assign_coords({"lon_bounds": lon_bounds, "lat_bounds": lat_bounds})
+#
+#         da_sorted = sort_vertex_order(da).squeeze()
+#         new = np.vstack((da_sorted.lon_bounds, da_sorted.lat_bounds)).T
+#
+#         np.testing.assert_allclose(new, ordered_points)

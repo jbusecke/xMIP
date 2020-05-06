@@ -26,17 +26,10 @@ def cmip6_renaming_dict():
             "olevel_bounds",
             "zlev_bnds",
         ],
-        # i rename both vertex and bounds based coordinates the same here.
-        # they will be transformed later
-        "lon_bounds": [
-            "bounds_lon",
-            "bounds_nav_lon",
-            "lon_bnds",
-            "vertices_longitude" "x_bnds",
-        ],
-        "lat_bounds": [
-            "bounds_lat" "bounds_nav_lat" "lat_bnds" "vertices_latitude" "y_bnds"
-        ],
+        "lon_bounds": ["bounds_lon", "bounds_nav_lon", "lon_bnds", "x_bnds",],
+        "lat_bounds": ["bounds_lat", "bounds_nav_lat", "lat_bnds", "y_bnds"],
+        "vertices_longitude": ["vertices_longitude"],
+        "vertices_latitude": ["vertices_latitude"],
         "time_bounds": ["time_bounds", "time_bnds"],
     }
     return rename_dict
@@ -952,6 +945,30 @@ def correct_lon(ds):
     lon = np.where(lon < 0, 360 + lon, lon)
     lon = ds["lon"].where(ds["lon"] > 0, 360 + ds["lon"])
     ds = ds.assign_coords(lon=lon)
+    return ds
+
+
+def maybe_convert_bounds_to_vertex(ds):
+    # this should probably be done in the preprocessing module
+    ds = ds.copy()
+    if "bnds" in ds.dims:
+        lon_b = xr.ones_like(ds.lat) * ds.coords["lon_bounds"]
+        lat_b = xr.ones_like(ds.lon) * ds.coords["lat_bounds"]
+
+        lon_bb = xr.concat(
+            [lon_b.isel(bnds=ii).squeeze(drop=True) for ii in [0, 0, 1, 1]],
+            dim="vertex",
+        )
+        lon_bb = lon_bb.reset_coords(drop=True)
+
+        lat_bb = xr.concat(
+            [lat_b.isel(bnds=ii).squeeze(drop=True) for ii in [0, 1, 1, 0]],
+            dim="vertex",
+        )
+        lat_bb = lat_bb.reset_coords(drop=True)
+
+        ds = ds.assign_coords(vertices_longitude=lon_bb, vertices_latitude=lat_bb)
+
     return ds
 
 
