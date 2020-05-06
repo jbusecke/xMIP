@@ -44,7 +44,7 @@ def _diagnose_doubles(data):
 # @pytest.mark.parametrize("variable_id", ["o2", "thetao"])
 @pytest.mark.parametrize("variable_id", ["thetao"])
 @pytest.mark.parametrize("source_id", all_models())
-def test_lat_lon(col, source_id, experiment_id, grid_label, variable_id):
+def test_preprocessing_combined(col, source_id, experiment_id, grid_label, variable_id):
     cat = col.search(
         source_id=source_id,
         experiment_id=experiment_id,
@@ -55,11 +55,23 @@ def test_lat_lon(col, source_id, experiment_id, grid_label, variable_id):
     )
     ddict = cat.to_dataset_dict(
         zarr_kwargs={"consolidated": True, "decode_times": False},
+        preprocess=None,
+        storage_options={"token": "anon"},
+    )
+    if len(ddict) > 0:
+        _, ds_raw = ddict.popitem()
+        print(ds_raw)
+
+    ddict = cat.to_dataset_dict(
+        zarr_kwargs={"consolidated": True, "decode_times": False},
         preprocess=combined_preprocessing,
         storage_options={"token": "anon"},
     )
     if len(ddict) > 0:
+
         _, ds = ddict.popitem()
+
+        ##### Check for dim duplicates
         # check all dims for duplicates
         # for di in ds.dims:
         # for now only test a subset of the dims. TODO: Add the bounds once they
@@ -76,6 +88,29 @@ def test_lat_lon(col, source_id, experiment_id, grid_label, variable_id):
         # make sure lon and lat are 2d
         assert len(ds.lon.shape) == 2
         assert len(ds.lat.shape) == 2
+
+        if source_id == "FGOALS-f3-L":
+            pytest.skip("`FGOALS-f3-L` does not come with lon/lat bounds")
+        else:
+            ####Check for existing bounds and verticies
+            for co in ["lon_bounds", "lat_bounds", "lon_verticies", "lat_verticies"]:
+                assert co in ds.coords
+
+            #### Check the order of the vertex
+            test_vertex = ds.isel(x=len(ds.x) // 2, y=len(ds.y) // 2)
+            assert test_vertex.lon_verticies.isel(
+                vertex=0
+            ) < test_vertex.lon_verticies.isel(vertex=3)
+            assert test_vertex.lon_verticies.isel(
+                vertex=1
+            ) < test_vertex.lon_verticies.isel(vertex=2)
+
+            assert test_vertex.lat_verticies.isel(
+                vertex=0
+            ) < test_vertex.lat_verticies.isel(vertex=1)
+            assert test_vertex.lat_verticies.isel(
+                vertex=3
+            ) < test_vertex.lat_verticies.isel(vertex=2)
 
     else:
         pytest.xfail("Model data not available")
