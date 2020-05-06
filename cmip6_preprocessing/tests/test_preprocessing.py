@@ -3,6 +3,7 @@ import intake
 import pandas as pd
 import numpy as np
 import xarray as xr
+import itertools
 from cmip6_preprocessing.preprocessing import (
     cmip6_renaming_dict,
     rename_cmip6,
@@ -13,6 +14,7 @@ from cmip6_preprocessing.preprocessing import (
     correct_lon,
     correct_units,
     maybe_convert_bounds_to_vertex,
+    sort_vertex_order,
 )
 
 # get all available ocean models from the cloud.
@@ -309,34 +311,34 @@ def test_maybe_convert_bounds_to_vertex():
 #     )
 #
 #
-# def test_sort_vertex_order():
-#     ordered_points = np.array([[1, 1, 2, 2], [3, 4, 4, 3]]).T
-#
-#     # check every permutation of the points
-#     for order in list(itertools.permutations([0, 1, 2, 3])):
-#         points_scrambled = ordered_points[order, :]
-#
-#         # create xarray
-#         lon_bounds = xr.DataArray(
-#             points_scrambled[:, 0],
-#             dims=["vertex"],
-#             coords={"x": 0, "y": 0},
-#             name="lon_bounds",
-#         ).expand_dims(["x", "y"])
-#         lat_bounds = xr.DataArray(
-#             points_scrambled[:, 1],
-#             dims=["vertex"],
-#             coords={"x": 0, "y": 0},
-#             name="lat_bounds",
-#         ).expand_dims(["x", "y"])
-#         da = (
-#             xr.DataArray([np.nan], coords={"x": 0, "y": 0})
-#             .expand_dims(["x", "y"])
-#             .to_dataset(name="test")
-#         )
-#         da = da.assign_coords({"lon_bounds": lon_bounds, "lat_bounds": lat_bounds})
-#
-#         da_sorted = sort_vertex_order(da).squeeze()
-#         new = np.vstack((da_sorted.lon_bounds, da_sorted.lat_bounds)).T
-#
-#         np.testing.assert_allclose(new, ordered_points)
+def test_sort_vertex_order():
+    ordered_points = np.array([[1, 1, 2, 2], [3, 4, 4, 3]]).T
+
+    # check every permutation of the points
+    for order in list(itertools.permutations([0, 1, 2, 3])):
+        points_scrambled = ordered_points[order, :]
+
+        # create xarray
+        lon_v = xr.DataArray(
+            points_scrambled[:, 0],
+            dims=["vertex"],
+            coords={"x": 0, "y": 0},
+            name="lon_bounds",
+        ).expand_dims(["x", "y"])
+        lat_v = xr.DataArray(
+            points_scrambled[:, 1],
+            dims=["vertex"],
+            coords={"x": 0, "y": 0},
+            name="lat_bounds",
+        ).expand_dims(["x", "y"])
+        da = (
+            xr.DataArray([np.nan], coords={"x": 0, "y": 0})
+            .expand_dims(["x", "y"])
+            .to_dataset(name="test")
+        )
+        da = da.assign_coords({"vertices_longitude": lon_v, "vertices_latitude": lat_v})
+
+        da_sorted = sort_vertex_order(da).squeeze()
+        new = np.vstack((da_sorted.vertices_longitude, da_sorted.vertices_latitude)).T
+
+        np.testing.assert_allclose(new, ordered_points)

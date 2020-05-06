@@ -949,7 +949,8 @@ def correct_lon(ds):
 
 
 def maybe_convert_bounds_to_vertex(ds):
-    # this should probably be done in the preprocessing module
+    """Converts renamed lon and lat bounds into verticies, by copying
+    the values into the corners. Assumes a rectangular cell."""
     ds = ds.copy()
     if "bnds" in ds.dims:
         lon_b = xr.ones_like(ds.lat) * ds.coords["lon_bounds"]
@@ -969,6 +970,42 @@ def maybe_convert_bounds_to_vertex(ds):
 
         ds = ds.assign_coords(vertices_longitude=lon_bb, vertices_latitude=lat_bb)
 
+    return ds
+
+
+def sort_vertex_order(ds):
+    """sorts the vertex dimension in a coherent order:
+    0: lower left
+    1: upper left
+    2: upper right
+    3: lower right
+    """
+
+    ds = ds.copy()
+    # pick a vertex in the middle of the domain, to avoid the pole areas
+    x_idx = len(ds.x) // 2
+    y_idx = len(ds.y) // 2
+
+    lon_b = ds.vertices_longitude.isel(x=x_idx, y=y_idx).load().data
+    lat_b = ds.vertices_latitude.isel(x=x_idx, y=y_idx).load().data
+    vert = ds.vertex.load().data
+
+    points = np.vstack((lon_b, lat_b, vert)).T
+
+    # split into left and right
+    lon_sorted = points[np.argsort(points[:, 0]), :]
+    right = lon_sorted[:2, :]
+    left = lon_sorted[2:, :]
+    # sort again on each side to get top and bottom
+    bl, tl = left[np.argsort(left[:, 1]), :]
+    br, tr = right[np.argsort(right[:, 1]), :]
+
+    points_sorted = np.vstack((bl, tl, tr, br))
+
+    idx_sorted = points_sorted.shape[0] - np.argsort(points_sorted[:, 2])
+
+    ds = ds.assign_coords(vertex=idx_sorted)
+    ds = ds.sortby("vertex")
     return ds
 
 
