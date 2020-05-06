@@ -24,6 +24,7 @@ def all_models():
     # TODO: finally get IPSL model to run and release this
     # TODO: Allow the AWI regridded model output for the preprocessing module
     return [m for m in all_models if (("IPSL" not in m) & ("AWI" not in m))]
+    # return [m for m in all_models if "MIROC" in m]
 
 
 def _diagnose_doubles(data):
@@ -38,29 +39,20 @@ def _diagnose_doubles(data):
 # These are too many tests. Perhaps I could load all the data first and then
 # test each dict item?
 
-# @pytest.mark.parametrize("grid_label", ["gr", "gn"])
-@pytest.mark.parametrize("grid_label", ["gn"])
+
+@pytest.mark.parametrize("grid_label", ["gr", "gn"])
 @pytest.mark.parametrize("experiment_id", ["historical"])
-# @pytest.mark.parametrize("variable_id", ["o2", "thetao"])
-@pytest.mark.parametrize("variable_id", ["thetao"])
+@pytest.mark.parametrize("variable_id", ["o2", "thetao"])
 @pytest.mark.parametrize("source_id", all_models())
 def test_preprocessing_combined(col, source_id, experiment_id, grid_label, variable_id):
     cat = col.search(
         source_id=source_id,
         experiment_id=experiment_id,
         variable_id=variable_id,
-        member_id="r1i1p1f1",
+        # member_id="r1i1p1f1",
         table_id="Omon",
         grid_label=grid_label,
     )
-    ddict = cat.to_dataset_dict(
-        zarr_kwargs={"consolidated": True, "decode_times": False},
-        preprocess=None,
-        storage_options={"token": "anon"},
-    )
-    if len(ddict) > 0:
-        _, ds_raw = ddict.popitem()
-        print(ds_raw)
 
     ddict = cat.to_dataset_dict(
         zarr_kwargs={"consolidated": True, "decode_times": False},
@@ -95,6 +87,7 @@ def test_preprocessing_combined(col, source_id, experiment_id, grid_label, varia
             ####Check for existing bounds and verticies
             for co in ["lon_bounds", "lat_bounds", "lon_verticies", "lat_verticies"]:
                 assert co in ds.coords
+                assert set(["x", "y"]).issubset(set(ds[co].dims))
 
             #### Check the order of the vertex
             test_vertex = ds.isel(x=len(ds.x) // 2, y=len(ds.y) // 2)

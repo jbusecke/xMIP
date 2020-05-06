@@ -102,6 +102,7 @@ def broadcast_lonlat(ds, verbose=True):
         ds.coords["lon"] = ds["lon"] * xr.ones_like(ds["lat"])
     if len(ds["lat"].dims) < 2:
         ds.coords["lat"] = xr.ones_like(ds["lon"]) * ds["lat"]
+
     return ds
 
 
@@ -230,6 +231,11 @@ def parse_lon_lat_bounds(ds):
         if ds.attrs["source_id"] == "FGOALS-f3-L":
             warnings.warn("`FGOALS-f3-L` does not provide lon or lat bounds.")
     ds = ds.copy()
+    if "x" not in ds.lat_bounds.dims:
+        ds.coords["lat_bounds"] = ds.coords["lat_bounds"] * xr.ones_like(ds.x)
+    if "y" not in ds.lon_bounds.dims:
+        ds.coords["lon_bounds"] = ds.coords["lon_bounds"] * xr.ones_like(ds.y)
+
     for va in ["lon", "lat"]:
         va_name = va + "_bounds"
         if va_name in ds.variables and "vertex" in ds[va_name].dims:
@@ -241,6 +247,7 @@ def parse_lon_lat_bounds(ds):
 
                 ds = ds.assign_coords({va_name: stripped_coord})
             ds = ds.rename({va_name: va + "_verticies"})
+
     return ds
 
 
