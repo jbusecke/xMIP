@@ -13,7 +13,9 @@ from cmip6_preprocessing.preprocessing import (
     correct_coordinates,
     correct_lon,
     correct_units,
+    parse_lon_lat_bounds,
     maybe_convert_bounds_to_vertex,
+    maybe_convert_vertex_to_bounds,
     sort_vertex_order,
 )
 
@@ -116,8 +118,7 @@ def test_replace_x_y_nominal_lat_lon(dask):
         ds.coords["lat"] = ds.coords["lat"].chunk({"x": -1, "y": -1})
 
     replaced_ds = replace_x_y_nominal_lat_lon(ds)
-    print(replaced_ds.x.data)
-    print(lon.data)
+
     np.testing.assert_allclose(replaced_ds.x, lon)
     np.testing.assert_allclose(replaced_ds.y, lat)
     assert all(replaced_ds.x.diff("x") > 0)
@@ -168,14 +169,12 @@ def test_replace_x_y_nominal_lat_lon(dask):
         "lon",
         "lat",
         "lev",
-        "bnds",
-        "vertex",
         "lev_bounds",
         "lon_bounds",
         "lat_bounds",
         "time_bounds",
-        "vertices_latitude",
-        "vertices_longitude",
+        "lat_verticies",
+        "lon_verticies",
     ],
 )
 def test_correct_coordinates(coord):
@@ -186,6 +185,38 @@ def test_correct_coordinates(coord):
 
     ds_corrected = correct_coordinates(ds)
     assert coord in list(ds_corrected.coords)
+
+
+def test_parse_lon_lat_bounds():
+    lon = np.arange(0, 10)
+    lat = np.arange(20, 30)
+    data = np.random.rand(len(lon), len(lat))
+    ds = xr.DataArray(data, dims=["x", "y"], coords={"x": lon, "y": lat}).to_dataset(
+        name="test"
+    )
+    ds.coords["lon"] = ds.x * xr.ones_like(ds.y)
+    ds.coords["lat"] = xr.ones_like(ds.x) * ds.y
+
+    ds.coords["lon_bounds"] = (
+        xr.DataArray([-0.1, -0.1, 0.1, 0.1], dims=["vertex"]) + ds["lon"]
+    )
+    ds.coords["lat_bounds"] = (
+        xr.DataArray([-0.1, 0.1, 0.1, -0.1], dims=["vertex"]) + ds["lat"]
+    )
+
+    ds_test = parse_lon_lat_bounds(ds)
+    assert "lon_verticies" in ds_test.coords
+    assert "lat_verticies" in ds_test.coords
+
+    # introduce a time diemension
+    ds_wrong = ds.copy()
+    ds_wrong.coords["lon_bounds"] = ds_wrong.coords["lon_bounds"] * xr.DataArray(
+        range(5), dims=["time"]
+    )
+
+    ds_test2 = parse_lon_lat_bounds(ds_wrong)
+    assert "time" in ds_wrong.dims
+    assert "time" not in ds_test2.variables
 
 
 @pytest.mark.parametrize("missing_values", [False, 1e36, -1e36])
@@ -202,7 +233,6 @@ def test_correct_lon(missing_values, shift):
         lon[10:20, 10:20] = missing_values
         ds["lon"].data = lon
     ds_lon_corrected = correct_lon(ds)
-    print(ds_lon_corrected.lon.load().data)
     assert ds_lon_corrected.lon.min() >= 0
     assert ds_lon_corrected.lon.max() <= 360
 
@@ -228,7 +258,7 @@ def test_maybe_convert_bounds_to_vertex():
         data, dims=["lon", "lat"], coords={"lon": lon, "lat": lat}
     ).to_dataset(name="test")
     for va in ["lon", "lat"]:
-        ds.coords[va + "_bounds"] = ds[va] * xr.DataArray([-0.01, 0.01], dims=["bnds"])
+        ds.coords[va + "_bounds"] = ds[va] + xr.DataArray([-0.01, 0.01], dims=["bnds"])
 
     # create expected dataset
     lon_b = xr.ones_like(ds.lat) * ds.coords["lon_bounds"]
@@ -245,9 +275,7 @@ def test_maybe_convert_bounds_to_vertex():
     lat_v = lat_v.reset_coords(drop=True)
 
     ds_expected = ds.copy()
-    ds_expected = ds_expected.assign_coords(
-        vertices_longitude=lon_v, vertices_latitude=lat_v
-    )
+    ds_expected = ds_expected.assign_coords(lon_verticies=lon_v, lat_verticies=lat_v)
 
     xr.testing.assert_identical(ds_expected, maybe_convert_bounds_to_vertex(ds))
     # check that datasets that already conform to this are not changed
@@ -256,61 +284,41 @@ def test_maybe_convert_bounds_to_vertex():
     )
 
 
-# def test_maybe_convert_vertex_to_bounds():
-#     # create a ds with bounds
-#     # create xarray
-#     lon_bounds = xr.DataArray(
-#         points_scrambled[:, 0],
-#         dims=["vertex"],
-#         coords={"x": 0, "y": 0},
-#         name="lon_bounds",
-#     ).expand_dims(["x", "y"])
-#     lat_bounds = xr.DataArray(
-#         points_scrambled[:, 1],
-#         dims=["vertex"],
-#         coords={"x": 0, "y": 0},
-#         name="lat_bounds",
-#     ).expand_dims(["x", "y"])
-#     da = (
-#         xr.DataArray([np.nan], coords={"x": 0, "y": 0})
-#         .expand_dims(["x", "y"])
-#         .to_dataset(name="test")
-#     )
-#     da = da.assign_coords({"lon_bounds": lon_bounds, "lat_bounds": lat_bounds})
-#
-#     lon = np.arange(0, 10)
-#     lat = np.arange(20, 30)
-#     data = np.random.rand(len(lon), len(lat))
-#     ds = xr.DataArray(
-#         data, dims=["lon", "lat"], coords={"lon": lon, "lat": lat}
-#     ).to_dataset(name="test")
-#     for va in ["lon", "lat"]:
-#         ds.coords[va + "_bounds"] = ds[va] * xr.DataArray([-0.01, 0.01], dims=["bnds"])
-#
-#     # create expected dataset
-#     lon_b = xr.ones_like(ds.lat) * ds.coords["lon_bounds"]
-#     lat_b = xr.ones_like(ds.lon) * ds.coords["lat_bounds"]
-#
-#     lon_bb = xr.concat(
-#         [lon_b.isel(bnds=ii).squeeze(drop=True) for ii in [0, 0, 1, 1]], dim="vertex"
-#     )
-#     lon_bb = lon_bb.reset_coords(drop=True)
-#
-#     lat_bb = xr.concat(
-#         [lat_b.isel(bnds=ii).squeeze(drop=True) for ii in [0, 1, 1, 0]], dim="vertex"
-#     )
-#     lat_bb = lat_bb.reset_coords(drop=True)
-#
-#     ds_expected = ds.copy()
-#     ds_expected = ds_expected.assign_coords(lon_bounds=lon_bb, lat_bounds=lat_bb)
-#
-#     xr.testing.assert_identical(ds_expected, maybe_convert_vertex_to_bounds(ds))
-#     # check that datasets that already conform to this are not changed
-#     xr.testing.assert_identical(
-#         ds_expected, maybe_convert_vertex_to_bounds(ds_expected)
-#     )
-#
-#
+def test_maybe_convert_vertex_to_bounds():
+    # create a ds with verticies
+    lon = np.arange(0, 10)
+    lat = np.arange(20, 30)
+    data = np.random.rand(len(lon), len(lat))
+    ds = xr.DataArray(data, dims=["x", "y"], coords={"x": lon, "y": lat}).to_dataset(
+        name="test"
+    )
+    ds.coords["lon"] = ds.x * xr.ones_like(ds.y)
+    ds.coords["lat"] = xr.ones_like(ds.x) * ds.y
+
+    ds.coords["lon_verticies"] = (
+        xr.DataArray([-0.1, -0.1, 0.1, 0.1], dims=["vertex"]) + ds["lon"]
+    )
+    ds.coords["lat_verticies"] = (
+        xr.DataArray([-0.1, 0.1, 0.1, -0.1], dims=["vertex"]) + ds["lat"]
+    )
+
+    # create expected dataset
+    ds_expected = ds.copy()
+    for va in ["lon", "lat"]:
+        ds_expected.coords[va + "_bounds"] = (
+            xr.DataArray([-0.1, 0.1], dims=["bnds"]) + ds_expected[va]
+        )
+    ds_expected = promote_empty_dims(ds_expected)
+
+    ds_test = maybe_convert_vertex_to_bounds(ds)
+
+    xr.testing.assert_identical(ds_expected, ds_test)
+    # check that datasets that already conform to this are not changed
+    xr.testing.assert_identical(
+        ds_expected, maybe_convert_vertex_to_bounds(ds_expected)
+    )
+
+
 def test_sort_vertex_order():
     ordered_points = np.array([[1, 1, 2, 2], [3, 4, 4, 3]]).T
 
@@ -336,9 +344,9 @@ def test_sort_vertex_order():
             .expand_dims(["x", "y"])
             .to_dataset(name="test")
         )
-        da = da.assign_coords({"vertices_longitude": lon_v, "vertices_latitude": lat_v})
+        da = da.assign_coords({"lon_verticies": lon_v, "lat_verticies": lat_v})
 
         da_sorted = sort_vertex_order(da).squeeze()
-        new = np.vstack((da_sorted.vertices_longitude, da_sorted.vertices_latitude)).T
+        new = np.vstack((da_sorted.lon_verticies, da_sorted.lat_verticies)).T
 
         np.testing.assert_allclose(new, ordered_points)

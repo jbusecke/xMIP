@@ -26,717 +26,23 @@ def cmip6_renaming_dict():
             "olevel_bounds",
             "zlev_bnds",
         ],
-        "lon_bounds": ["bounds_lon", "bounds_nav_lon", "lon_bnds", "x_bnds",],
-        "lat_bounds": ["bounds_lat", "bounds_nav_lat", "lat_bnds", "y_bnds"],
-        "vertices_longitude": ["vertices_longitude"],
-        "vertices_latitude": ["vertices_latitude"],
+        "lon_bounds": [
+            "bounds_lon",
+            "bounds_nav_lon",
+            "lon_bnds",
+            "x_bnds",
+            "vertices_longitude",
+        ],
+        "lat_bounds": [
+            "bounds_lat",
+            "bounds_nav_lat",
+            "lat_bnds",
+            "y_bnds",
+            "vertices_latitude",
+        ],
         "time_bounds": ["time_bounds", "time_bnds"],
     }
     return rename_dict
-
-
-#
-# def cmip6_renaming_dict():
-#     # I could probably simplify this with a generalized single dict,
-#     # which has every single possible `wrong` name and then for each model
-#     # the renaming function just goes through them...
-#
-#     """central database for renaming the dataset."""
-#     dim_name_dict = {
-#         "AWI-CM-1-1-MR": {},
-#         "AWI-CM-1-1-LR": {},
-#         "AWI-ESM-1-1-LR": {},
-#         "BCC-CSM2-MR": {
-#             "x": "lon",
-#             "y": "lat",
-#             "lon": "longitude",
-#             "lat": "latitude",
-#             "lev": "lev",
-#             "bnds": "bnds",
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": "lon_bnds",
-#             "lat_bounds": "lat_bnds",
-#             "vertex": None,
-#             "time_bounds": "time_bnds",
-#         },
-#         "BCC-ESM1": {
-#             "x": "lon",
-#             "y": "lat",
-#             "lon": "longitude",
-#             "lat": "latitude",
-#             "lev": "lev",
-#             "bnds": "bnds",
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": "lon_bnds",
-#             "lat_bounds": "lat_bnds",
-#             "vertex": "vertex",
-#             "time_bounds": "time_bnds",
-#         },
-#         "CAMS-CSM1-0": {
-#             "x": ["i", "lon"],
-#             "y": ["j", "lat"],
-#             "lon": "longitude",
-#             "lat": "latitude",
-#             "lev": "lev",
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": None,
-#             "lat_bounds": None,
-#             "vertex": "vertices",
-#             "time_bounds": "time_bnds",
-#         },
-#         "CanESM5": {
-#             "x": ["i", "lon"],
-#             "y": ["j", "lat"],
-#             "lon": "longitude",
-#             "lat": "latitude",
-#             "lev": "lev",
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": None,
-#             "lat_bounds": None,
-#             "time_bounds": "time_bnds",
-#             "vertex": "vertices",
-#         },
-#         "CanESM5-CanOE": {
-#             "x": "i",
-#             "y": "j",
-#             "lon": "longitude",
-#             "lat": "latitude",
-#             "lev": "lev",
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": "vertices_longitude",
-#             "lat_bounds": "vertices_latitude",
-#             "vertex": "vertices",
-#         },
-#         "CNRM-CM6-1": {
-#             "x": ["x", "lon"],
-#             "y": ["y", "lat"],
-#             "lon": "lon",
-#             "lat": "lat",
-#             "lev": "lev",
-#             "bnds": "axis_nbounds",
-#             "lev_bounds": "lev_bounds",
-#             "lon_bounds": "bounds_lon",
-#             "lat_bounds": "bounds_lat",
-#             "vertex": "nvertex",
-#             "time_bounds": "time_bnds",
-#         },
-#         "CNRM-ESM2-1": {
-#             "x": ["x", "lon"],
-#             "y": ["y", "lat"],
-#             "lon": "lon",
-#             "lat": "lat",
-#             "lev": "lev",
-#             "lev_bounds": "lev_bounds",
-#             "lon_bounds": "bounds_lon",
-#             "lat_bounds": "bounds_lat",
-#             "bnds": "axis_nbounds",
-#             "vertex": None,
-#             "time_bounds": "time_bnds",
-#         },
-#         "E3SM-1-0": {
-#             "x": "lon",
-#             "y": "lat",
-#             "lon": None,
-#             "lat": None,
-#             "lev": "lev",
-#             "bnds": "bnds",
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": "lon_bnds",
-#             "lat_bounds": "lat_bnds",
-#             "time_bounds": "time_bounds",
-#             "vertex": None,
-#         },
-#         "E3SM-1-1": {
-#             "x": "lon",
-#             "y": "lat",
-#             "lon": None,
-#             "lat": None,
-#             "lev": "lev",
-#             "bnds": "bnds",
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": "lon_bnds",
-#             "lat_bounds": "lat_bnds",
-#             "time_bounds": "time_bounds",
-#             "vertex": None,
-#         },
-#         "E3SM-1-1-ECA": {
-#             "x": "lon",
-#             "y": "lat",
-#             "lon": None,
-#             "lat": None,
-#             "lev": "lev",
-#             "bnds": "bnds",
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": "lon_bnds",
-#             "lat_bounds": "lat_bnds",
-#             "time_bounds": "time_bounds",
-#             "vertex": None,
-#         },
-#         "EC-Earth3-LR": {
-#             "x": ["i", "lon"],
-#             "y": ["j", "lat"],
-#             "lon": "longitude",
-#             "lat": "latitude",
-#             "lev": "lev",
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": None,
-#             "lat_bounds": None,
-#             "time_bounds": "time_bnds",
-#             #         'vertex': 'vertices',
-#             #         'dzt': 'thkcello',
-#         },
-#         "EC-Earth3-Veg": {
-#             "x": ["i", "lon"],
-#             "y": ["j", "lat"],
-#             "lon": "longitude",
-#             "lat": "latitude",
-#             "lev": "lev",
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": None,
-#             "lat_bounds": None,
-#             "vertex": "vertices",
-#             "time_bounds": "time_bnds",
-#             #         'dzt': 'thkcello',
-#         },
-#         "EC-Earth3": {
-#             "x": ["i", "lon"],
-#             "y": ["j", "lat"],
-#             "lon": "longitude",
-#             "lat": "latitude",
-#             "lev": "lev",
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": None,
-#             "lat_bounds": None,
-#             "time_bounds": "time_bnds",
-#             #         'vertex': 'vertices',
-#             #         'dzt': 'thkcello',
-#         },
-#         "FGOALS-f3-L": {
-#             "x": ["i", "lon"],
-#             "y": ["j", "lat"],
-#             "lon": "longitude",
-#             "lat": "latitude",
-#             "lev": "lev",
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": None,
-#             "lat_bounds": None,
-#             "time_bounds": "time_bnds",
-#             #         'vertex': 'vertices',
-#             #         'dzt': 'thkcello',
-#         },
-#         "NICAM16-7S": {
-#             "x": "lon",
-#             "y": "lat",
-#             "lon": None,
-#             "lat": None,
-#             "lon_bounds": "lon_bnds",
-#             "lat_bounds": "lat_bnds",
-#             "time_bounds": "time_bnds",
-#             "vertex": "vertices",
-#         },
-#         "MIROC-ES2L": {
-#             "x": ["x", "lon"],
-#             "y": ["y", "lat"],
-#             "lon": "longitude",
-#             "lat": "latitude",
-#             "lev": ["lev", "zlev"],
-#             "lev_bounds": ["lev_bnds", "zlev_bnds"],
-#             "lon_bounds": "x_bnds",
-#             "lat_bounds": "y_bnds",
-#             "time_bounds": "time_bnds",
-#             "vertex": "vertices",
-#         },
-#         "MIROC6": {
-#             "x": ["x", "lon"],
-#             "y": ["y", "lat"],
-#             "lon": "longitude",
-#             "lat": "latitude",
-#             "lev": "lev",
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": "x_bnds",
-#             "lat_bounds": "y_bnds",
-#             "time_bounds": "time_bnds",
-#         },
-#         "HadGEM3-GC31-LL": {
-#             "x": ["i", "lon"],
-#             "y": ["j", "lat"],
-#             "lon": "longitude",
-#             "lat": "latitude",
-#             "lev": "lev",
-#             "lev_bounds": "lev_bounds",
-#             "lon_bounds": None,
-#             "lat_bounds": None,
-#             "time_bounds": "time_bnds",
-#         },
-#         "HadGEM3-GC31-MM": {
-#             "x": ["i", "lon"],
-#             "y": ["j", "lat"],
-#             "lon": "longitude",
-#             "lat": "latitude",
-#             "lev": "lev",
-#             "lev_bounds": "lev_bounds",
-#             "lon_bounds": None,
-#             "lat_bounds": None,
-#             "time_bounds": "time_bnds",
-#         },
-#         "UKESM1-0-LL": {
-#             "x": ["i", "lon"],
-#             "y": ["j", "lat"],
-#             "lon": "longitude",
-#             "lat": "latitude",
-#             "lev": "lev",
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": None,
-#             "lat_bounds": None,
-#             "time_bounds": "time_bnds",
-#             #         'vertex': 'vertices',
-#             #         'dzt': 'thkcello',
-#         },
-#         "GISS-E2-2-G": {
-#             "x": "lon",
-#             "y": "lat",
-#             "lon": None,
-#             "lat": None,
-#             "lev": "lev",
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": "lon_bnds",
-#             "lat_bounds": "lat_bnds",
-#             "vertex": None,
-#             "time_bounds": "time_bnds",
-#         },
-#         "GISS-E2-1-G-CC": {
-#             "x": "lon",
-#             "y": "lat",
-#             "lon": None,
-#             "lat": None,
-#             "lev": "lev",
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": "lon_bnds",
-#             "lat_bounds": "lat_bnds",
-#             "vertex": None,
-#             "time_bounds": "time_bnds",
-#         },
-#         "GISS-E2-1-G": {
-#             "x": "lon",
-#             "y": "lat",
-#             "lon": None,
-#             "lat": None,
-#             "lev": "lev",
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": "lon_bnds",
-#             "lat_bounds": "lat_bnds",
-#             "vertex": None,
-#             "time_bounds": "time_bnds",
-#         },
-#         "GISS-E2-1-H": {
-#             "x": "lon",
-#             "y": "lat",
-#             "lon": None,
-#             "lat": None,
-#             "lev": "lev",
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": "lon_bnds",
-#             "lat_bounds": "lat_bnds",
-#             "vertex": None,
-#             "time_bounds": "time_bnds",
-#         },
-#         "CESM1-1-CAM5-CMIP5": {
-#             "x": ["nlon", "lon"],
-#             "y": ["nlat", "lat"],
-#             "lon": "lon",
-#             "lat": "lat",
-#             "lev": "lev",
-#             "bnds": "d2",
-#             "time_bounds": "time_bnds",
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": "lon_bnds",
-#             "lat_bounds": "lat_bnds",
-#             "vertex": "vertices",
-#         },
-#         "CESM2-WACCM": {
-#             "x": ["nlon", "lon"],
-#             "y": ["nlat", "lat"],
-#             "lon": "lon",
-#             "lat": "lat",
-#             "lev": "lev",
-#             "bnds": "d2",
-#             "time_bounds": "time_bnds",
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": "lon_bnds",
-#             "lat_bounds": "lat_bnds",
-#             "vertex": "vertices",
-#         },
-#         "CESM2-WACCM-FV2": {
-#             "x": ["nlon", "lon"],
-#             "y": ["nlat", "lat"],
-#             "lon": "lon",
-#             "lat": "lat",
-#             "lev": "lev",
-#             "bnds": "d2",
-#             "time_bounds": "time_bnds",
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": "lon_bnds",
-#             "lat_bounds": "lat_bnds",
-#             "vertex": "vertices",
-#         },
-#         "CESM2": {
-#             "x": ["nlon", "lon"],
-#             "y": ["nlat", "lat"],
-#             "lon": "lon",
-#             "lat": "lat",
-#             "lev": "lev",
-#             "bnds": "d2",
-#             "time_bounds": "time_bnds",
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": "lon_bnds",
-#             "lat_bounds": "lat_bnds",
-#             "vertex": "vertices",
-#         },
-#         "CESM2-FV2": {
-#             "x": ["nlon", "lon"],
-#             "y": ["nlat", "lat"],
-#             "lon": "lon",
-#             "lat": "lat",
-#             "lev": "lev",
-#             "bnds": "d2",
-#             "time_bounds": "time_bnds",
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": "lon_bnds",
-#             "lat_bounds": "lat_bnds",
-#             "vertex": "vertices",
-#         },
-#         "GFDL-CM4": {
-#             "x": ["x", "lon"],
-#             "y": ["y", "lat"],
-#             "lon": "lon",
-#             "lat": "lat",
-#             "lev": "lev",
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": "lon_bnds",
-#             "lat_bounds": "lat_bnds",
-#             "time_bounds": "time_bnds",
-#             #         'vertex': 'vertex',
-#             #         'dzt': 'thkcello',
-#         },
-#         "GFDL-OM4p5B": {
-#             "x": ["x", "lon"],
-#             "y": ["y", "lat"],
-#             "lon": "lon",
-#             "lat": "lat",
-#             "lev": "lev",
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": "lon_bnds",
-#             "lat_bounds": "lat_bnds",
-#             "time_bounds": "time_bnds",
-#             #         'vertex': 'vertex',
-#             #         'dzt': 'thkcello',
-#         },
-#         "GFDL-ESM4": {
-#             "x": ["x", "lon"],
-#             "y": ["y", "lat"],
-#             "lon": "lon",
-#             "lat": "lat",
-#             "lev": "lev",
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": "lon_bnds",
-#             "lat_bounds": "lat_bnds",
-#             "time_bounds": "time_bnds",
-#             #         'vertex': 'vertex',
-#             #         'dzt': 'thkcello',
-#         },
-#         "NESM3": {
-#             "x": ["i", "lon"],
-#             "y": ["j", "lat"],
-#             "lon": "longitude",
-#             "lat": "latitude",
-#             "lev": "lev",
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": None,
-#             "lat_bounds": None,
-#             "vertex": "vertices",
-#             "time_bounds": "time_bnds",
-#             #         'dzt': 'thkcello',
-#         },
-#         "MRI-ESM2-0": {
-#             "x": ["x", "lon"],
-#             "y": ["y", "lat"],
-#             "lon": "longitude",
-#             "lat": "latitude",
-#             "lev": "lev",
-#             "bnds": "bnds",
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": ["x_bnds", "lon_bnds"],
-#             "lat_bounds": ["y_bnds", "lat_bnds"],
-#             "time_bounds": "time_bnds",
-#             "vertex": "vertices",
-#         },
-#         "SAM0-UNICON": {
-#             "x": ["i", "lon"],
-#             "y": ["j", "lat"],
-#             "lon": "longitude",
-#             "lat": "latitude",
-#             "lev": "lev",
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": None,
-#             "lat_bounds": None,
-#             "vertex": "vertices",
-#             "time_bounds": "time_bnds",
-#             #         'dzt': 'thkcello',
-#         },
-#         "MCM-UA-1-0": {
-#             "x": "longitude",
-#             "y": "latitude",
-#             "lon": None,
-#             "lat": None,
-#             "lev": "lev",
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": "lon_bnds",
-#             "lat_bounds": "lat_bnds",
-#             "time_bounds": "time_bnds",
-#             #         'vertex': 'vertices',
-#             #         'dzt': 'thkcello',
-#         },
-#         "IPSL-CM6A-LR": {
-#             "x": ["x", "lon"],
-#             "y": ["y", "lat"],
-#             "lon": "nav_lon",
-#             "lat": "nav_lat",
-#             "lev": ["lev", "deptht", "olevel"],
-#             "lev_bounds": ["lev_bounds", "deptht_bounds", "olevel_bounds"],
-#             "lon_bounds": "bounds_nav_lon",
-#             "lat_bounds": "bounds_nav_lat",
-#             "vertex": "nvertex",
-#             "bnds": "axis_nbounds",
-#             "time_bounds": "time_bnds",
-#             #         'dzt': 'thkcello',
-#         },
-#         "NorCPM1": {
-#             "x": ["i", "lon"],
-#             "y": ["j", "lat"],
-#             "lon": "longitude",
-#             "lat": "latitude",
-#             "lev": "lev",
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": None,
-#             "lat_bounds": None,
-#             "vertex": "vertices",
-#             "time_bounds": "time_bnds",
-#         },
-#         "NorESM1-F": {
-#             "x": ["i", "lon"],
-#             "y": ["j", "lat"],
-#             "lon": "longitude",
-#             "lat": "latitude",
-#             "lev": "lev",
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": "vertices_longitude",
-#             "lat_bounds": "vertices_latitude",
-#             "vertex": "vertices",
-#             "time_bounds": "time_bnds",
-#         },
-#         "NorESM2-LM": {
-#             "x": "i",
-#             "y": "j",
-#             "lon": "longitude",
-#             "lat": "latitude",
-#             "lev": "lev",
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": "vertices_longitude",
-#             "lat_bounds": "vertices_latitude",
-#             "vertex": "vertices",
-#             "time_bounds": "time_bnds",
-#         },
-#         "NorESM2-MM": {
-#             "x": "i",
-#             "y": "j",
-#             "lon": "longitude",
-#             "lat": "latitude",
-#             "lev": "lev",  # i leave this here because the names are the same as for the other Nor models.
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": "vertices_longitude",
-#             "lat_bounds": "vertices_latitude",
-#             "vertex": "vertices",
-#             "time_bounds": "time_bnds",
-#         },
-#         "MPI-ESM1-2-HR": {
-#             "x": ["i", "lon"],
-#             "y": ["j", "lat"],
-#             "lon": "longitude",
-#             "lat": "latitude",
-#             "lev": "lev",
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": "vertices_longitude",
-#             "lat_bounds": "vertices_latitude",
-#             "vertex": "vertices",
-#             "time_bounds": "time_bnds",
-#         },
-#         "MPI-ESM1-2-LR": {
-#             "x": "i",
-#             "y": "j",
-#             "lon": "longitude",
-#             "lat": "latitude",
-#             "lev": "lev",
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": "vertices_longitude",
-#             "lat_bounds": "vertices_latitude",
-#             "vertex": "vertices",
-#             "time_bounds": "time_bnds",
-#         },
-#         "MPI-ESM-1-2-HAM": {
-#             "x": "i",
-#             "y": "j",
-#             "lon": "longitude",
-#             "lat": "latitude",
-#             "lev": "lev",
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": "vertices_longitude",
-#             "lat_bounds": "vertices_latitude",
-#             "vertex": "vertices",
-#             "time_bounds": "time_bnds",
-#         },
-#         "CNRM-CM6-1-HR": {
-#             "x": "x",
-#             "y": "y",
-#             "lon": "lon",
-#             "lat": "lat",
-#             "lev": "lev",
-#             "lev_bounds": "lev_bounds",
-#             "lon_bounds": "bounds_lon",
-#             "lat_bounds": "bounds_lat",
-#             "vertex": None,
-#             "time_bounds": "time_bounds",
-#         },
-#         "FIO-ESM-2-0": {
-#             "x": "i",
-#             "y": "j",
-#             "lon": "longitude",
-#             "lat": "latitude",
-#             "lev": "lev",
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": "vertices_longitude",
-#             "lat_bounds": "vertices_latitude",
-#             "vertex": "vertices",
-#             "time_bounds": "time_bnds",
-#         },
-#         "ACCESS-ESM1-5": {
-#             "x": "i",
-#             "y": "j",
-#             "lon": "longitude",
-#             "lat": "latitude",
-#             "lev": "lev",
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": "vertices_longitude",
-#             "lat_bounds": "vertices_latitude",
-#             "vertex": "vertices",
-#             "time_bounds": "time_bnds",
-#         },
-#         "ACCESS-CM2": {
-#             "x": "i",
-#             "y": "j",
-#             "lon": "longitude",
-#             "lat": "latitude",
-#             "lev": "lev",
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": "vertices_longitude",
-#             "lat_bounds": "vertices_latitude",
-#             "vertex": "vertices",
-#             "time_bounds": "time_bnds",
-#         },
-#         "INM-CM4-8": {  # this is a guess.
-#             "x": "lon",
-#             "y": "lat",
-#             "lon": None,
-#             "lat": None,
-#             "lev": "lev",
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": "lon_bnds",
-#             "lat_bounds": "lat_bnds",
-#             "vertex": None,
-#             "time_bounds": "time_bnds",
-#         },
-#         "INM-CM5-0": {  # this is a guess.
-#             "x": "lon",
-#             "y": "lat",
-#             "lon": None,
-#             "lat": None,
-#             "lev": "lev",
-#             "lev_bounds": "lev_bnds",
-#             "lon_bounds": "lon_bnds",
-#             "lat_bounds": "lat_bnds",
-#             "vertex": None,
-#             "time_bounds": "time_bnds",
-#         },
-#         "MRI-ESM2-0": {
-#             "x": "x",
-#             "y": "y",
-#             "lon": "longitude",
-#             "lat": "latitude",
-#             "lev": "lev",
-#             "lev_bounds": "lev_bnds",
-#             #             "lon_bounds": 'x_bnds',
-#             #             "lat_bounds": 'y_bnds',
-#             #             'vertex': None, # this is a mess. there is yet another convention. Will have to deal with this once I wrap xgcm into here.
-#             "time_bounds": "time_bnds",
-#         },
-#         "CIESM": {  # this is a guess.
-#             "x": "i",
-#             "y": "j",
-#             "lon": "longitude",
-#             "lat": "latitude",
-#             #             "lev": "lev", # no 3d data available as of now
-#             #             "lev_bounds": "lev_bnds",
-#             "lon_bounds": "vertices_longitude",
-#             "lat_bounds": "vertices_latitude",
-#             "vertex": "vertices",
-#             "time_bounds": "time_bnds",
-#         },
-#         "KACE-1-0-G": {  # this is a guess.
-#             "x": "lon",
-#             "y": "lat",
-#             "lon": "longitude",
-#             "lat": "latitude",
-#             #             "lev": "lev", # no 3d data available as of now
-#             #             "lev_bounds": "lev_bnds",
-#             #             "lon_bounds": "vertices_longitude",
-#             #             "lat_bounds": "vertices_latitude",
-#             #             "lon_bounds": "vertices_longitude",
-#             #             "lat_bounds": "vertices_latitude",
-#             "vertex": "vertices",
-#             "time_bounds": "time_bnds",
-#         },
-#         "TaiESM1": {  # this is a guess.
-#             "x": ["i", "lon"],
-#             "y": ["j", "lat"],
-#             "lon": "longitude",
-#             "lat": "latitude",
-#             #             "lev": "lev", # no 3d data available as of now
-#             #             "lev_bounds": "lev_bnds",
-#             #             "lon_bounds": "vertices_longitude",
-#             #             "lat_bounds": "vertices_latitude",
-#             #             "lon_bounds": "vertices_longitude",
-#             #             "lat_bounds": "vertices_latitude",
-#             "vertex": "vertices",
-#             "time_bounds": "time_bnds",
-#         },
-#     }
-#     # cast all str into lists
-#     for model in dim_name_dict.keys():
-#         for field in dim_name_dict[model].keys():
-#             if (
-#                 isinstance(dim_name_dict[model][field], str)
-#                 or dim_name_dict[model][field] is None
-#             ):
-#                 dim_name_dict[model][field] = [dim_name_dict[model][field]]
-#         #     add 'lon' and 'lat' as possible logical indicies for all models. This should take care of all regridded ocean output and all atmosphere models.
-#         if "x" in dim_name_dict[model].keys():
-#             if not "lon" in dim_name_dict[model]["x"]:
-#                 dim_name_dict[model]["x"].append("lon")
-#
-#         if "y" in dim_name_dict[model].keys():
-#             if not "lat" in dim_name_dict[model]["y"]:
-#                 dim_name_dict[model]["y"].append("lat")
-#     return dim_name_dict
-#
 
 
 def rename_cmip6(ds, rename_dict=None):
@@ -769,21 +75,8 @@ def rename_cmip6(ds, rename_dict=None):
                         if not trigger:
                             ds = ds.rename({wrong: di})
                             trigger = True
+
     return ds
-
-
-# def rename_cmip6(ds, rename_dict=None):
-#     """rename dataset to a uniform dim/coords naming structure"""
-#     modelname = ds.attrs["source_id"]
-#
-#
-#     # if modelname not in rename_dict.keys():
-#     #     msg = f"No input dictionary entry for source_id: `{ds.attrs['source_id']}`. \
-#     #         Please add values to https://github.com/jbusecke/cmip6_preprocessing/blob/master/cmip6_preprocessing/preprocessing.py"
-#     #     warnings.warn(msg, UserWarning)
-#     #     return ds
-#     # else:
-#     return rename_cmip6_raw(ds, rename_dict[modelname])
 
 
 def promote_empty_dims(ds):
@@ -918,13 +211,32 @@ def correct_coordinates(ds, verbose=False):
         "lon_bounds",
         "lat_bounds",
         "time_bounds",
-        "vertices_latitude",
-        "vertices_longitude",
+        "lat_verticies",
+        "lon_verticies",
     ]:
         if co in ds.variables:
             if verbose:
                 print("setting %s as coord" % (co))
             ds = ds.set_coords(co)
+    return ds
+
+
+def parse_lon_lat_bounds(ds):
+    """both `regular` 2d bounds and vertex bounds are parsed as `*_bounds`.
+    This function renames them to `*_verticies` if the vertex dimension is found.
+    Also removes time dimension from lon/lat bounds as found in `SAM0-UNICON` model.
+    """
+    if "source_id" in ds.attrs.keys():
+        if ds.attrs["source_id"] == "FGOALS-f3-L":
+            warnings.warn("`FGOALS-f3-L` does not provide lon or lat bounds.")
+    ds = ds.copy()
+    for va in ["lon", "lat"]:
+        va_name = va + "_bounds"
+        if va_name in ds.variables and "vertex" in ds[va_name].dims:
+            if "time" in ds[va_name].dims:
+                stripped_coord = ds[va_name].isel(time=0).drop("time")
+                ds = ds.assign_coords({va_name: stripped_coord})
+            ds = ds.rename({va_name: va + "_verticies"})
     return ds
 
 
@@ -953,22 +265,51 @@ def maybe_convert_bounds_to_vertex(ds):
     the values into the corners. Assumes a rectangular cell."""
     ds = ds.copy()
     if "bnds" in ds.dims:
-        lon_b = xr.ones_like(ds.lat) * ds.coords["lon_bounds"]
-        lat_b = xr.ones_like(ds.lon) * ds.coords["lat_bounds"]
+        if "lon_bounds" in ds.variables and "lat_bounds" in ds.variables:
+            lon_b = xr.ones_like(ds.lat) * ds.coords["lon_bounds"]
+            lat_b = xr.ones_like(ds.lon) * ds.coords["lat_bounds"]
 
-        lon_bb = xr.concat(
-            [lon_b.isel(bnds=ii).squeeze(drop=True) for ii in [0, 0, 1, 1]],
-            dim="vertex",
-        )
-        lon_bb = lon_bb.reset_coords(drop=True)
+            lon_bb = xr.concat(
+                [lon_b.isel(bnds=ii).squeeze(drop=True) for ii in [0, 0, 1, 1]],
+                dim="vertex",
+            )
+            lon_bb = lon_bb.reset_coords(drop=True)
 
-        lat_bb = xr.concat(
-            [lat_b.isel(bnds=ii).squeeze(drop=True) for ii in [0, 1, 1, 0]],
-            dim="vertex",
-        )
-        lat_bb = lat_bb.reset_coords(drop=True)
+            lat_bb = xr.concat(
+                [lat_b.isel(bnds=ii).squeeze(drop=True) for ii in [0, 1, 1, 0]],
+                dim="vertex",
+            )
+            lat_bb = lat_bb.reset_coords(drop=True)
 
-        ds = ds.assign_coords(vertices_longitude=lon_bb, vertices_latitude=lat_bb)
+            ds = ds.assign_coords(lon_verticies=lon_bb, lat_verticies=lat_bb)
+
+    return ds
+
+
+def maybe_convert_vertex_to_bounds(ds):
+    """Converts lon and lat verticies to bounds by averaging corner points
+    on the appropriate cell face center."""
+
+    ds = ds.copy()
+    if "vertex" in ds.dims:
+        if "lon_verticies" in ds.variables and "lat_verticies" in ds.variables:
+            lon_b = xr.concat(
+                [
+                    ds["lon_verticies"].isel(vertex=[0, 1]).mean("vertex"),
+                    ds["lon_verticies"].isel(vertex=[2, 3]).mean("vertex"),
+                ],
+                dim="bnds",
+            )
+            lat_b = xr.concat(
+                [
+                    ds["lat_verticies"].isel(vertex=[0, 3]).mean("vertex"),
+                    ds["lat_verticies"].isel(vertex=[1, 2]).mean("vertex"),
+                ],
+                dim="bnds",
+            )
+
+            ds = ds.assign_coords(lon_bounds=lon_b, lat_bounds=lat_b)
+            ds = promote_empty_dims(ds)
 
     return ds
 
@@ -980,32 +321,37 @@ def sort_vertex_order(ds):
     2: upper right
     3: lower right
     """
+    if (
+        "vertex" in ds.dims
+        and "lon_verticies" in ds.variables
+        and "lat_verticies" in ds.variables
+    ):
 
-    ds = ds.copy()
-    # pick a vertex in the middle of the domain, to avoid the pole areas
-    x_idx = len(ds.x) // 2
-    y_idx = len(ds.y) // 2
+        ds = ds.copy()
+        # pick a vertex in the middle of the domain, to avoid the pole areas
+        x_idx = len(ds.x) // 2
+        y_idx = len(ds.y) // 2
 
-    lon_b = ds.vertices_longitude.isel(x=x_idx, y=y_idx).load().data
-    lat_b = ds.vertices_latitude.isel(x=x_idx, y=y_idx).load().data
-    vert = ds.vertex.load().data
+        lon_b = ds.lon_verticies.isel(x=x_idx, y=y_idx).load().data
+        lat_b = ds.lat_verticies.isel(x=x_idx, y=y_idx).load().data
+        vert = ds.vertex.load().data
 
-    points = np.vstack((lon_b, lat_b, vert)).T
+        points = np.vstack((lon_b, lat_b, vert)).T
 
-    # split into left and right
-    lon_sorted = points[np.argsort(points[:, 0]), :]
-    right = lon_sorted[:2, :]
-    left = lon_sorted[2:, :]
-    # sort again on each side to get top and bottom
-    bl, tl = left[np.argsort(left[:, 1]), :]
-    br, tr = right[np.argsort(right[:, 1]), :]
+        # split into left and right
+        lon_sorted = points[np.argsort(points[:, 0]), :]
+        right = lon_sorted[:2, :]
+        left = lon_sorted[2:, :]
+        # sort again on each side to get top and bottom
+        bl, tl = left[np.argsort(left[:, 1]), :]
+        br, tr = right[np.argsort(right[:, 1]), :]
 
-    points_sorted = np.vstack((bl, tl, tr, br))
+        points_sorted = np.vstack((bl, tl, tr, br))
 
-    idx_sorted = points_sorted.shape[0] - np.argsort(points_sorted[:, 2])
+        idx_sorted = points_sorted.shape[0] - np.argsort(points_sorted[:, 2])
 
-    ds = ds.assign_coords(vertex=idx_sorted)
-    ds = ds.sortby("vertex")
+        ds = ds.assign_coords(vertex=idx_sorted)
+        ds = ds.sortby("vertex")
     return ds
 
 
@@ -1026,5 +372,11 @@ def combined_preprocessing(ds):
         ds = correct_units(ds)
         # replace x,y with nominal lon,lat
         ds = replace_x_y_nominal_lat_lon(ds)
+        # convert vertex into bounds and vice versa, so both are available
+        ds = parse_lon_lat_bounds(ds)
+        ds = maybe_convert_bounds_to_vertex(ds)
+        ds = maybe_convert_vertex_to_bounds(ds)
+        # sort verticies in a consistent manner
+        ds = sort_vertex_order(ds)
 
     return ds
