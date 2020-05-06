@@ -234,7 +234,11 @@ def parse_lon_lat_bounds(ds):
         va_name = va + "_bounds"
         if va_name in ds.variables and "vertex" in ds[va_name].dims:
             if "time" in ds[va_name].dims:
-                stripped_coord = ds[va_name].isel(time=0).drop("time")
+                stripped_coord = ds[va_name].isel(time=0).squeeze()
+
+                if "time" in stripped_coord.coords:
+                    stripped_coord = stripped_coord.drop("time")
+
                 ds = ds.assign_coords({va_name: stripped_coord})
             ds = ds.rename({va_name: va + "_verticies"})
     return ds
