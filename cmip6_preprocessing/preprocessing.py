@@ -231,10 +231,13 @@ def parse_lon_lat_bounds(ds):
         if ds.attrs["source_id"] == "FGOALS-f3-L":
             warnings.warn("`FGOALS-f3-L` does not provide lon or lat bounds.")
     ds = ds.copy()
-    if "x" not in ds.lat_bounds.dims:
-        ds.coords["lat_bounds"] = ds.coords["lat_bounds"] * xr.ones_like(ds.x)
-    if "y" not in ds.lon_bounds.dims:
-        ds.coords["lon_bounds"] = ds.coords["lon_bounds"] * xr.ones_like(ds.y)
+    if "lat_bounds" in ds.variables:
+        if "x" not in ds.lat_bounds.dims:
+            ds.coords["lat_bounds"] = ds.coords["lat_bounds"] * xr.ones_like(ds.x)
+
+    if "lon_bounds" in ds.variables:
+        if "y" not in ds.lon_bounds.dims:
+            ds.coords["lon_bounds"] = ds.coords["lon_bounds"] * xr.ones_like(ds.y)
 
     for va in ["lon", "lat"]:
         va_name = va + "_bounds"
@@ -346,6 +349,8 @@ def sort_vertex_order(ds):
         lon_b = ds.lon_verticies.isel(x=x_idx, y=y_idx).load().data
         lat_b = ds.lat_verticies.isel(x=x_idx, y=y_idx).load().data
         vert = ds.vertex.load().data
+        # make sure that vertex is from 0 to 3 (*rolleyes*)
+        vert = vert - vert.min()
 
         points = np.vstack((lon_b, lat_b, vert)).T
 
@@ -359,7 +364,7 @@ def sort_vertex_order(ds):
 
         points_sorted = np.vstack((bl, tl, tr, br))
 
-        idx_sorted = points_sorted.shape[0] - np.argsort(points_sorted[:, 2])
+        idx_sorted = (points_sorted.shape[0] - 1) - np.argsort(points_sorted[:, 2])
 
         ds = ds.assign_coords(vertex=idx_sorted)
         ds = ds.sortby("vertex")

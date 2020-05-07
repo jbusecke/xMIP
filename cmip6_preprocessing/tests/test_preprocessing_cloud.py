@@ -80,6 +80,10 @@ def test_preprocessing_combined(col, source_id, experiment_id, grid_label, varia
         # make sure lon and lat are 2d
         assert len(ds.lon.shape) == 2
         assert len(ds.lat.shape) == 2
+        if vertex in ds.dims:
+            np.testing.assert_allclose(ds.vertex.data, np.arange(4))
+
+        print(ds)
 
         if source_id == "FGOALS-f3-L":
             pytest.skip("`FGOALS-f3-L` does not come with lon/lat bounds")
@@ -91,6 +95,8 @@ def test_preprocessing_combined(col, source_id, experiment_id, grid_label, varia
 
             #### Check the order of the vertex
             test_vertex = ds.isel(x=len(ds.x) // 2, y=len(ds.y) // 2)
+            print(test_vertex.lon_verticies.load())
+
             assert test_vertex.lon_verticies.isel(
                 vertex=0
             ) < test_vertex.lon_verticies.isel(vertex=3)

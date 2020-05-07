@@ -350,3 +350,9 @@ def test_sort_vertex_order():
         new = np.vstack((da_sorted.lon_verticies, da_sorted.lat_verticies)).T
 
         np.testing.assert_allclose(new, ordered_points)
+
+        # shift the vertex by one and see if the result is the same
+        da_shift = da.copy()
+        da_shift = da_shift.assign_coords(vertex=da_shift.vertex + 10)
+        da_sorted_shift = sort_vertex_order(da_shift).squeeze()
+        np.testing.assert_allclose(da_sorted_shift.vertex.data, np.arange(4))
