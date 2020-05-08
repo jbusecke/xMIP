@@ -54,6 +54,15 @@ def test_preprocessing_combined(col, source_id, experiment_id, grid_label, varia
         grid_label=grid_label,
     )
 
+    ddict_raw = cat.to_dataset_dict(
+        zarr_kwargs={"consolidated": True, "decode_times": False},
+        preprocess=None,
+        storage_options={"token": "anon"},
+    )
+    if len(ddict_raw) > 0:
+        _, ds_raw = ddict_raw.popitem()
+        print(ds_raw)
+
     ddict = cat.to_dataset_dict(
         zarr_kwargs={"consolidated": True, "decode_times": False},
         preprocess=combined_preprocessing,
@@ -80,10 +89,11 @@ def test_preprocessing_combined(col, source_id, experiment_id, grid_label, varia
         # make sure lon and lat are 2d
         assert len(ds.lon.shape) == 2
         assert len(ds.lat.shape) == 2
-        if vertex in ds.dims:
+        if "vertex" in ds.dims:
             np.testing.assert_allclose(ds.vertex.data, np.arange(4))
 
         print(ds)
+        print(ds.lon_bounds.load())
 
         if source_id == "FGOALS-f3-L":
             pytest.skip("`FGOALS-f3-L` does not come with lon/lat bounds")
@@ -110,6 +120,9 @@ def test_preprocessing_combined(col, source_id, experiment_id, grid_label, varia
             assert test_vertex.lat_verticies.isel(
                 vertex=3
             ) < test_vertex.lat_verticies.isel(vertex=2)
+
+            assert np.all(ds.lon_bounds.diff("bnds") > 0)
+            assert np.all(ds.lat_bounds.diff("bnds") > 0)
 
     else:
         pytest.xfail("Model data not available")

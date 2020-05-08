@@ -318,6 +318,9 @@ def test_maybe_convert_vertex_to_bounds():
         ds_expected, maybe_convert_vertex_to_bounds(ds_expected)
     )
 
+    assert np.all(ds_test.lon_bounds.diff("bnds") > 0)
+    assert np.all(ds_test.lat_bounds.diff("bnds") > 0)
+
 
 def test_sort_vertex_order():
     ordered_points = np.array([[1, 1, 2, 2], [3, 4, 4, 3]]).T
@@ -350,6 +353,20 @@ def test_sort_vertex_order():
         new = np.vstack((da_sorted.lon_verticies, da_sorted.lat_verticies)).T
 
         np.testing.assert_allclose(new, ordered_points)
+
+        assert da_sorted.lon_verticies.isel(vertex=0) < da_sorted.lon_verticies.isel(
+            vertex=3
+        )
+        assert da_sorted.lon_verticies.isel(vertex=1) < da_sorted.lon_verticies.isel(
+            vertex=2
+        )
+
+        assert da_sorted.lat_verticies.isel(vertex=0) < da_sorted.lat_verticies.isel(
+            vertex=1
+        )
+        assert da_sorted.lat_verticies.isel(vertex=3) < da_sorted.lat_verticies.isel(
+            vertex=2
+        )
 
         # shift the vertex by one and see if the result is the same
         da_shift = da.copy()
