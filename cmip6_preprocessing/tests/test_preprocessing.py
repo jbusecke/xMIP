@@ -301,6 +301,7 @@ def test_maybe_convert_vertex_to_bounds():
     ds.coords["lat_verticies"] = (
         xr.DataArray([-0.1, 0.1, 0.1, -0.1], dims=["vertex"]) + ds["lat"]
     )
+    ds = promote_empty_dims(ds)
 
     # create expected dataset
     ds_expected = ds.copy()

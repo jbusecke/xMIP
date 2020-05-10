@@ -232,13 +232,14 @@ def correct_lon(ds):
     ds["lon"] = ds["lon"].where(abs(ds["lon"]) <= 1e35)
     ds["lat"] = ds["lat"].where(abs(ds["lat"]) <= 1e35)
 
-    # only correct the actual longitude
-    lon = ds["lon"].data
-
-    # then adjust lon convention
-    lon = np.where(lon < 0, 360 + lon, lon)
+    # adjust lon convention
     lon = ds["lon"].where(ds["lon"] > 0, 360 + ds["lon"])
     ds = ds.assign_coords(lon=lon)
+
+    if "lon_bounds" in ds.variables:
+        lon_b = ds["lon_bounds"].where(ds["lon_bounds"] > 0, 360 + ds["lon_bounds"])
+        ds = ds.assign_coords(lon_bounds=lon_b)
+
     return ds
 
 
@@ -340,9 +341,7 @@ def maybe_convert_vertex_to_bounds(ds):
                 )
 
                 ds = ds.assign_coords(lon_bounds=lon_b, lat_bounds=lat_b)
-                # for co in ["lon_bounds", "lat_bounds"]:
-                #     ds = promote_empty_dims(ds)
-
+    ds = promote_empty_dims(ds)
     return ds
 
 
