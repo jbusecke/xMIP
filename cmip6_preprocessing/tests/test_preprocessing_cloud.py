@@ -106,6 +106,7 @@ def test_preprocessing_combined(col, source_id, experiment_id, grid_label, varia
             #### Check the order of the vertex
             test_vertex = ds.isel(x=len(ds.x) // 2, y=len(ds.y) // 2)
             print(test_vertex.lon_verticies.load())
+            print(test_vertex.lon_bounds.load())
 
             assert test_vertex.lon_verticies.isel(
                 vertex=0
@@ -120,9 +121,13 @@ def test_preprocessing_combined(col, source_id, experiment_id, grid_label, varia
             assert test_vertex.lat_verticies.isel(
                 vertex=3
             ) < test_vertex.lat_verticies.isel(vertex=2)
+            lon_diffs = ds.lon_bounds.diff("bnds") > 0
+            lat_diffs = ds.lat_bounds.diff("bnds") > 0
+            print(lon_diffs.load())
+            print(sum(lon_diffs))
 
-            assert np.all(ds.lon_bounds.diff("bnds") > 0)
-            assert np.all(ds.lat_bounds.diff("bnds") > 0)
+            assert np.all(lon_diffs)
+            assert np.all(lat_diffs)
 
     else:
         pytest.xfail("Model data not available")

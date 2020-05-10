@@ -250,7 +250,9 @@ def parse_lon_lat_bounds(ds):
     if "source_id" in ds.attrs.keys():
         if ds.attrs["source_id"] == "FGOALS-f3-L":
             warnings.warn("`FGOALS-f3-L` does not provide lon or lat bounds.")
+
     ds = ds.copy()
+
     if "lat_bounds" in ds.variables:
         if "x" not in ds.lat_bounds.dims:
             ds.coords["lat_bounds"] = ds.coords["lat_bounds"] * xr.ones_like(ds.x)
@@ -259,16 +261,26 @@ def parse_lon_lat_bounds(ds):
         if "y" not in ds.lon_bounds.dims:
             ds.coords["lon_bounds"] = ds.coords["lon_bounds"] * xr.ones_like(ds.y)
 
+    # I am assuming that all bound fields with time were broadcasted in error,
+    # and will drop the time dimension.
+    error_dims = ["time"]
+    for ed in error_dims:
+        for co in ["lon_bounds", "lat_bounds"]:
+            if ed in ds[co].dims:
+                warnings.warn(
+                    f"Found {ed} as dimension in `{co}`. Assuming this is an error and just picking the first step along that dimension."
+                )
+                stripped_coord = ds[co].isel({ed: 0}).squeeze()
+                # make sure that dimension is actually dropped
+                if ed in stripped_coord.coords:
+                    stripped_coord = stripped_coord.drop(ed)
+
+                ds = ds.assign_coords({co: stripped_coord})
+
+    # Finally rename the bounds that are given in vertex convention
     for va in ["lon", "lat"]:
         va_name = va + "_bounds"
         if va_name in ds.variables and "vertex" in ds[va_name].dims:
-            if "time" in ds[va_name].dims:
-                stripped_coord = ds[va_name].isel(time=0).squeeze()
-
-                if "time" in stripped_coord.coords:
-                    stripped_coord = stripped_coord.drop("time")
-
-                ds = ds.assign_coords({va_name: stripped_coord})
             ds = ds.rename({va_name: va + "_verticies"})
 
     return ds
@@ -383,7 +395,7 @@ def combined_preprocessing(ds):
         ds = rename_cmip6(ds)
         # promote empty dims to actual coordinates
         ds = promote_empty_dims(ds)
-        # demote coordinates from data_variables (this is somehow reversed in intake)
+        # demote coordinates from data_variables
         ds = correct_coordinates(ds)
         # broadcast lon/lat
         ds = broadcast_lonlat(ds)
@@ -393,10 +405,11 @@ def combined_preprocessing(ds):
         ds = correct_units(ds)
         # replace x,y with nominal lon,lat
         ds = replace_x_y_nominal_lat_lon(ds)
-        # convert vertex into bounds and vice versa, so both are available
+        # rename the `bounds` according to their style (bound or vertex)
         ds = parse_lon_lat_bounds(ds)
         # sort verticies in a consistent manner
         ds = sort_vertex_order(ds)
+        # convert vertex into bounds and vice versa, so both are available
         ds = maybe_convert_bounds_to_vertex(ds)
         ds = maybe_convert_vertex_to_bounds(ds)
 
