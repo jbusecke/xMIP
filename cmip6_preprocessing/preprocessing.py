@@ -267,16 +267,17 @@ def parse_lon_lat_bounds(ds):
     error_dims = ["time"]
     for ed in error_dims:
         for co in ["lon_bounds", "lat_bounds"]:
-            if ed in ds[co].dims:
-                warnings.warn(
-                    f"Found {ed} as dimension in `{co}`. Assuming this is an error and just picking the first step along that dimension."
-                )
-                stripped_coord = ds[co].isel({ed: 0}).squeeze()
-                # make sure that dimension is actually dropped
-                if ed in stripped_coord.coords:
-                    stripped_coord = stripped_coord.drop(ed)
+            if co in ds.variables:
+                if ed in ds[co].dims:
+                    warnings.warn(
+                        f"Found {ed} as dimension in `{co}`. Assuming this is an error and just picking the first step along that dimension."
+                    )
+                    stripped_coord = ds[co].isel({ed: 0}).squeeze()
+                    # make sure that dimension is actually dropped
+                    if ed in stripped_coord.coords:
+                        stripped_coord = stripped_coord.drop(ed)
 
-                ds = ds.assign_coords({co: stripped_coord})
+                    ds = ds.assign_coords({co: stripped_coord})
 
     # Finally rename the bounds that are given in vertex convention
     for va in ["lon", "lat"]:
@@ -380,7 +381,6 @@ def sort_vertex_order(ds):
         points_sorted = np.vstack((bl, tl, tr, br))
 
         idx_sorted = (points_sorted.shape[0] - 1) - np.argsort(points_sorted[:, 2])
-        print(f"Sorted vertex {idx_sorted}")
         ds = ds.assign_coords(vertex=idx_sorted)
         ds = ds.sortby("vertex")
 
@@ -411,5 +411,9 @@ def combined_preprocessing(ds):
         # convert vertex into bounds and vice versa, so both are available
         ds = maybe_convert_bounds_to_vertex(ds)
         ds = maybe_convert_vertex_to_bounds(ds)
+
+        # # sort dims
+        # for di in ds.dims:
+        #     ds = ds.sortby(di)
 
     return ds

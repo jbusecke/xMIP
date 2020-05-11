@@ -54,20 +54,21 @@ def test_preprocessing_combined(col, source_id, experiment_id, grid_label, varia
         grid_label=grid_label,
     )
 
-    ddict_raw = cat.to_dataset_dict(
-        zarr_kwargs={"consolidated": True, "decode_times": False},
-        preprocess=None,
-        storage_options={"token": "anon"},
-    )
-    if len(ddict_raw) > 0:
-        _, ds_raw = ddict_raw.popitem()
-        print(ds_raw)
+    # ddict_raw = cat.to_dataset_dict(
+    #     zarr_kwargs={"consolidated": True, "decode_times": False},
+    #     preprocess=None,
+    #     storage_options={"token": "anon"},
+    # )
+    # if len(ddict_raw) > 0:
+    #     _, ds_raw = ddict_raw.popitem()
+    #     print(ds_raw)
 
     ddict = cat.to_dataset_dict(
         zarr_kwargs={"consolidated": True, "decode_times": False},
         preprocess=combined_preprocessing,
         storage_options={"token": "anon"},
     )
+
     if len(ddict) > 0:
 
         _, ds = ddict.popitem()
@@ -82,6 +83,9 @@ def test_preprocessing_combined(col, source_id, experiment_id, grid_label, varia
             if di in ds.dims:
                 _diagnose_doubles(ds[di].load().data)
                 assert len(ds[di]) == len(np.unique(ds[di]))
+                assert ~np.all(np.isnan(ds[di]))
+                assert np.all(ds[di].diff(di) >= 0)
+
         assert ds.lon.min().load() >= 0
         assert ds.lon.max().load() <= 360
         if "lon_bounds" in ds.variables:
@@ -92,56 +96,57 @@ def test_preprocessing_combined(col, source_id, experiment_id, grid_label, varia
         # make sure lon and lat are 2d
         assert len(ds.lon.shape) == 2
         assert len(ds.lat.shape) == 2
+
         if "vertex" in ds.dims:
             np.testing.assert_allclose(ds.vertex.data, np.arange(4))
 
-        print(ds)
-        print(ds.lon_bounds.load())
-
         if source_id == "FGOALS-f3-L":
             pytest.skip("`FGOALS-f3-L` does not come with lon/lat bounds")
-        else:
-            ####Check for existing bounds and verticies
-            for co in ["lon_bounds", "lat_bounds", "lon_verticies", "lat_verticies"]:
-                assert co in ds.coords
-                # make sure that all other dims are eliminated from the bounds.
-                assert (set(ds[co].dims) - set(["bnds", "vertex"])) == set(["x", "y"])
 
-            #### Check the order of the vertex
-            # Ill only check these south of the Arctic for now. Up there
-            # things are still weird.
+        if source_id == "CESM2-FV2":
+            pytest.skip("And `` has nans in the lon/lat")
 
-            test_ds = ds.sel(y=slice(None, 40))
+        ####Check for existing bounds and verticies
+        for co in ["lon_bounds", "lat_bounds", "lon_verticies", "lat_verticies"]:
+            assert co in ds.coords
+            # make sure that all other dims are eliminated from the bounds.
+            assert (set(ds[co].dims) - set(["bnds", "vertex"])) == set(["x", "y"])
 
-            vertex_lon_diff1 = test_ds.lon_verticies.isel(
-                vertex=3
-            ) - test_ds.lon_verticies.isel(vertex=0)
-            vertex_lon_diff2 = test_ds.lon_verticies.isel(
-                vertex=2
-            ) - test_ds.lon_verticies.isel(vertex=1)
-            vertex_lat_diff1 = test_ds.lat_verticies.isel(
-                vertex=1
-            ) - test_ds.lat_verticies.isel(vertex=0)
-            vertex_lat_diff2 = test_ds.lat_verticies.isel(
-                vertex=2
-            ) - test_ds.lat_verticies.isel(vertex=3)
-            for vertex_diff in [vertex_lon_diff1, vertex_lon_diff2]:
-                assert (vertex_diff <= 0).sum() <= (3 * len(vertex_diffs.y))
-                # allowing for a few rows to be negative
+        #### Check the order of the vertex
+        # Ill only check these south of the Arctic for now. Up there
+        # things are still weird.
 
-            for vertex_diff in [vertex_lot_diff1, vertex_lot_diff2]:
-                assert (vertex_diff <= 0).sum() <= (3 * len(vertex_diff.x))
-                # allowing for a few rows to be negative
-            # This is just to make sure that not the majority of values is negative or zero.
+        test_ds = ds.sel(y=slice(-40, 40))
 
-            # Same for the bounds:
-            lon_diffs = test_ds.lon_bounds.diff("bnds") > 0
-            lat_diffs = test_ds.lat_bounds.diff("bnds") > 0
-            print(lon_diffs.load())
-            print(sum(lon_diffs))
+        vertex_lon_diff1 = test_ds.lon_verticies.isel(
+            vertex=3
+        ) - test_ds.lon_verticies.isel(vertex=0)
+        vertex_lon_diff2 = test_ds.lon_verticies.isel(
+            vertex=2
+        ) - test_ds.lon_verticies.isel(vertex=1)
+        vertex_lat_diff1 = test_ds.lat_verticies.isel(
+            vertex=1
+        ) - test_ds.lat_verticies.isel(vertex=0)
+        vertex_lat_diff2 = test_ds.lat_verticies.isel(
+            vertex=2
+        ) - test_ds.lat_verticies.isel(vertex=3)
+        for vertex_diff in [vertex_lon_diff1, vertex_lon_diff2]:
+            assert (vertex_diff <= 0).sum() <= (3 * len(vertex_diff.y))
+            # allowing for a few rows to be negative
 
-            assert (lon_diffs <= 0).sum() <= (3 * len(lon_diffs.y))
-            assert (lat_diffs <= 0).sum() <= (3 * len(lat_diffs.y))
+        for vertex_diff in [vertex_lat_diff1, vertex_lat_diff2]:
+            assert (vertex_diff <= 0).sum() <= (5 * len(vertex_diff.x))
+            # allowing for a few rows to be negative
+        # This is just to make sure that not the majority of values is negative or zero.
+
+        # Same for the bounds:
+        lon_diffs = test_ds.lon_bounds.diff("bnds")
+        lat_diffs = test_ds.lat_bounds.diff("bnds")
+        print(lon_diffs.load())
+        print(sum(lon_diffs))
+
+        assert (lon_diffs <= 0).sum() <= (5 * len(lon_diffs.y))
+        assert (lat_diffs <= 0).sum() <= (5 * len(lat_diffs.y))
 
     else:
         pytest.xfail("Model data not available")
