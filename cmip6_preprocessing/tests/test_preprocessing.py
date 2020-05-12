@@ -301,6 +301,7 @@ def test_maybe_convert_vertex_to_bounds():
     ds.coords["lat_verticies"] = (
         xr.DataArray([-0.1, 0.1, 0.1, -0.1], dims=["vertex"]) + ds["lat"]
     )
+    ds = promote_empty_dims(ds)
 
     # create expected dataset
     ds_expected = ds.copy()
@@ -317,6 +318,9 @@ def test_maybe_convert_vertex_to_bounds():
     xr.testing.assert_identical(
         ds_expected, maybe_convert_vertex_to_bounds(ds_expected)
     )
+
+    assert np.all(ds_test.lon_bounds.diff("bnds") > 0)
+    assert np.all(ds_test.lat_bounds.diff("bnds") > 0)
 
 
 def test_sort_vertex_order():
@@ -350,3 +354,23 @@ def test_sort_vertex_order():
         new = np.vstack((da_sorted.lon_verticies, da_sorted.lat_verticies)).T
 
         np.testing.assert_allclose(new, ordered_points)
+
+        assert da_sorted.lon_verticies.isel(vertex=0) < da_sorted.lon_verticies.isel(
+            vertex=3
+        )
+        assert da_sorted.lon_verticies.isel(vertex=1) < da_sorted.lon_verticies.isel(
+            vertex=2
+        )
+
+        assert da_sorted.lat_verticies.isel(vertex=0) < da_sorted.lat_verticies.isel(
+            vertex=1
+        )
+        assert da_sorted.lat_verticies.isel(vertex=3) < da_sorted.lat_verticies.isel(
+            vertex=2
+        )
+
+        # shift the vertex by one and see if the result is the same
+        da_shift = da.copy()
+        da_shift = da_shift.assign_coords(vertex=da_shift.vertex + 10)
+        da_sorted_shift = sort_vertex_order(da_shift).squeeze()
+        np.testing.assert_allclose(da_sorted_shift.vertex.data, np.arange(4))

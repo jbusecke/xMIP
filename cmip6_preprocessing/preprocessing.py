@@ -102,6 +102,7 @@ def broadcast_lonlat(ds, verbose=True):
         ds.coords["lon"] = ds["lon"] * xr.ones_like(ds["lat"])
     if len(ds["lat"].dims) < 2:
         ds.coords["lat"] = xr.ones_like(ds["lon"]) * ds["lat"]
+
     return ds
 
 
@@ -221,29 +222,6 @@ def correct_coordinates(ds, verbose=False):
     return ds
 
 
-def parse_lon_lat_bounds(ds):
-    """both `regular` 2d bounds and vertex bounds are parsed as `*_bounds`.
-    This function renames them to `*_verticies` if the vertex dimension is found.
-    Also removes time dimension from lon/lat bounds as found in `SAM0-UNICON` model.
-    """
-    if "source_id" in ds.attrs.keys():
-        if ds.attrs["source_id"] == "FGOALS-f3-L":
-            warnings.warn("`FGOALS-f3-L` does not provide lon or lat bounds.")
-    ds = ds.copy()
-    for va in ["lon", "lat"]:
-        va_name = va + "_bounds"
-        if va_name in ds.variables and "vertex" in ds[va_name].dims:
-            if "time" in ds[va_name].dims:
-                stripped_coord = ds[va_name].isel(time=0).squeeze()
-
-                if "time" in stripped_coord.coords:
-                    stripped_coord = stripped_coord.drop("time")
-
-                ds = ds.assign_coords({va_name: stripped_coord})
-            ds = ds.rename({va_name: va + "_verticies"})
-    return ds
-
-
 def correct_lon(ds):
     """Wraps negative x and lon values around to have 0-360 lons.
     longitude names expected to be corrected with `rename_cmip6`"""
@@ -254,13 +232,59 @@ def correct_lon(ds):
     ds["lon"] = ds["lon"].where(abs(ds["lon"]) <= 1e35)
     ds["lat"] = ds["lat"].where(abs(ds["lat"]) <= 1e35)
 
-    # only correct the actual longitude
-    lon = ds["lon"].data
-
-    # then adjust lon convention
-    lon = np.where(lon < 0, 360 + lon, lon)
+    # adjust lon convention
     lon = ds["lon"].where(ds["lon"] > 0, 360 + ds["lon"])
     ds = ds.assign_coords(lon=lon)
+
+    if "lon_bounds" in ds.variables:
+        lon_b = ds["lon_bounds"].where(ds["lon_bounds"] > 0, 360 + ds["lon_bounds"])
+        ds = ds.assign_coords(lon_bounds=lon_b)
+
+    return ds
+
+
+def parse_lon_lat_bounds(ds):
+    """both `regular` 2d bounds and vertex bounds are parsed as `*_bounds`.
+    This function renames them to `*_verticies` if the vertex dimension is found.
+    Also removes time dimension from lon/lat bounds as found in `SAM0-UNICON` model.
+    """
+    if "source_id" in ds.attrs.keys():
+        if ds.attrs["source_id"] == "FGOALS-f3-L":
+            warnings.warn("`FGOALS-f3-L` does not provide lon or lat bounds.")
+
+    ds = ds.copy()
+
+    if "lat_bounds" in ds.variables:
+        if "x" not in ds.lat_bounds.dims:
+            ds.coords["lat_bounds"] = ds.coords["lat_bounds"] * xr.ones_like(ds.x)
+
+    if "lon_bounds" in ds.variables:
+        if "y" not in ds.lon_bounds.dims:
+            ds.coords["lon_bounds"] = ds.coords["lon_bounds"] * xr.ones_like(ds.y)
+
+    # I am assuming that all bound fields with time were broadcasted in error,
+    # and will drop the time dimension.
+    error_dims = ["time"]
+    for ed in error_dims:
+        for co in ["lon_bounds", "lat_bounds"]:
+            if co in ds.variables:
+                if ed in ds[co].dims:
+                    warnings.warn(
+                        f"Found {ed} as dimension in `{co}`. Assuming this is an error and just picking the first step along that dimension."
+                    )
+                    stripped_coord = ds[co].isel({ed: 0}).squeeze()
+                    # make sure that dimension is actually dropped
+                    if ed in stripped_coord.coords:
+                        stripped_coord = stripped_coord.drop(ed)
+
+                    ds = ds.assign_coords({co: stripped_coord})
+
+    # Finally rename the bounds that are given in vertex convention
+    for va in ["lon", "lat"]:
+        va_name = va + "_bounds"
+        if va_name in ds.variables and "vertex" in ds[va_name].dims:
+            ds = ds.rename({va_name: va + "_verticies"})
+
     return ds
 
 
@@ -270,22 +294,26 @@ def maybe_convert_bounds_to_vertex(ds):
     ds = ds.copy()
     if "bnds" in ds.dims:
         if "lon_bounds" in ds.variables and "lat_bounds" in ds.variables:
-            lon_b = xr.ones_like(ds.lat) * ds.coords["lon_bounds"]
-            lat_b = xr.ones_like(ds.lon) * ds.coords["lat_bounds"]
+            if (
+                "lon_verticies" not in ds.variables
+                and "lat_verticies" not in ds.variables
+            ):
+                lon_b = xr.ones_like(ds.lat) * ds.coords["lon_bounds"]
+                lat_b = xr.ones_like(ds.lon) * ds.coords["lat_bounds"]
 
-            lon_bb = xr.concat(
-                [lon_b.isel(bnds=ii).squeeze(drop=True) for ii in [0, 0, 1, 1]],
-                dim="vertex",
-            )
-            lon_bb = lon_bb.reset_coords(drop=True)
+                lon_bb = xr.concat(
+                    [lon_b.isel(bnds=ii).squeeze(drop=True) for ii in [0, 0, 1, 1]],
+                    dim="vertex",
+                )
+                lon_bb = lon_bb.reset_coords(drop=True)
 
-            lat_bb = xr.concat(
-                [lat_b.isel(bnds=ii).squeeze(drop=True) for ii in [0, 1, 1, 0]],
-                dim="vertex",
-            )
-            lat_bb = lat_bb.reset_coords(drop=True)
+                lat_bb = xr.concat(
+                    [lat_b.isel(bnds=ii).squeeze(drop=True) for ii in [0, 1, 1, 0]],
+                    dim="vertex",
+                )
+                lat_bb = lat_bb.reset_coords(drop=True)
 
-            ds = ds.assign_coords(lon_verticies=lon_bb, lat_verticies=lat_bb)
+                ds = ds.assign_coords(lon_verticies=lon_bb, lat_verticies=lat_bb)
 
     return ds
 
@@ -297,24 +325,24 @@ def maybe_convert_vertex_to_bounds(ds):
     ds = ds.copy()
     if "vertex" in ds.dims:
         if "lon_verticies" in ds.variables and "lat_verticies" in ds.variables:
-            lon_b = xr.concat(
-                [
-                    ds["lon_verticies"].isel(vertex=[0, 1]).mean("vertex"),
-                    ds["lon_verticies"].isel(vertex=[2, 3]).mean("vertex"),
-                ],
-                dim="bnds",
-            )
-            lat_b = xr.concat(
-                [
-                    ds["lat_verticies"].isel(vertex=[0, 3]).mean("vertex"),
-                    ds["lat_verticies"].isel(vertex=[1, 2]).mean("vertex"),
-                ],
-                dim="bnds",
-            )
+            if "lon_bounds" not in ds.variables and "lat_bounds" not in ds.variables:
+                lon_b = xr.concat(
+                    [
+                        ds["lon_verticies"].isel(vertex=[0, 1]).mean("vertex"),
+                        ds["lon_verticies"].isel(vertex=[2, 3]).mean("vertex"),
+                    ],
+                    dim="bnds",
+                )
+                lat_b = xr.concat(
+                    [
+                        ds["lat_verticies"].isel(vertex=[0, 3]).mean("vertex"),
+                        ds["lat_verticies"].isel(vertex=[1, 2]).mean("vertex"),
+                    ],
+                    dim="bnds",
+                )
 
-            ds = ds.assign_coords(lon_bounds=lon_b, lat_bounds=lat_b)
-            ds = promote_empty_dims(ds)
-
+                ds = ds.assign_coords(lon_bounds=lon_b, lat_bounds=lat_b)
+    ds = promote_empty_dims(ds)
     return ds
 
 
@@ -325,13 +353,13 @@ def sort_vertex_order(ds):
     2: upper right
     3: lower right
     """
+    ds = ds.copy()
     if (
         "vertex" in ds.dims
         and "lon_verticies" in ds.variables
         and "lat_verticies" in ds.variables
     ):
 
-        ds = ds.copy()
         # pick a vertex in the middle of the domain, to avoid the pole areas
         x_idx = len(ds.x) // 2
         y_idx = len(ds.y) // 2
@@ -352,10 +380,10 @@ def sort_vertex_order(ds):
 
         points_sorted = np.vstack((bl, tl, tr, br))
 
-        idx_sorted = points_sorted.shape[0] - np.argsort(points_sorted[:, 2])
-
+        idx_sorted = (points_sorted.shape[0] - 1) - np.argsort(points_sorted[:, 2])
         ds = ds.assign_coords(vertex=idx_sorted)
         ds = ds.sortby("vertex")
+
     return ds
 
 
@@ -366,7 +394,7 @@ def combined_preprocessing(ds):
         ds = rename_cmip6(ds)
         # promote empty dims to actual coordinates
         ds = promote_empty_dims(ds)
-        # demote coordinates from data_variables (this is somehow reversed in intake)
+        # demote coordinates from data_variables
         ds = correct_coordinates(ds)
         # broadcast lon/lat
         ds = broadcast_lonlat(ds)
@@ -376,11 +404,16 @@ def combined_preprocessing(ds):
         ds = correct_units(ds)
         # replace x,y with nominal lon,lat
         ds = replace_x_y_nominal_lat_lon(ds)
-        # convert vertex into bounds and vice versa, so both are available
+        # rename the `bounds` according to their style (bound or vertex)
         ds = parse_lon_lat_bounds(ds)
-        ds = maybe_convert_bounds_to_vertex(ds)
-        ds = maybe_convert_vertex_to_bounds(ds)
         # sort verticies in a consistent manner
         ds = sort_vertex_order(ds)
+        # convert vertex into bounds and vice versa, so both are available
+        ds = maybe_convert_bounds_to_vertex(ds)
+        ds = maybe_convert_vertex_to_bounds(ds)
+
+        # # sort dims
+        # for di in ds.dims:
+        #     ds = ds.sortby(di)
 
     return ds

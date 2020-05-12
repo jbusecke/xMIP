@@ -24,6 +24,7 @@ def all_models():
     # TODO: finally get IPSL model to run and release this
     # TODO: Allow the AWI regridded model output for the preprocessing module
     return [m for m in all_models if (("IPSL" not in m) & ("AWI" not in m))]
+    # return [m for m in all_models if "MIROC" in m]
 
 
 def _diagnose_doubles(data):
@@ -38,35 +39,36 @@ def _diagnose_doubles(data):
 # These are too many tests. Perhaps I could load all the data first and then
 # test each dict item?
 
-# @pytest.mark.parametrize("grid_label", ["gr", "gn"])
-@pytest.mark.parametrize("grid_label", ["gn"])
+
+@pytest.mark.parametrize("grid_label", ["gr", "gn"])
 @pytest.mark.parametrize("experiment_id", ["historical"])
-# @pytest.mark.parametrize("variable_id", ["o2", "thetao"])
-@pytest.mark.parametrize("variable_id", ["thetao"])
+@pytest.mark.parametrize("variable_id", ["o2", "thetao"])
 @pytest.mark.parametrize("source_id", all_models())
 def test_preprocessing_combined(col, source_id, experiment_id, grid_label, variable_id):
     cat = col.search(
         source_id=source_id,
         experiment_id=experiment_id,
         variable_id=variable_id,
-        member_id="r1i1p1f1",
+        # member_id="r1i1p1f1",
         table_id="Omon",
         grid_label=grid_label,
     )
-    ddict = cat.to_dataset_dict(
-        zarr_kwargs={"consolidated": True, "decode_times": False},
-        preprocess=None,
-        storage_options={"token": "anon"},
-    )
-    if len(ddict) > 0:
-        _, ds_raw = ddict.popitem()
-        print(ds_raw)
+
+    # ddict_raw = cat.to_dataset_dict(
+    #     zarr_kwargs={"consolidated": True, "decode_times": False},
+    #     preprocess=None,
+    #     storage_options={"token": "anon"},
+    # )
+    # if len(ddict_raw) > 0:
+    #     _, ds_raw = ddict_raw.popitem()
+    #     print(ds_raw)
 
     ddict = cat.to_dataset_dict(
         zarr_kwargs={"consolidated": True, "decode_times": False},
         preprocess=combined_preprocessing,
         storage_options={"token": "anon"},
     )
+
     if len(ddict) > 0:
 
         _, ds = ddict.popitem()
@@ -81,36 +83,70 @@ def test_preprocessing_combined(col, source_id, experiment_id, grid_label, varia
             if di in ds.dims:
                 _diagnose_doubles(ds[di].load().data)
                 assert len(ds[di]) == len(np.unique(ds[di]))
+                assert ~np.all(np.isnan(ds[di]))
+                assert np.all(ds[di].diff(di) >= 0)
+
         assert ds.lon.min().load() >= 0
         assert ds.lon.max().load() <= 360
+        if "lon_bounds" in ds.variables:
+            assert ds.lon_bounds.min().load() >= 0
+            assert ds.lon_bounds.max().load() <= 360
         assert ds.lat.min().load() >= -90
         assert ds.lat.max().load() <= 90
         # make sure lon and lat are 2d
         assert len(ds.lon.shape) == 2
         assert len(ds.lat.shape) == 2
 
+        if "vertex" in ds.dims:
+            np.testing.assert_allclose(ds.vertex.data, np.arange(4))
+
         if source_id == "FGOALS-f3-L":
             pytest.skip("`FGOALS-f3-L` does not come with lon/lat bounds")
-        else:
-            ####Check for existing bounds and verticies
-            for co in ["lon_bounds", "lat_bounds", "lon_verticies", "lat_verticies"]:
-                assert co in ds.coords
 
-            #### Check the order of the vertex
-            test_vertex = ds.isel(x=len(ds.x) // 2, y=len(ds.y) // 2)
-            assert test_vertex.lon_verticies.isel(
-                vertex=0
-            ) < test_vertex.lon_verticies.isel(vertex=3)
-            assert test_vertex.lon_verticies.isel(
-                vertex=1
-            ) < test_vertex.lon_verticies.isel(vertex=2)
+        if source_id == "CESM2-FV2":
+            pytest.skip("And `` has nans in the lon/lat")
 
-            assert test_vertex.lat_verticies.isel(
-                vertex=0
-            ) < test_vertex.lat_verticies.isel(vertex=1)
-            assert test_vertex.lat_verticies.isel(
-                vertex=3
-            ) < test_vertex.lat_verticies.isel(vertex=2)
+        ####Check for existing bounds and verticies
+        for co in ["lon_bounds", "lat_bounds", "lon_verticies", "lat_verticies"]:
+            assert co in ds.coords
+            # make sure that all other dims are eliminated from the bounds.
+            assert (set(ds[co].dims) - set(["bnds", "vertex"])) == set(["x", "y"])
+
+        #### Check the order of the vertex
+        # Ill only check these south of the Arctic for now. Up there
+        # things are still weird.
+
+        test_ds = ds.sel(y=slice(-40, 40))
+
+        vertex_lon_diff1 = test_ds.lon_verticies.isel(
+            vertex=3
+        ) - test_ds.lon_verticies.isel(vertex=0)
+        vertex_lon_diff2 = test_ds.lon_verticies.isel(
+            vertex=2
+        ) - test_ds.lon_verticies.isel(vertex=1)
+        vertex_lat_diff1 = test_ds.lat_verticies.isel(
+            vertex=1
+        ) - test_ds.lat_verticies.isel(vertex=0)
+        vertex_lat_diff2 = test_ds.lat_verticies.isel(
+            vertex=2
+        ) - test_ds.lat_verticies.isel(vertex=3)
+        for vertex_diff in [vertex_lon_diff1, vertex_lon_diff2]:
+            assert (vertex_diff <= 0).sum() <= (3 * len(vertex_diff.y))
+            # allowing for a few rows to be negative
+
+        for vertex_diff in [vertex_lat_diff1, vertex_lat_diff2]:
+            assert (vertex_diff <= 0).sum() <= (5 * len(vertex_diff.x))
+            # allowing for a few rows to be negative
+        # This is just to make sure that not the majority of values is negative or zero.
+
+        # Same for the bounds:
+        lon_diffs = test_ds.lon_bounds.diff("bnds")
+        lat_diffs = test_ds.lat_bounds.diff("bnds")
+        print(lon_diffs.load())
+        print(sum(lon_diffs))
+
+        assert (lon_diffs <= 0).sum() <= (5 * len(lon_diffs.y))
+        assert (lat_diffs <= 0).sum() <= (5 * len(lat_diffs.y))
 
     else:
         pytest.xfail("Model data not available")
