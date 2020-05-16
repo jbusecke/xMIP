@@ -13,7 +13,7 @@ except ImportError:
 
 from . import templates  # relative-import the *package* containing the templates
 
-grid_spec = pkg_resources.open_text(templates, "staggered_grid_config.yaml")
+grid_spec = pkg_resources.open_text("staggered_grid_config.yaml")
 
 
 def parse_bounds_vertex(da, dim="bnds", position=[0, 1]):
