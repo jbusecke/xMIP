@@ -5,15 +5,20 @@ import numpy as np
 import xarray as xr
 import yaml
 
-try:
-    import importlib.resources as pkg_resources
-except ImportError:
-    # Try backported to PY<37 `importlib_resources`.
-    import importlib_resources as pkg_resources
+import os, cmip6_preprocessing
 
-from . import specs  # relative-import the *package* containing the templates
-
-grid_spec = pkg_resources.open_text(specs, "staggered_grid_config.yaml")
+grid_spec = os.path.join(
+    cmip6_preprocessing.__path__[0], "specs", "staggered_grid_config.yaml"
+)
+# try:
+#     import importlib.resources as pkg_resources
+# except ImportError:
+#     # Try backported to PY<37 `importlib_resources`.
+#     import importlib_resources as pkg_resources
+#
+# from . import specs  # relative-import the *package* containing the templates
+#
+# grid_spec = pkg_resources.open_text(specs, "staggered_grid_config.yaml")
 
 
 def parse_bounds_vertex(da, dim="bnds", position=[0, 1]):
