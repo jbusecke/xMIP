@@ -5,10 +5,17 @@ import numpy as np
 import xarray as xr
 import yaml
 
-# within package/mymodule1.py, for example
-import pkgutil
+# # within package/mymodule1.py, for example
+# import pkgutil
+#
+# grid_spec = pkgutil.get_data(__name__, "specs/staggered_grid_config.yaml")
 
-grid_spec = pkgutil.get_data(__name__, "specs/staggered_grid_config.yaml")
+import pkg_resources
+
+# __name__ in case you're within the package
+# - otherwise it would be 'lidtk' in this example as it is the package name
+path = "specs/staggered_grid_config.yaml"  # always use slash
+grid_spec = pkg_resources.resource_filename(__name__, path)
 
 # import os, cmip6_preprocessing
 #
