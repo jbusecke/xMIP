@@ -5,11 +5,16 @@ import numpy as np
 import xarray as xr
 import yaml
 
-import os, cmip6_preprocessing
+# within package/mymodule1.py, for example
+import pkgutil
 
-grid_spec = os.path.join(
-    cmip6_preprocessing.__path__[0], "specs", "staggered_grid_config.yaml"
-)
+grid_spec = pkgutil.get_data(__name__, "specs/staggered_grid_config.yaml")
+
+# import os, cmip6_preprocessing
+#
+# grid_spec = os.path.join(
+#     cmip6_preprocessing.__path__[0], "specs", "staggered_grid_config.yaml"
+# )
 # try:
 #     import importlib.resources as pkg_resources
 # except ImportError:

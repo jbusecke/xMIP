@@ -6,21 +6,21 @@ requirements = [
 ]
 
 setup(
-    name='cmip6_preprocessing',
+    name="cmip6_preprocessing",
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
-    description="Some useful functions to make analysis across cmip6 modesl easier",
+    description="Some useful functions to make analysis across cmip6 models easier",
     license="MIT",
     author="Julius Busecke",
-    author_email='jbusecke@princeton.edu',
-    url='https://github.com/jbusecke/cmip6_preprocessing',
-    packages=['cmip6_preprocessing'],
-    
+    author_email="jbusecke@princeton.edu",
+    url="https://github.com/jbusecke/cmip6_preprocessing",
+    packages=["cmip6_preprocessing"],
+    include_package_data=True,
     install_requires=requirements,
-    keywords='cmip6_preprocessing',
+    keywords="cmip6_preprocessing",
     classifiers=[
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-    ]
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+    ],
 )

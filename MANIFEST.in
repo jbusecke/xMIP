@@ -1,2 +1,2 @@
 include versioneer.py
-include staggered_grid_config.yaml
+recursive-include cmip6_preprocessing *
