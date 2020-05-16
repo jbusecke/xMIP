@@ -1,1 +1,2 @@
 include versioneer.py
+include staggered_grid_config.yaml
