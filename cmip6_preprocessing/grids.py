@@ -3,6 +3,7 @@ from xgcm import Grid
 import warnings
 import numpy as np
 import xarray as xr
+import yaml
 
 
 def parse_bounds_vertex(da, dim="bnds", position=[0, 1]):
@@ -204,9 +205,7 @@ def create_full_grid(base_ds, grid_dict=None):
 
     # load dict with grid shift info for each axis
     if grid_dict is None:
-        import yaml
-
-        yaml_path = "test.yaml"
+        yaml_path = "staggered_grid_config.yaml"
         ff = open(yaml_path, "r")
         grid_dict = yaml.load(ff)
         ff.close()

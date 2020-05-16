@@ -1,0 +1,153 @@
+ACCESS-CM2:
+  axis_shift:
+    X: right
+    Y: right
+ACCESS-ESM1-5:
+  axis_shift:
+    X: right
+    Y: right
+BCC-CSM2-MR:
+  axis_shift:
+    X: right
+    Y: right
+BCC-ESM1:
+  axis_shift:
+    X: right
+    Y: right
+CAMS-CSM1-0:
+  axis_shift:
+    X: right
+    Y: right
+CESM2:
+  axis_shift:
+    X: left
+    Y: right
+CESM2-FV2:
+  axis_shift:
+    X: left
+    Y: right
+CESM2-WACCM:
+  axis_shift:
+    X: left
+    Y: right
+CESM2-WACCM-FV2:
+  axis_shift:
+    X: left
+    Y: right
+CIESM:
+  axis_shift:
+    X: left
+    Y: left
+CNRM-CM6-1:
+  axis_shift:
+    X: right
+    Y: right
+CNRM-CM6-1-HR:
+  axis_shift:
+    X: left
+    Y: right
+CNRM-ESM2-1:
+  axis_shift:
+    X: right
+    Y: right
+CanESM5:
+  axis_shift:
+    X: right
+    Y: right
+CanESM5-CanOE:
+  axis_shift:
+    X: right
+    Y: right
+EC-Earth3:
+  axis_shift:
+    X: right
+    Y: right
+EC-Earth3-LR:
+  axis_shift:
+    X: right
+    Y: right
+EC-Earth3-Veg:
+  axis_shift:
+    X: right
+    Y: right
+FGOALS-f3-L:
+  axis_shift:
+    X: left
+    Y: left
+FIO-ESM-2-0:
+  axis_shift:
+    X: left
+    Y: right
+GFDL-CM4:
+  axis_shift:
+    X: left
+    Y: left
+GISS-E2-1-G:
+  axis_shift:
+    X: right
+    Y: left
+GISS-E2-1-G-CC:
+  axis_shift:
+    X: right
+    Y: left
+GISS-E2-2-G:
+  axis_shift:
+    X: right
+    Y: left
+HadGEM3-GC31-LL:
+  axis_shift:
+    X: right
+    Y: right
+HadGEM3-GC31-MM:
+  axis_shift:
+    X: left
+    Y: right
+IPSL-CM6A-LR:
+  axis_shift:
+    X: right
+    Y: right
+MCM-UA-1-0:
+  axis_shift:
+    X: right
+    Y: right
+MIROC-ES2L:
+  axis_shift:
+    X: right
+    Y: right
+MIROC6:
+  axis_shift:
+    X: right
+    Y: right
+MPI-ESM1-2-HR:
+  axis_shift:
+    X: right
+    Y: left
+MRI-ESM2-0:
+  axis_shift:
+    X: left
+    Y: right
+NESM3:
+  axis_shift:
+    X: right
+    Y: right
+NorESM2-LM:
+  axis_shift:
+    X: right
+    Y: left
+NorESM2-MM:
+  axis_shift:
+    X: right
+    Y: left
+SAM0-UNICON:
+  axis_shift:
+    X: left
+    Y: right
+TaiESM1:
+  axis_shift:
+    X: left
+    Y: right
+UKESM1-0-LL:
+  axis_shift:
+    X: right
+    Y: right
+
