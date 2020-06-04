@@ -4,33 +4,10 @@ import warnings
 import numpy as np
 import xarray as xr
 import yaml
-
-# # within package/mymodule1.py, for example
-# import pkgutil
-#
-# grid_spec = pkgutil.get_data(__name__, "specs/staggered_grid_config.yaml")
-
 import pkg_resources
 
-# __name__ in case you're within the package
-# - otherwise it would be 'lidtk' in this example as it is the package name
 path = "specs/staggered_grid_config.yaml"  # always use slash
 grid_spec = pkg_resources.resource_filename(__name__, path)
-
-# import os, cmip6_preprocessing
-#
-# grid_spec = os.path.join(
-#     cmip6_preprocessing.__path__[0], "specs", "staggered_grid_config.yaml"
-# )
-# try:
-#     import importlib.resources as pkg_resources
-# except ImportError:
-#     # Try backported to PY<37 `importlib_resources`.
-#     import importlib_resources as pkg_resources
-#
-# from . import specs  # relative-import the *package* containing the templates
-#
-# grid_spec = pkg_resources.open_text(specs, "staggered_grid_config.yaml")
 
 
 def parse_bounds_vertex(da, dim="bnds", position=[0, 1]):
@@ -89,7 +66,16 @@ def distance(lon0, lat0, lon1, lat1):
 
 
 def recreate_metrics(ds, grid):
-    """Recreate a full set of horizontal distance metrics by using spherical geometry"""
+    """Recreate a full set of horizontal distance metrics by using spherical geometry. 
+    
+    The naming of the metrics is as follows:
+    [metric_axis]_t : metric centered at tracer point
+    [metric_axis]_gx : metric at the cell face on the x-axis. 
+        For instance `dx_gx` is the x distance centered on the eastern cell face if the shift is `right`
+    [metric_axis]_gy : As above but along the y-axis
+    [metric_axis]_gxgy : The metric located at the corner point. 
+        For example `dy_dxdy` is the y distance on the south-west corner if both axes as shifted left.
+    """
     ds = ds.copy()
 
     # Since this puts out numpy arrays, the arrays need to be transposed correctly
@@ -107,13 +93,17 @@ def recreate_metrics(ds, grid):
     # based on the grid config
     if axis_vel_pos["Y"] in ["left"]:
         ns_vertex_idx = [0, 3]
+        ns_bound_idx = [0]
     elif axis_vel_pos["Y"] in ["right"]:
         ns_vertex_idx = [1, 2]
+        ns_bound_idx = [1]
 
-    if axis_vel_pos["Y"] in ["left"]:
+    if axis_vel_pos["X"] in ["left"]:
         ew_vertex_idx = [0, 1]
-    elif axis_vel_pos["Y"] in ["right"]:
+        ew_bound_idx = [0]
+    elif axis_vel_pos["X"] in ["right"]:
         ew_vertex_idx = [3, 2]
+        ew_bound_idx = [1]
 
     # infer dx at tracer points
     if "lon_bounds" in ds.coords and "lat_verticies" in ds.coords:
@@ -160,6 +150,8 @@ def recreate_metrics(ds, grid):
         )
 
     # for the distances that dont line up with the cell boundaries we need some different logic
+    boundary = "extend"
+    # TODO: This should be removed once we have the default boundary merged in xgcm
 
     # infer dx at eastern/western bound from tracer points
     lon0, lon1 = grid.axes["X"]._get_neighbor_data_pairs(
@@ -169,27 +161,70 @@ def recreate_metrics(ds, grid):
         ds.lat.load(), axis_vel_pos["X"]
     )
     dx = distance(lon0, lat0, lon1, lat1)
-    ds.coords["dx_gx"] = xr.DataArray(dx, coords=grid.interp(ds.lon, "X").coords)
+    ds.coords["dx_gx"] = xr.DataArray(
+        dx, coords=grid.interp(ds.lon, "X", boundary=boundary).coords
+    )
 
     # infer dy at northern bound from tracer points
     lat0, lat1 = grid.axes["Y"]._get_neighbor_data_pairs(
-        ds.lat.load(), axis_vel_pos["Y"], boundary="extrapolate"
+        ds.lat.load(), axis_vel_pos["Y"], boundary=boundary
     )
     lon0, lon1 = grid.axes["Y"]._get_neighbor_data_pairs(
-        ds.lon.load(), axis_vel_pos["Y"], boundary="extrapolate"
+        ds.lon.load(), axis_vel_pos["Y"], boundary=boundary
     )
     dy = distance(lon0, lat0, lon1, lat1)
     ds.coords["dy_gy"] = xr.DataArray(
-        dy, coords=grid.interp(ds.lat, "Y", boundary="extrapolate").coords
+        dy, coords=grid.interp(ds.lat, "Y", boundary=boundary).coords
     )
+
+    # infer dx at the corner point
+    lon0, lon1 = grid.axes["X"]._get_neighbor_data_pairs(
+        interp_vertex_to_bounds(ds.lon_verticies.load(), "y")
+        .isel(bnds=ns_bound_idx)
+        .squeeze(),
+        axis_vel_pos["X"],
+    )
+    lat0, lat1 = grid.axes["X"]._get_neighbor_data_pairs(
+        ds.lat_bounds.isel(bnds=ns_bound_idx).squeeze().load(), axis_vel_pos["X"]
+    )
+    dx = distance(lon0, lat0, lon1, lat1)
+    ds.coords["dx_gxgy"] = xr.DataArray(
+        dx,
+        coords=grid.interp(
+            grid.interp(ds.lon, "X", boundary=boundary), "Y", boundary=boundary
+        ).coords,
+    )
+
+    # infer dy at the corner point
+    lat0, lat1 = grid.axes["Y"]._get_neighbor_data_pairs(
+        interp_vertex_to_bounds(ds.lat_verticies.load(), "x")
+        .isel(bnds=ew_bound_idx)
+        .squeeze(),
+        axis_vel_pos["Y"],
+    )
+    lon0, lon1 = grid.axes["Y"]._get_neighbor_data_pairs(
+        ds.lon_bounds.isel(bnds=ew_bound_idx).squeeze().load(), axis_vel_pos["Y"]
+    )
+    dy = distance(lon0, lat0, lon1, lat1)
+    ds.coords["dy_gxgy"] = xr.DataArray(
+        dy,
+        coords=grid.interp(
+            grid.interp(ds.lon, "X", boundary=boundary), "Y", boundary=boundary
+        ).coords,
+    )
+
+    # TODO: and now the last one, the metrics centered on the corner point corner point
+
+    # infer dz at tracer point
+    if "lev_bounds" in ds.coords:
+        ds.coords["dz_t"] = ds.coords["lev_bounds"].diff("bnds").squeeze(drop=True)
 
     metrics_dict = {
         "X": [co for co in ["dx_t", "dx_gy", "dx_gx"] if co in ds.coords],
         "Y": [co for co in ["dy_t", "dy_gy", "dy_gx"] if co in ds.coords],
+        "Z": [co for co in ["dz_t"] if co in ds.coords],
     }
 
-    # and now the last one, the metrics centered on the corner point corner point
-    # these still need to be done
     return ds, metrics_dict
 
 
