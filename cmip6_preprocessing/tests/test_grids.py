@@ -6,100 +6,33 @@ from xgcm.autogenerate import generate_grid_ds
 from cmip6_preprocessing.grids import (
     distance,
     distance_deg,
-    interp_vertex_to_bounds,
-    parse_bounds_vertex,
+    _interp_vertex_to_bounds,
+    _parse_bounds_vertex,
     recreate_metrics,
-    interp_vertex_to_bounds,
+    detect_shift,
+    create_full_grid,
+    combine_staggered_grid,
 )
-
-
-def test_parse_bounds_vertex():
-    lon_b = xr.DataArray(np.array([0, 1, 2, 3]), dims=["vertex"])
-    lat_b = xr.DataArray(np.array([10, 11, 12, 13]), dims=["vertex"])
-
-    data = np.random.rand(4)
-
-    da = xr.DataArray(
-        data, dims=["vertex"], coords={"lon_verticies": lon_b, "lat_verticies": lat_b}
-    )
-    test = parse_bounds_vertex(da, "vertex", position=[0, 3])
-    print(test)
-    expected = (da.isel(vertex=0).load().data, da.isel(vertex=3).load().data)
-    print(expected)
-    assert test == expected
-
-
-def test_interp_vertex_to_bounds():
-    da = xr.DataArray(np.arange(4), dims=["vertex"])
-    # test interp on the y axis
-    expected = xr.DataArray(np.array([1.5, 1.5]), dims=["bnds"])
-    xr.testing.assert_equal(interp_vertex_to_bounds(da, "y"), expected)
-    # test interp on the x axis
-    expected = xr.DataArray(np.array([0.5, 2.5]), dims=["bnds"])
-    xr.testing.assert_equal(interp_vertex_to_bounds(da, "x"), expected)
-
-
-def test_distance_deg():
-    lon0, lat0, lon1, lat1 = 120, 30, 121, 31
-    delta_lon, delta_lat = distance_deg(lon0, lat0, lon1, lat1)
-    assert delta_lon == 1.0
-    assert delta_lat == 1.0
-
-    lon0, lat0, lon1, lat1 = 360, 30, 1, 31
-    delta_lon, delta_lat = distance_deg(lon0, lat0, lon1, lat1)
-    assert delta_lon == 1.0
-    assert delta_lat == 1.0
-
-    lon0, lat0, lon1, lat1 = 300, 30, 301, 30.09
-    delta_lon, delta_lat = distance_deg(lon0, lat0, lon1, lat1)
-    assert delta_lon == 1.0
-    assert delta_lat == 0.0
-
-
-@pytest.mark.parametrize("lon", [0, 90, 120])
-@pytest.mark.parametrize("lat", [0, 10, 45])
-def test_distance(lon, lat):
-    Re = 6.378e6
-    # test straight lat line
-    lon0, lat0, lon1, lat1 = lon, lat, lon, lat + 1
-    dist = distance(lon0, lat0, lon1, lat1)
-    np.testing.assert_allclose(dist, Re * (np.pi * 1.0 / 180))
-
-    # test straight lon line
-    lon0, lat0, lon1, lat1 = lon, lat, lon + 1, lat
-    dist = distance(lon0, lat0, lon1, lat1)
-    np.testing.assert_allclose(
-        dist, Re * (np.pi * 1.0 / 180) * np.cos(np.pi * lat0 / 180)
-    )
 
 
 def _add_small_rand(da):
     return da + (np.random.rand(*da.shape) * 0.05)
 
 
-# TODO: inner and outer (needs to be implemented in xgcm autogenerate first)
-@pytest.mark.parametrize("xshift", ["left", "right"])
-@pytest.mark.parametrize("yshift", ["left", "right"])
-def test_recreate_metrics(xshift, yshift):
-
-    # reconstruct all the metrics by hand and compare to inferred output
-
-    # * For now this is a regular lon lat grid. Might need to add some tests for more complex grids.
-    # Then again. This will not do a great job for those....
-
-    # create test dataset
+def _test_data(grid_label="gn"):
     xt = np.arange(4) + 1
 
     yt = np.arange(5) + 1
 
     zt = np.arange(6) + 1
-
+    x = xr.DataArray(xt, coords=[("x", xt)])
+    y = xr.DataArray(yt, coords=[("y", yt)])
     lev = xr.DataArray(zt, coords=[("lev", zt)])
 
     # Need to add a tracer here to get the tracer dimsuffix
     tr = xr.DataArray(
-        np.random.rand(len(xt), len(yt), len(zt)),
-        coords=[("x", xt), ("y", yt), ("lev", zt)],
+        np.random.rand(len(x), len(y), len(lev)),
+        coords=[("x", x), ("y", y), ("lev", lev)],
     )
 
     lon_raw = xr.DataArray(xt, coords=[("x", xt)])
@@ -142,7 +75,7 @@ def test_recreate_metrics(xshift, yshift):
         dim="vertex",
     )
 
-    ds = xr.Dataset({"tracer": tr})
+    ds = xr.Dataset({"base": tr})
     ds = ds.assign_coords(
         lon=lon,
         lat=lat,
@@ -152,6 +85,84 @@ def test_recreate_metrics(xshift, yshift):
         lat_verticies=lat_verticies,
         lev_bounds=lev_bounds,
     )
+    ds.attrs["source_id"] = "test_model"
+    ds.attrs["grid_label"] = grid_label
+    ds.attrs["variable_id"] = "base"
+    return ds
+
+
+def test_parse_bounds_vertex():
+    lon_b = xr.DataArray(np.array([0, 1, 2, 3]), dims=["vertex"])
+    lat_b = xr.DataArray(np.array([10, 11, 12, 13]), dims=["vertex"])
+
+    data = np.random.rand(4)
+
+    da = xr.DataArray(
+        data, dims=["vertex"], coords={"lon_verticies": lon_b, "lat_verticies": lat_b}
+    )
+    test = _parse_bounds_vertex(da, "vertex", position=[0, 3])
+    print(test)
+    expected = (da.isel(vertex=0).load().data, da.isel(vertex=3).load().data)
+    print(expected)
+    assert test == expected
+
+
+def test_interp_vertex_to_bounds():
+    da = xr.DataArray(np.arange(4), dims=["vertex"])
+    # test interp on the y axis
+    expected = xr.DataArray(np.array([1.5, 1.5]), dims=["bnds"])
+    xr.testing.assert_equal(_interp_vertex_to_bounds(da, "y"), expected)
+    # test interp on the x axis
+    expected = xr.DataArray(np.array([0.5, 2.5]), dims=["bnds"])
+    xr.testing.assert_equal(_interp_vertex_to_bounds(da, "x"), expected)
+
+
+def test_distance_deg():
+    lon0, lat0, lon1, lat1 = 120, 30, 121, 31
+    delta_lon, delta_lat = distance_deg(lon0, lat0, lon1, lat1)
+    assert delta_lon == 1.0
+    assert delta_lat == 1.0
+
+    lon0, lat0, lon1, lat1 = 360, 30, 1, 31
+    delta_lon, delta_lat = distance_deg(lon0, lat0, lon1, lat1)
+    assert delta_lon == 1.0
+    assert delta_lat == 1.0
+
+    lon0, lat0, lon1, lat1 = 300, 30, 301, 30.09
+    delta_lon, delta_lat = distance_deg(lon0, lat0, lon1, lat1)
+    assert delta_lon == 1.0
+    assert delta_lat == 0.0
+
+
+@pytest.mark.parametrize("lon", [0, 90, 120])
+@pytest.mark.parametrize("lat", [0, 10, 45])
+def test_distance(lon, lat):
+    Re = 6.378e6
+    # test straight lat line
+    lon0, lat0, lon1, lat1 = lon, lat, lon, lat + 1
+    dist = distance(lon0, lat0, lon1, lat1)
+    np.testing.assert_allclose(dist, Re * (np.pi * 1.0 / 180))
+
+    # test straight lon line
+    lon0, lat0, lon1, lat1 = lon, lat, lon + 1, lat
+    dist = distance(lon0, lat0, lon1, lat1)
+    np.testing.assert_allclose(
+        dist, Re * (np.pi * 1.0 / 180) * np.cos(np.pi * lat0 / 180)
+    )
+
+
+# TODO: inner and outer (needs to be implemented in xgcm autogenerate first)
+@pytest.mark.parametrize("xshift", ["left", "right"])
+@pytest.mark.parametrize("yshift", ["left", "right"])
+def test_recreate_metrics(xshift, yshift):
+
+    # reconstruct all the metrics by hand and compare to inferred output
+
+    # * For now this is a regular lon lat grid. Might need to add some tests for more complex grids.
+    # Then again. This will not do a great job for those....
+
+    # create test dataset
+    ds = _test_data()
 
     ds_full = generate_grid_ds(
         ds,
@@ -178,14 +189,16 @@ def test_recreate_metrics(xshift, yshift):
     if yshift == "left":
         # dx
         lon0, lon1 = grid.axes["X"]._get_neighbor_data_pairs(
-            interp_vertex_to_bounds(ds_metrics.lon_verticies, "y").isel(bnds=0), xshift,
+            _interp_vertex_to_bounds(ds_metrics.lon_verticies, "y").isel(bnds=0),
+            xshift,
         )
         lat0, lat1 = grid.axes["X"]._get_neighbor_data_pairs(
             ds_metrics.lat_bounds.isel(bnds=0), xshift
         )
     elif yshift == "right":
         lon0, lon1 = grid.axes["X"]._get_neighbor_data_pairs(
-            interp_vertex_to_bounds(ds_metrics.lon_verticies, "y").isel(bnds=1), xshift,
+            _interp_vertex_to_bounds(ds_metrics.lon_verticies, "y").isel(bnds=1),
+            xshift,
         )
         lat0, lat1 = grid.axes["X"]._get_neighbor_data_pairs(
             ds_metrics.lat_bounds.isel(bnds=1), xshift
@@ -196,14 +209,16 @@ def test_recreate_metrics(xshift, yshift):
     if xshift == "left":
         # dx
         lat0, lat1 = grid.axes["Y"]._get_neighbor_data_pairs(
-            interp_vertex_to_bounds(ds_metrics.lat_verticies, "x").isel(bnds=0), yshift,
+            _interp_vertex_to_bounds(ds_metrics.lat_verticies, "x").isel(bnds=0),
+            yshift,
         )
         lon0, lon1 = grid.axes["Y"]._get_neighbor_data_pairs(
             ds_metrics.lon_bounds.isel(bnds=0), yshift
         )
     elif xshift == "right":
         lat0, lat1 = grid.axes["Y"]._get_neighbor_data_pairs(
-            interp_vertex_to_bounds(ds_metrics.lat_verticies, "x").isel(bnds=1), yshift,
+            _interp_vertex_to_bounds(ds_metrics.lat_verticies, "x").isel(bnds=1),
+            yshift,
         )
         lon0, lon1 = grid.axes["Y"]._get_neighbor_data_pairs(
             ds_metrics.lon_bounds.isel(bnds=1), yshift
@@ -239,7 +254,7 @@ def test_recreate_metrics(xshift, yshift):
     dx_gy_expected = distance(lon0, lat0, lon1, lat1)
 
     for var, expected in [
-        ("dz_t", lev_bounds.diff("bnds").squeeze().data),
+        ("dz_t", ds.lev_bounds.diff("bnds").squeeze().data),
         (
             "dx_t",
             distance(
@@ -270,3 +285,139 @@ def test_recreate_metrics(xshift, yshift):
         if expected.shape != control.shape:
             control = control.T
         np.testing.assert_allclose(control, expected)
+
+
+# TODO: inner and outer (needs to be implemented in xgcm autogenerate first)
+@pytest.mark.parametrize("xshift", ["left", "center", "right"])
+@pytest.mark.parametrize("yshift", ["left", "center", "right"])
+def test_detect_shift(xshift, yshift):
+
+    # create base dataset (tracer)
+    ds_base = _test_data()
+
+    # create the maybe shifted dataset
+    ds = ds_base.copy()
+    if xshift == "left":
+        ds["lon"] = ds["lon"] - 0.5
+    elif xshift == "right":
+        ds["lon"] = ds["lon"] + 0.5
+
+    if yshift == "left":
+        ds["lat"] = ds["lat"] - 0.5
+    elif yshift == "right":
+        ds["lat"] = ds["lat"] + 0.5
+    assert detect_shift(ds_base, ds, "X") == xshift
+    assert detect_shift(ds_base, ds, "Y") == yshift
+
+    # repeat with very small shifts (these should not be detected)
+    ds = ds_base.copy()
+    if xshift == "left":
+        ds["lon"] = ds["lon"] - 0.05
+    elif xshift == "right":
+        ds["lon"] = ds["lon"] + 0.05
+
+    if yshift == "left":
+        ds["lat"] = ds["lat"] - 0.05
+    elif yshift == "right":
+        ds["lat"] = ds["lat"] + 0.05
+    assert detect_shift(ds_base, ds, "X") == "center"
+    assert detect_shift(ds_base, ds, "Y") == "center"
+
+
+@pytest.mark.parametrize("xshift", ["left", "right"])
+@pytest.mark.parametrize("yshift", ["left", "right"])
+@pytest.mark.parametrize("grid_label", ["gr", "gn"])
+def test_create_full_grid(xshift, yshift, grid_label):
+    ds_base = _test_data(grid_label=grid_label)
+
+    # TODO: This should be specific to the grid_label: e.g grid_dict = {'model':{'gr':{'axis_shift':{'X':'left}}}}
+    grid_dict = {"test_model": {"axis_shift": {"X": xshift, "Y": yshift}}}
+
+    ds_full = create_full_grid(ds_base, grid_dict=grid_dict)
+
+    shift_dict = {"left": -0.5, "right": 0.5}
+    if grid_label == "gn":
+        assert ds_full["x"].attrs["axis"] == "X"
+        assert ds_full["x_" + xshift].attrs["axis"] == "X"
+        assert ds_full["x_" + xshift].attrs["c_grid_axis_shift"] == shift_dict[xshift]
+        assert ds_full["y"].attrs["axis"] == "Y"
+        assert ds_full["y_" + yshift].attrs["axis"] == "Y"
+        assert ds_full["y_" + yshift].attrs["c_grid_axis_shift"] == shift_dict[yshift]
+        # TODO: integrate the vertical
+        # assert ds_full["lev"].attrs["axis"] == "Z"
+
+        # I might want to loosen this later and switch to a uniform naming
+        # E.g. use x_g for the x dimension on the x gridface, no matter if its left or right...
+        # TODO: Check upstream in xgcm
+        # Once that is done I
+        assert "x_" + xshift in ds_full.dims
+        assert "y_" + yshift in ds_full.dims
+    elif grid_label == "gr":
+        # TODO: Fully integrate this into the yaml and test same as above.
+        assert "x_left" in ds_full.dims
+        assert "y_left" in ds_full.dims
+    print(ds_full)
+
+
+@pytest.mark.parametrize("recalculate_metrics", [True, False])
+@pytest.mark.parametrize("xshift", ["left", "right"])
+@pytest.mark.parametrize("yshift", ["left", "right"])
+@pytest.mark.parametrize("grid_label", ["gr", "gn"])
+def test_combine_staggered_grid(recalculate_metrics, xshift, yshift, grid_label):
+    ds_base = _test_data(grid_label=grid_label)
+
+    # create the maybe shifted dataset
+    ds = ds_base.copy()
+    ds = ds.rename({"base": "other"})
+    ds.attrs["variable_id"] = "other"
+    if grid_label == "gn":
+        if xshift == "left":
+            ds["lon"] = ds["lon"] - 0.5
+        elif xshift == "right":
+            ds["lon"] = ds["lon"] + 0.5
+
+        if yshift == "left":
+            ds["lat"] = ds["lat"] - 0.5
+        elif yshift == "right":
+            ds["lat"] = ds["lat"] + 0.5
+        grid_dict = {"test_model": {"axis_shift": {"X": xshift, "Y": yshift}}}
+    elif grid_label == "gr":
+        # TODO: remove this once i unified the treatment of grid_labels
+        ds["lon"] = ds["lon"] - 0.5
+        ds["lat"] = ds["lat"] - 0.5
+        grid_dict = {"test_model": {"axis_shift": {"X": "left", "Y": "left"}}}
+
+    grid, ds_combined = combine_staggered_grid(
+        ds_base, [ds], grid_dict=grid_dict, recalculate_metrics=recalculate_metrics
+    )
+
+    print(grid.axes)
+    if grid_label == "gn":
+        for axis, shift in zip(["X", "Y"], [xshift, yshift]):
+            # make sure the correct dim is in the added dataset
+            assert grid.axes[axis].coords[shift] in ds_combined["other"].dims
+            # and also that none of the other are in there
+            assert all(
+                [
+                    di not in ds_combined["other"].dims
+                    for dd, di in grid.axes[axis].coords.items()
+                    if dd != shift
+                ]
+            )
+    elif grid_label == "gr":
+        for axis in ["X", "Y"]:
+            # make sure the correct dim is in the added dataset
+            assert grid.axes[axis].coords["left"] in ds_combined["other"].dims
+            # and also that none of the other are in there
+            assert all(
+                [
+                    di not in ds_combined["other"].dims
+                    for dd, di in grid.axes[axis].coords.items()
+                    if dd != "left"
+                ]
+            )
+    # check if metrics are correctly parsed
+    if recalculate_metrics:
+        for axis in ["X", "Y"]:
+            for metric in ["_t", "_gx", "_gy", "_gxgy"]:
+                assert f"d{axis.lower()}{metric}" in list(ds_combined.coords)

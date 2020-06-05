@@ -10,13 +10,14 @@ path = "specs/staggered_grid_config.yaml"  # always use slash
 grid_spec = pkg_resources.resource_filename(__name__, path)
 
 
-def parse_bounds_vertex(da, dim="bnds", position=[0, 1]):
+def _parse_bounds_vertex(da, dim="bnds", position=[0, 1]):
+    """Convenience function to extract positions from bounds/verticies"""
     return tuple([da.isel({dim: i}).load().data for i in position])
 
 
-def interp_vertex_to_bounds(da, orientation):
+def _interp_vertex_to_bounds(da, orientation):
     """
-    little helper function to average 4 vertex points into two bound points.
+    Convenience function to average 4 vertex points into two bound points.
     Helpful to recreate e.g. the latitude at the `lon_bounds` points.
     """
     if orientation == "x":
@@ -34,6 +35,19 @@ def interp_vertex_to_bounds(da, orientation):
 
 
 def distance_deg(lon0, lat0, lon1, lat1):
+    """Calculate the distance in degress longitude and latitude between two points
+
+    Parameters
+    ----------
+    lon0 : np.array
+        Longitude of first point
+    lat0 : np.array
+        Latitude of first point
+    lon1 : np.array
+        Longitude of second point
+    lat1 : np.array                             
+        Latitude of second point
+    """
     delta_lon = lon1 - lon0
     delta_lat = lat1 - lat0
     # very small differences can end up negative, so zero them out based on a simple
@@ -58,6 +72,19 @@ def distance_deg(lon0, lat0, lon1, lat1):
 
 
 def distance(lon0, lat0, lon1, lat1):
+    """Calculate the distance in m between two points on a spherical globe
+
+    Parameters
+    ----------
+    lon0 : np.array
+        Longitude of first point
+    lat0 : np.array
+        Latitude of first point
+    lon1 : np.array
+        Longitude of second point
+    lat1 : np.array                             
+        Latitude of second point
+    """
     Re = 6.378e6
     delta_lon, delta_lat = distance_deg(lon0, lat0, lon1, lat1)
     dy = Re * (np.pi * delta_lat / 180)
@@ -66,7 +93,10 @@ def distance(lon0, lat0, lon1, lat1):
 
 
 def recreate_metrics(ds, grid):
-    """Recreate a full set of horizontal distance metrics by using spherical geometry. 
+    """Recreate a full set of horizontal distance metrics.
+
+    Calculates distances between points in lon/lat coordinates
+
     
     The naming of the metrics is as follows:
     [metric_axis]_t : metric centered at tracer point
@@ -75,6 +105,18 @@ def recreate_metrics(ds, grid):
     [metric_axis]_gy : As above but along the y-axis
     [metric_axis]_gxgy : The metric located at the corner point. 
         For example `dy_dxdy` is the y distance on the south-west corner if both axes as shifted left.
+
+    Parameters
+    ----------
+    ds : xr.Dataset
+        Input dataset.
+    grid : xgcm.Grid
+        xgcm Grid object matching `ds`
+
+    Returns
+    -------
+    xr.Dataset, dict
+        Dataset with added metrics as coordinates and dictionary that can be passed to xgcm.Grid to recognize new metrics
     """
     ds = ds.copy()
 
@@ -107,18 +149,18 @@ def recreate_metrics(ds, grid):
 
     # infer dx at tracer points
     if "lon_bounds" in ds.coords and "lat_verticies" in ds.coords:
-        lon0, lon1 = parse_bounds_vertex(ds["lon_bounds"])
-        lat0, lat1 = parse_bounds_vertex(
-            interp_vertex_to_bounds(ds["lat_verticies"], "x")
+        lon0, lon1 = _parse_bounds_vertex(ds["lon_bounds"])
+        lat0, lat1 = _parse_bounds_vertex(
+            _interp_vertex_to_bounds(ds["lat_verticies"], "x")
         )
         dist = distance(lon0, lat0, lon1, lat1)
         ds.coords["dx_t"] = xr.DataArray(dist, coords=ds.lon.coords)
 
     # infer dy at tracer points
     if "lat_bounds" in ds.coords and "lon_verticies" in ds.coords:
-        lat0, lat1 = parse_bounds_vertex(ds["lat_bounds"])
-        lon0, lon1 = parse_bounds_vertex(
-            interp_vertex_to_bounds(ds["lon_verticies"], "y")
+        lat0, lat1 = _parse_bounds_vertex(ds["lat_bounds"])
+        lon0, lon1 = _parse_bounds_vertex(
+            _interp_vertex_to_bounds(ds["lon_verticies"], "y")
         )
         dist = distance(lon0, lat0, lon1, lat1)
         ds.coords["dy_t"] = xr.DataArray(dist, coords=ds.lon.coords)
@@ -126,10 +168,10 @@ def recreate_metrics(ds, grid):
     if "lon_verticies" in ds.coords and "lat_verticies" in ds.coords:
 
         # infer dx at the north/south face
-        lon0, lon1 = parse_bounds_vertex(
+        lon0, lon1 = _parse_bounds_vertex(
             ds["lon_verticies"], dim="vertex", position=ns_vertex_idx
         )
-        lat0, lat1 = parse_bounds_vertex(
+        lat0, lat1 = _parse_bounds_vertex(
             ds["lat_verticies"], dim="vertex", position=ns_vertex_idx
         )
         dist = distance(lon0, lat0, lon1, lat1)
@@ -138,10 +180,10 @@ def recreate_metrics(ds, grid):
         )
 
         # infer dy at the east/west face
-        lon0, lon1 = parse_bounds_vertex(
+        lon0, lon1 = _parse_bounds_vertex(
             ds["lon_verticies"], dim="vertex", position=ew_vertex_idx
         )
-        lat0, lat1 = parse_bounds_vertex(
+        lat0, lat1 = _parse_bounds_vertex(
             ds["lat_verticies"], dim="vertex", position=ew_vertex_idx
         )
         dist = distance(lon0, lat0, lon1, lat1)
@@ -179,7 +221,7 @@ def recreate_metrics(ds, grid):
 
     # infer dx at the corner point
     lon0, lon1 = grid.axes["X"]._get_neighbor_data_pairs(
-        interp_vertex_to_bounds(ds.lon_verticies.load(), "y")
+        _interp_vertex_to_bounds(ds.lon_verticies.load(), "y")
         .isel(bnds=ns_bound_idx)
         .squeeze(),
         axis_vel_pos["X"],
@@ -197,7 +239,7 @@ def recreate_metrics(ds, grid):
 
     # infer dy at the corner point
     lat0, lat1 = grid.axes["Y"]._get_neighbor_data_pairs(
-        interp_vertex_to_bounds(ds.lat_verticies.load(), "x")
+        _interp_vertex_to_bounds(ds.lat_verticies.load(), "x")
         .isel(bnds=ew_bound_idx)
         .squeeze(),
         axis_vel_pos["Y"],
@@ -229,8 +271,23 @@ def recreate_metrics(ds, grid):
 
 
 def detect_shift(ds_base, ds, axis):
-    """ detects the shift of `ds` relative to `ds` on logical grid axes, using
-    lon and lat positions."""
+    """Detects the shift of `ds` relative to `ds` on logical grid axes, using
+    lon and lat positions.  
+
+    Parameters
+    ----------
+    ds_base : xr.Dataset
+        Reference ('base') dataset to compare to. Assumed that this is located at the 'center' coordinate.
+    ds : xr.Dataset
+        Comparison dataset. The resulting shift will be computed as this dataset relative to `ds_base`
+    axis : str
+        xgcm logical axis on which to detect the shift
+
+    Returns
+    -------
+    str
+        Shift string output, in xgcm conventions.
+    """
     ds_base = ds_base.copy()
     ds = ds.copy()
     axis = axis.lower()
@@ -263,7 +320,22 @@ def detect_shift(ds_base, ds, axis):
 
 def create_full_grid(base_ds, grid_dict=None):
     """Generate a full xgcm-compatible dataset from a reference datasets `base_ds`.
-    This dataset should be representing a tracer fields, e.g. the cell center."""
+    This dataset should be representing a tracer fields, e.g. the cell center.
+
+    Parameters
+    ----------
+    base_ds : xr.Dataset
+        The reference ('base') datasets, assumed to be at the tracer position/cell center
+    grid_dict : dict, optional
+        Dictionary with info about the grid staggering. 
+        Must be encoded using the base_ds attrs (e.g. {'model_name':{'axis_shift':{'X':'left',...}}}).
+        If deactivated (default), will load from the internal database for CMIP6 models, by default None
+
+    Returns
+    -------
+    xr.Dataset
+        xgcm compatible dataset
+    """
 
     # load dict with grid shift info for each axis
     if grid_dict is None:
@@ -298,25 +370,50 @@ def create_full_grid(base_ds, grid_dict=None):
         base_ds, axis_dict, position=position, boundary_discontinuity={"X": 360}
     )
 
+    # TODO: man parse lev and lev_bounds as center and outer dims.
+    # I should also be able to do this with `generate_grid_ds`, but here we
+    # have the `lev_bounds` with most models, so that is probably more reliable.
+    # cheapest solution right now
+    if "lev" in ds_grid.dims:
+        ds_grid["lev"].attrs["axis"] = "Z"
+
     return ds_grid
 
 
-def combine_staggered_grid(ds_base, other_ds=None, recalculate_metrics=False, **kwargs):
-    """combine a reference datasets `base_ds` with a list of other datasets
-    `other_ds` to a full xgcm-compatible staggered grid datasets. This can be a
-    list of variables, regardless of their grid position, which will be
-    automatically detected. Coordinates and attrs of these added datasets will be lost.
-    `recalculate_metrics` enables the reconstruction of grid metrics usign simple
-    spherical geometry.
+def combine_staggered_grid(
+    ds_base, other_ds=None, recalculate_metrics=False, grid_dict=None, **kwargs
+):
+    """Combine a reference datasets with a list of other datasets to a full xgcm-compatible staggered grid datasets. 
 
-    !!! Check your results carefully when using reconstructed values,
-    these might differe substantially if the grid geometry is complicated.
+
+    Parameters
+    ----------
+    ds_base : xr.Dataset
+        The reference ('base') datasets, assumed to be at the tracer position/cell center
+    other_ds : list,xr.Dataset, optional
+        List of datasets representing different variables. Their grid position will be
+        automatically detected relative to `ds_base`. Coordinates and attrs of these added datasets will be lost
+        , by default None
+    recalculate_metrics : bool, optional
+        nables the reconstruction of grid metrics usign simple
+        spherical geometry, by default False
+        
+        !!! Check your results carefully when using reconstructed values,
+        these might differe substantially if the grid geometry is complicated.
+    grid_dict : dict, optional
+        Dictionary for staggered grid setup. See `create_full_grid` for detauls
+        If None (default), will load staggered grid info from internal database, by default None
+
+    Returns
+    -------
+    xr.Dataset  
+        Single xgcm-compatible dataset, containing all variables on their respective staggered grid position.
     """
     ds_base = ds_base.copy()
     if isinstance(other_ds, str):
         other_ds = [other_ds]
 
-    ds_g = create_full_grid(ds_base)
+    ds_g = create_full_grid(ds_base, grid_dict=grid_dict)
 
     if ds_g is None:
         warnings.warn("Staggered Grid creation failed. Returning `None`")
