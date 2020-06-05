@@ -13,7 +13,7 @@ Science is not immune to racism. Academia is an elitist system with numerous gat
 
 **Open source development and reproducible science are a great way to democratize the means for scientific analysis. But you can't git clone software if you are being murdered by the police for being Black!**
 
-Free access to software and hollow diversity statements are hardly enough to crush the systemic and institutionalized racism in our society.
+Free access to software and hollow diversity statements are hardly enough to crush the systemic and institutionalized racism in our society and academia.
 
 If you are using this package, I ask you to go beyond just speaking out and donate [here](https://secure.actblue.com/donate/cmip6_preprocessing) to [Data for Black Lives](http://d4bl.org/) and [Black Lives Matter Action](https://blacklivesmatter.com/global-actions/).
 
