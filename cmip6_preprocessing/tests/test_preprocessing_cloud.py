@@ -3,6 +3,7 @@ import pytest
 import numpy as np
 import intake
 from cmip6_preprocessing.preprocessing import combined_preprocessing
+from cmip6_preprocessing.grids import combine_staggered_grid
 
 pytest.importorskip("gcsfs")
 
@@ -29,7 +30,7 @@ def all_models():
 
 def _diagnose_doubles(data):
     """displays non-unique entries in data"""
-    u, idx = np.unique(data, return_index=True)
+    _, idx = np.unique(data, return_index=True)
     missing = np.array([i for i in np.arange(len(data)) if i not in idx])
     if len(missing) > 0:
         missing_values = data[missing]
@@ -79,7 +80,6 @@ def test_preprocessing_combined(col, source_id, experiment_id, grid_label, varia
         # for now only test a subset of the dims. TODO: Add the bounds once they
         # are cleaned up.
         for di in ["x", "y", "lev", "time"]:
-            print(di)
             if di in ds.dims:
                 _diagnose_doubles(ds[di].load().data)
                 assert len(ds[di]) == len(np.unique(ds[di]))
@@ -142,11 +142,26 @@ def test_preprocessing_combined(col, source_id, experiment_id, grid_label, varia
         # Same for the bounds:
         lon_diffs = test_ds.lon_bounds.diff("bnds")
         lat_diffs = test_ds.lat_bounds.diff("bnds")
-        print(lon_diffs.load())
-        print(sum(lon_diffs))
 
         assert (lon_diffs <= 0).sum() <= (5 * len(lon_diffs.y))
         assert (lat_diffs <= 0).sum() <= (5 * len(lat_diffs.y))
+
+        # Test the staggered grid creation
+        # TODO: include gr once that is included in the yaml specs
+        if grid_label == "gn":
+            print(ds)
+            # This is just a rudimentary test to see if the creation works
+            staggered_grid, ds_staggered = combine_staggered_grid(
+                ds, recalculate_metrics=True
+            )
+            print(ds_staggered)
+            if ds_staggered is not None:
+                # TODO: This should not be happening. Address in next PR.
+                # check if metrics are correctly parsed
+                for axis in ["X", "Y"]:
+                    for metric in ["_t", "_gx", "_gy", "_gxgy"]:
+                        assert f"d{axis.lower()}{metric}" in list(ds_staggered.coords)
+                # TODO: Include actual test to combine variables
 
     else:
         pytest.xfail("Model data not available")
