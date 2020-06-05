@@ -11,7 +11,7 @@
 
 Science is not immune to racism. Academia is an elitist system with numerous gatekeepers that has mostly allowed a very limited spectrum of people to pursue a career. I believe we need to change that. 
 
-**Open source development and reproducible science are a great way to democratize the means for scientific analysis. But you can't git clone software if you are being murdered by the police for being Black!**
+Open source development and reproducible science are a great way to democratize the means for scientific analysis. **But you can't git clone software if you are being murdered by the police for being Black!**
 
 Free access to software and hollow diversity statements are hardly enough to crush the systemic and institutionalized racism in our society and academia.
 
