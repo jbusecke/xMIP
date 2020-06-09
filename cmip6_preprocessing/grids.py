@@ -340,27 +340,20 @@ def create_full_grid(base_ds, grid_dict=None):
     # load dict with grid shift info for each axis
     if grid_dict is None:
         ff = open(grid_spec, "r")
-        grid_dict = yaml.load(ff)
+        grid_dict = yaml.safe_load(ff)
         ff.close()
 
     source_id = base_ds.attrs["source_id"]
     grid_label = base_ds.attrs["grid_label"]
 
     # if source_id not in dict, and grid label is gn, warn and ask to submit an issue
-    if source_id not in grid_dict.keys() and "gn" in grid_label:
+    try:
+        axis_shift = grid_dict[source_id][grid_label]["axis_shift"]
+    except KeyError:
         warnings.warn(
-            f"Could not find the model ({source_id}) in `grid_dict`, returning `None`. Please submit an issue to github: https://github.com/jbusecke/cmip6_preprocessing/issues"
+            f"Could not find the source_id/grid_label ({source_id}/{grid_label}) combo in `grid_dict`, returning `None`. Please submit an issue to github: https://github.com/jbusecke/cmip6_preprocessing/issues"
         )
         return None
-
-    # if source_id in dict, but its gr, just print that default lefts are used for regridded data
-    if "gr" in grid_label:
-        warnings.warn(
-            "For grid label `*gr*` the axis shift defaults to left for X and Y"
-        )
-        axis_shift = {"X": "left", "Y": "left"}
-    else:
-        axis_shift = grid_dict[source_id]["axis_shift"]
 
     position = {k: ("center", axis_shift[k]) for k in axis_shift.keys()}
 
