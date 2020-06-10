@@ -1,153 +1,334 @@
 ACCESS-CM2:
-  axis_shift:
-    X: right
-    Y: right
+  gn:
+    axis_shift:
+      X: right
+      Y: right
 ACCESS-ESM1-5:
-  axis_shift:
-    X: right
-    Y: right
+  gn:
+    axis_shift:
+      X: right
+      Y: right
 BCC-CSM2-MR:
-  axis_shift:
-    X: right
-    Y: right
+  gn:
+    axis_shift:
+      X: right
+      Y: right
 BCC-ESM1:
-  axis_shift:
-    X: right
-    Y: right
+  gn:
+    axis_shift:
+      X: right
+      Y: right
 CAMS-CSM1-0:
-  axis_shift:
-    X: right
-    Y: right
+  gn:
+    axis_shift:
+      X: right
+      Y: right
+CAS-ESM2-0:
+  gn:
+    axis_shift:
+      X: left
+      Y: left
+CESM1-1-CAM5-CMIP5:
+  gn:
+    axis_shift:
+      X: left
+      Y: left
+  gr:
+    axis_shift:
+      X: left
+      Y: left
 CESM2:
-  axis_shift:
-    X: left
-    Y: right
+  gn:
+    axis_shift:
+      X: left
+      Y: right
+  gr:
+    axis_shift:
+      X: left
+      Y: left
 CESM2-FV2:
-  axis_shift:
-    X: left
-    Y: right
+  gn:
+    axis_shift:
+      X: left
+      Y: left
+  gr:
+    axis_shift:
+      X: left
+      Y: left
 CESM2-WACCM:
-  axis_shift:
-    X: left
-    Y: right
+  gn:
+    axis_shift:
+      X: left
+      Y: right
+  gr:
+    axis_shift:
+      X: left
+      Y: left
 CESM2-WACCM-FV2:
-  axis_shift:
-    X: left
-    Y: right
+  gn:
+    axis_shift:
+      X: left
+      Y: right
+  gr:
+    axis_shift:
+      X: left
+      Y: left
 CIESM:
-  axis_shift:
-    X: left
-    Y: left
+  gn:
+    axis_shift:
+      X: left
+      Y: left
 CNRM-CM6-1:
-  axis_shift:
-    X: right
-    Y: right
+  gn:
+    axis_shift:
+      X: right
+      Y: right
+  gr1:
+    axis_shift:
+      X: left
+      Y: left
 CNRM-CM6-1-HR:
-  axis_shift:
-    X: left
-    Y: right
+  gn:
+    axis_shift:
+      X: left
+      Y: right
 CNRM-ESM2-1:
-  axis_shift:
-    X: right
-    Y: right
+  gn:
+    axis_shift:
+      X: right
+      Y: right
+  gr1:
+    axis_shift:
+      X: left
+      Y: left
 CanESM5:
-  axis_shift:
-    X: right
-    Y: right
+  gn:
+    axis_shift:
+      X: right
+      Y: right
 CanESM5-CanOE:
-  axis_shift:
-    X: right
-    Y: right
+  gn:
+    axis_shift:
+      X: right
+      Y: right
+E3SM-1-0:
+  gr:
+    axis_shift:
+      X: left
+      Y: left
+E3SM-1-1:
+  gr:
+    axis_shift:
+      X: left
+      Y: left
+E3SM-1-1-ECA:
+  gr:
+    axis_shift:
+      X: left
+      Y: left
 EC-Earth3:
-  axis_shift:
-    X: right
-    Y: right
+  gn:
+    axis_shift:
+      X: right
+      Y: right
+  gr:
+    axis_shift:
+      X: left
+      Y: left
 EC-Earth3-LR:
-  axis_shift:
-    X: right
-    Y: right
+  gn:
+    axis_shift:
+      X: right
+      Y: right
 EC-Earth3-Veg:
-  axis_shift:
-    X: right
-    Y: right
+  gn:
+    axis_shift:
+      X: right
+      Y: right
+EC-Earth3-Veg-LR:
+  gn:
+    axis_shift:
+      X: left
+      Y: left
 FGOALS-f3-L:
-  axis_shift:
-    X: left
-    Y: left
+  gn:
+    axis_shift:
+      X: left
+      Y: left
+FGOALS-g3:
+  gn:
+    axis_shift:
+      X: left
+      Y: left
 FIO-ESM-2-0:
-  axis_shift:
-    X: left
-    Y: right
+  gn:
+    axis_shift:
+      X: left
+      Y: right
 GFDL-CM4:
-  axis_shift:
-    X: left
-    Y: left
+  gn:
+    axis_shift:
+      X: left
+      Y: left
+  gr:
+    axis_shift:
+      X: left
+      Y: left
+GFDL-ESM4:
+  gn:
+    axis_shift:
+      X: left
+      Y: left
+  gr:
+    axis_shift:
+      X: left
+      Y: left
+GFDL-OM4p5B:
+  gn:
+    axis_shift:
+      X: left
+      Y: left
+  gr:
+    axis_shift:
+      X: left
+      Y: left
 GISS-E2-1-G:
-  axis_shift:
-    X: right
-    Y: left
+  gn:
+    axis_shift:
+      X: left
+      Y: left
 GISS-E2-1-G-CC:
-  axis_shift:
-    X: right
-    Y: left
+  gn:
+    axis_shift:
+      X: right
+      Y: left
+GISS-E2-1-H:
+  gn:
+    axis_shift:
+      X: left
+      Y: left
+  gr:
+    axis_shift:
+      X: left
+      Y: left
 GISS-E2-2-G:
-  axis_shift:
-    X: right
-    Y: left
+  gn:
+    axis_shift:
+      X: right
+      Y: left
 HadGEM3-GC31-LL:
-  axis_shift:
-    X: right
-    Y: right
+  gn:
+    axis_shift:
+      X: right
+      Y: right
 HadGEM3-GC31-MM:
-  axis_shift:
-    X: left
-    Y: right
+  gn:
+    axis_shift:
+      X: left
+      Y: right
+IITM-ESM:
+  gn:
+    axis_shift:
+      X: left
+      Y: left
+INM-CM4-8:
+  gr1:
+    axis_shift:
+      X: left
+      Y: left
+INM-CM5-0:
+  gr1:
+    axis_shift:
+      X: left
+      Y: left
 IPSL-CM6A-LR:
-  axis_shift:
-    X: right
-    Y: right
+  gn:
+    axis_shift:
+      X: right
+      Y: right
+KACE-1-0-G:
+  gr:
+    axis_shift:
+      X: left
+      Y: left
 MCM-UA-1-0:
-  axis_shift:
-    X: right
-    Y: right
+  gn:
+    axis_shift:
+      X: right
+      Y: right
 MIROC-ES2L:
-  axis_shift:
-    X: right
-    Y: right
+  gn:
+    axis_shift:
+      X: right
+      Y: right
 MIROC6:
-  axis_shift:
-    X: right
-    Y: right
+  gn:
+    axis_shift:
+      X: right
+      Y: right
 MPI-ESM1-2-HR:
-  axis_shift:
-    X: right
-    Y: left
+  gn:
+    axis_shift:
+      X: right
+      Y: left
 MRI-ESM2-0:
-  axis_shift:
-    X: left
-    Y: right
+  gn:
+    axis_shift:
+      X: left
+      Y: right
+  gr:
+    axis_shift:
+      X: left
+      Y: left
 NESM3:
-  axis_shift:
-    X: right
-    Y: right
+  gn:
+    axis_shift:
+      X: right
+      Y: right
+NorCPM1:
+  gn:
+    axis_shift:
+      X: left
+      Y: left
+  gr:
+    axis_shift:
+      X: left
+      Y: left
+NorESM1-F:
+  gn:
+    axis_shift:
+      X: left
+      Y: left
 NorESM2-LM:
-  axis_shift:
-    X: right
-    Y: left
+  gn:
+    axis_shift:
+      X: right
+      Y: left
+  gr:
+    axis_shift:
+      X: right
+      Y: left
 NorESM2-MM:
-  axis_shift:
-    X: right
-    Y: left
+  gn:
+    axis_shift:
+      X: right
+      Y: left
+  gr:
+    axis_shift:
+      X: right
+      Y: left
 SAM0-UNICON:
-  axis_shift:
-    X: left
-    Y: right
+  gn:
+    axis_shift:
+      X: left
+      Y: right
 TaiESM1:
-  axis_shift:
-    X: left
-    Y: right
+  gn:
+    axis_shift:
+      X: left
+      Y: right
 UKESM1-0-LL:
-  axis_shift:
-    X: right
-    Y: right
-
+  gn:
+    axis_shift:
+      X: right
+      Y: right

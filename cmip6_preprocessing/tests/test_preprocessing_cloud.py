@@ -154,7 +154,8 @@ def test_preprocessing_combined(col, source_id, experiment_id, grid_label, varia
             staggered_grid, ds_staggered = combine_staggered_grid(
                 ds, recalculate_metrics=True
             )
-            print(ds_staggered)
+            assert ds_staggered is not None
+
             if ds_staggered is not None:
                 # TODO: This should not be happening. Address in next PR.
                 # check if metrics are correctly parsed
