@@ -331,31 +331,28 @@ def test_create_full_grid(xshift, yshift, grid_label):
     ds_base = _test_data(grid_label=grid_label)
 
     # TODO: This should be specific to the grid_label: e.g grid_dict = {'model':{'gr':{'axis_shift':{'X':'left}}}}
-    grid_dict = {"test_model": {"axis_shift": {"X": xshift, "Y": yshift}}}
+    grid_dict = {"test_model":{grid_label: {"axis_shift": {"X": xshift, "Y": yshift}}}}
 
     ds_full = create_full_grid(ds_base, grid_dict=grid_dict)
 
     shift_dict = {"left": -0.5, "right": 0.5}
-    if grid_label == "gn":
-        assert ds_full["x"].attrs["axis"] == "X"
-        assert ds_full["x_" + xshift].attrs["axis"] == "X"
-        assert ds_full["x_" + xshift].attrs["c_grid_axis_shift"] == shift_dict[xshift]
-        assert ds_full["y"].attrs["axis"] == "Y"
-        assert ds_full["y_" + yshift].attrs["axis"] == "Y"
-        assert ds_full["y_" + yshift].attrs["c_grid_axis_shift"] == shift_dict[yshift]
-        # TODO: integrate the vertical
-        # assert ds_full["lev"].attrs["axis"] == "Z"
+    
+    assert ds_full["x"].attrs["axis"] == "X"
+    assert ds_full["x_" + xshift].attrs["axis"] == "X"
+    assert ds_full["x_" + xshift].attrs["c_grid_axis_shift"] == shift_dict[xshift]
+    assert ds_full["y"].attrs["axis"] == "Y"
+    assert ds_full["y_" + yshift].attrs["axis"] == "Y"
+    assert ds_full["y_" + yshift].attrs["c_grid_axis_shift"] == shift_dict[yshift]
+    # TODO: integrate the vertical
+    # assert ds_full["lev"].attrs["axis"] == "Z"
 
-        # I might want to loosen this later and switch to a uniform naming
-        # E.g. use x_g for the x dimension on the x gridface, no matter if its left or right...
-        # TODO: Check upstream in xgcm
-        # Once that is done I
-        assert "x_" + xshift in ds_full.dims
-        assert "y_" + yshift in ds_full.dims
-    elif grid_label == "gr":
-        # TODO: Fully integrate this into the yaml and test same as above.
-        assert "x_left" in ds_full.dims
-        assert "y_left" in ds_full.dims
+    # I might want to loosen this later and switch to a uniform naming
+    # E.g. use x_g for the x dimension on the x gridface, no matter if its left or right...
+    # TODO: Check upstream in xgcm
+    # Once that is done I
+    assert "x_" + xshift in ds_full.dims
+    assert "y_" + yshift in ds_full.dims
+
     print(ds_full)
 
 
@@ -370,52 +367,32 @@ def test_combine_staggered_grid(recalculate_metrics, xshift, yshift, grid_label)
     ds = ds_base.copy()
     ds = ds.rename({"base": "other"})
     ds.attrs["variable_id"] = "other"
-    if grid_label == "gn":
-        if xshift == "left":
-            ds["lon"] = ds["lon"] - 0.5
-        elif xshift == "right":
-            ds["lon"] = ds["lon"] + 0.5
-
-        if yshift == "left":
-            ds["lat"] = ds["lat"] - 0.5
-        elif yshift == "right":
-            ds["lat"] = ds["lat"] + 0.5
-        grid_dict = {"test_model": {"axis_shift": {"X": xshift, "Y": yshift}}}
-    elif grid_label == "gr":
-        # TODO: remove this once i unified the treatment of grid_labels
+    if xshift == "left":
         ds["lon"] = ds["lon"] - 0.5
+    elif xshift == "right":
+        ds["lon"] = ds["lon"] + 0.5
+
+    if yshift == "left":
         ds["lat"] = ds["lat"] - 0.5
-        grid_dict = {"test_model": {"axis_shift": {"X": "left", "Y": "left"}}}
+    elif yshift == "right":
+        ds["lat"] = ds["lat"] + 0.5
+    grid_dict = {"test_model":{grid_label: {"axis_shift": {"X": xshift, "Y": yshift}}}}
 
     grid, ds_combined = combine_staggered_grid(
         ds_base, [ds], grid_dict=grid_dict, recalculate_metrics=recalculate_metrics
     )
 
-    print(grid.axes)
-    if grid_label == "gn":
-        for axis, shift in zip(["X", "Y"], [xshift, yshift]):
-            # make sure the correct dim is in the added dataset
-            assert grid.axes[axis].coords[shift] in ds_combined["other"].dims
-            # and also that none of the other are in there
-            assert all(
-                [
-                    di not in ds_combined["other"].dims
-                    for dd, di in grid.axes[axis].coords.items()
-                    if dd != shift
-                ]
-            )
-    elif grid_label == "gr":
-        for axis in ["X", "Y"]:
-            # make sure the correct dim is in the added dataset
-            assert grid.axes[axis].coords["left"] in ds_combined["other"].dims
-            # and also that none of the other are in there
-            assert all(
-                [
-                    di not in ds_combined["other"].dims
-                    for dd, di in grid.axes[axis].coords.items()
-                    if dd != "left"
-                ]
-            )
+    for axis, shift in zip(["X", "Y"], [xshift, yshift]):
+        # make sure the correct dim is in the added dataset
+        assert grid.axes[axis].coords[shift] in ds_combined["other"].dims
+        # and also that none of the other are in there
+        assert all(
+            [
+                di not in ds_combined["other"].dims
+                for dd, di in grid.axes[axis].coords.items()
+                if dd != shift
+            ]
+        )
     # check if metrics are correctly parsed
     if recalculate_metrics:
         for axis in ["X", "Y"]:
