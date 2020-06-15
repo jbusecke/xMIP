@@ -19,7 +19,7 @@ def _add_small_rand(da):
     return da + (np.random.rand(*da.shape) * 0.05)
 
 
-def _test_data(grid_label="gn"):
+def _test_data(grid_label="gn", z_axis=True):
     xt = np.arange(4) + 1
 
     yt = np.arange(5) + 1
@@ -30,9 +30,16 @@ def _test_data(grid_label="gn"):
     lev = xr.DataArray(zt, coords=[("lev", zt)])
 
     # Need to add a tracer here to get the tracer dimsuffix
+    coords = [("x", x), ("y", y)]
+    data = np.random.rand(len(x), len(y))
+    
+    if z_axis:
+        coords.append(("lev", lev))
+        data = np.random.rand(len(x), len(y), len(lev))
+
     tr = xr.DataArray(
-        np.random.rand(len(x), len(y), len(lev)),
-        coords=[("x", x), ("y", y), ("lev", lev)],
+        data,
+        coords=coords,
     )
 
     lon_raw = xr.DataArray(xt, coords=[("x", xt)])
@@ -52,9 +59,10 @@ def _test_data(grid_label="gn"):
         [_add_small_rand(lat_bounds_s), _add_small_rand(lat_bounds_n)], dim="bnds"
     )
 
-    lev_bounds = xr.concat(
-        [_add_small_rand(lev - 0.5), _add_small_rand(lev + 0.5)], dim="bnds"
-    )
+    if z_axis:
+        lev_bounds = xr.concat(
+            [_add_small_rand(lev - 0.5), _add_small_rand(lev + 0.5)], dim="bnds"
+        )
 
     lon_verticies = xr.concat(
         [
@@ -76,14 +84,20 @@ def _test_data(grid_label="gn"):
     )
 
     ds = xr.Dataset({"base": tr})
-    ds = ds.assign_coords(
-        lon=lon,
+
+    dataset_coords = dict(lon=lon,
         lat=lat,
         lon_bounds=lon_bounds,
         lat_bounds=lat_bounds,
         lon_verticies=lon_verticies,
-        lat_verticies=lat_verticies,
-        lev_bounds=lev_bounds,
+        lat_verticies=lat_verticies,)
+
+    
+    if z_axis:
+        dataset_coords['lev_bounds'] = lev_bounds
+    
+    ds = ds.assign_coords(
+        dataset_coords
     )
     ds.attrs["source_id"] = "test_model"
     ds.attrs["grid_label"] = grid_label
@@ -154,7 +168,8 @@ def test_distance(lon, lat):
 # TODO: inner and outer (needs to be implemented in xgcm autogenerate first)
 @pytest.mark.parametrize("xshift", ["left", "right"])
 @pytest.mark.parametrize("yshift", ["left", "right"])
-def test_recreate_metrics(xshift, yshift):
+@pytest.mark.parametrize('z_axis', [True, False])
+def test_recreate_metrics(xshift, yshift, z_axis):
 
     # reconstruct all the metrics by hand and compare to inferred output
 
@@ -162,16 +177,23 @@ def test_recreate_metrics(xshift, yshift):
     # Then again. This will not do a great job for those....
 
     # create test dataset
-    ds = _test_data()
+    ds = _test_data(z_axis=z_axis)
+
+    # TODO: generalize so this also works with e.g. zonal average sections (which dont have a X axis)
+    coord_dict =  {"X": "x", "Y": "y"}
+    if z_axis:
+        coord_dict['Z'] = 'lev'
 
     ds_full = generate_grid_ds(
         ds,
-        {"X": "x", "Y": "y", "Z": "lev"},
+        coord_dict,
         position={"X": ("center", xshift), "Y": ("center", yshift)},
     )
 
     grid = Grid(ds_full)
     print(grid)
+    print(ds)
+    print(ds_full)
 
     ds_metrics, metrics_dict = recreate_metrics(ds_full, grid)
 
@@ -253,8 +275,14 @@ def test_recreate_metrics(xshift, yshift):
     )
     dx_gy_expected = distance(lon0, lat0, lon1, lat1)
 
+
+    if z_axis:
+        dz_t_expected = ds.lev_bounds.diff("bnds").squeeze().data
+    else:
+        dz_t_expected = None 
+
     for var, expected in [
-        ("dz_t", ds.lev_bounds.diff("bnds").squeeze().data),
+        ("dz_t",  dz_t_expected),
         (
             "dx_t",
             distance(
@@ -280,11 +308,18 @@ def test_recreate_metrics(xshift, yshift):
         ("dy_gxgy", dy_gxgy_expected),
         ("dx_gxgy", dx_gxgy_expected),
     ]:
-        print(var)
-        control = ds_metrics[var].data
-        if expected.shape != control.shape:
-            control = control.T
-        np.testing.assert_allclose(control, expected)
+        if expected is not None:
+            print(var)
+            control = ds_metrics[var].data
+            if expected.shape != control.shape:
+                control = control.T
+            np.testing.assert_allclose(control, expected)
+
+    if z_axis:
+        assert set(['X', 'Y', 'Z']).issubset(set(metrics_dict.keys()))
+    else:
+        assert set(['X', 'Y']).issubset(set(metrics_dict.keys()))
+        assert not 'Z' in list(metrics_dict.keys())
 
 
 # TODO: inner and outer (needs to be implemented in xgcm autogenerate first)

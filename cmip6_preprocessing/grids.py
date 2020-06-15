@@ -266,6 +266,8 @@ def recreate_metrics(ds, grid):
         "Y": [co for co in ["dy_t", "dy_gy", "dy_gx"] if co in ds.coords],
         "Z": [co for co in ["dz_t"] if co in ds.coords],
     }
+    # # only put out axes that have entries
+    metrics_dict = {k:v for k,v in metrics_dict.items() if len(v) >0}
 
     return ds, metrics_dict
 
