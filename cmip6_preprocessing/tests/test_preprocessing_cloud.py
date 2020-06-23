@@ -74,6 +74,9 @@ def test_preprocessing_combined(col, source_id, experiment_id, grid_label, varia
 
         _, ds = ddict.popitem()
 
+        if source_id == "CESM2-FV2":
+            pytest.skip("And `` has nans in the lon/lat")
+
         ##### Check for dim duplicates
         # check all dims for duplicates
         # for di in ds.dims:
@@ -102,9 +105,6 @@ def test_preprocessing_combined(col, source_id, experiment_id, grid_label, varia
 
         if source_id == "FGOALS-f3-L":
             pytest.skip("`FGOALS-f3-L` does not come with lon/lat bounds")
-
-        if source_id == "CESM2-FV2":
-            pytest.skip("And `` has nans in the lon/lat")
 
         ####Check for existing bounds and verticies
         for co in ["lon_bounds", "lat_bounds", "lon_verticies", "lat_verticies"]:
@@ -147,22 +147,25 @@ def test_preprocessing_combined(col, source_id, experiment_id, grid_label, varia
         assert (lat_diffs <= 0).sum() <= (5 * len(lat_diffs.y))
 
         # Test the staggered grid creation
-        # TODO: include gr once that is included in the yaml specs
-        if grid_label == "gn":
-            print(ds)
-            # This is just a rudimentary test to see if the creation works
-            staggered_grid, ds_staggered = combine_staggered_grid(
-                ds, recalculate_metrics=True
-            )
-            assert ds_staggered is not None
 
-            if ds_staggered is not None:
-                # TODO: This should not be happening. Address in next PR.
-                # check if metrics are correctly parsed
-                for axis in ["X", "Y"]:
-                    for metric in ["_t", "_gx", "_gy", "_gxgy"]:
-                        assert f"d{axis.lower()}{metric}" in list(ds_staggered.coords)
-                # TODO: Include actual test to combine variables
+        print(ds)
+        # This is just a rudimentary test to see if the creation works
+        staggered_grid, ds_staggered = combine_staggered_grid(
+            ds, recalculate_metrics=True
+        )
+
+        if source_id == "MPI-ESM-1-2-HAM" or source_id == "MPI-ESM1-2-LR":
+            pytest.skip("No available grid shift info")
+
+        assert ds_staggered is not None
+        #
+        if "lev" in ds_staggered.dims:
+            assert "bnds" in ds_staggered.lev_bounds.dims
+
+        for axis in ["X", "Y"]:
+            for metric in ["_t", "_gx", "_gy", "_gxgy"]:
+                assert f"d{axis.lower()}{metric}" in list(ds_staggered.coords)
+        # TODO: Include actual test to combine variables
 
     else:
         pytest.xfail("Model data not available")

@@ -32,15 +32,12 @@ def _test_data(grid_label="gn", z_axis=True):
     # Need to add a tracer here to get the tracer dimsuffix
     coords = [("x", x), ("y", y)]
     data = np.random.rand(len(x), len(y))
-    
+
     if z_axis:
         coords.append(("lev", lev))
         data = np.random.rand(len(x), len(y), len(lev))
 
-    tr = xr.DataArray(
-        data,
-        coords=coords,
-    )
+    tr = xr.DataArray(data, coords=coords,)
 
     lon_raw = xr.DataArray(xt, coords=[("x", xt)])
     lat_raw = xr.DataArray(yt, coords=[("y", yt)])
@@ -85,20 +82,19 @@ def _test_data(grid_label="gn", z_axis=True):
 
     ds = xr.Dataset({"base": tr})
 
-    dataset_coords = dict(lon=lon,
+    dataset_coords = dict(
+        lon=lon,
         lat=lat,
         lon_bounds=lon_bounds,
         lat_bounds=lat_bounds,
         lon_verticies=lon_verticies,
-        lat_verticies=lat_verticies,)
-
-    
-    if z_axis:
-        dataset_coords['lev_bounds'] = lev_bounds
-    
-    ds = ds.assign_coords(
-        dataset_coords
+        lat_verticies=lat_verticies,
     )
+
+    if z_axis:
+        dataset_coords["lev_bounds"] = lev_bounds
+
+    ds = ds.assign_coords(dataset_coords)
     ds.attrs["source_id"] = "test_model"
     ds.attrs["grid_label"] = grid_label
     ds.attrs["variable_id"] = "base"
@@ -168,7 +164,7 @@ def test_distance(lon, lat):
 # TODO: inner and outer (needs to be implemented in xgcm autogenerate first)
 @pytest.mark.parametrize("xshift", ["left", "right"])
 @pytest.mark.parametrize("yshift", ["left", "right"])
-@pytest.mark.parametrize('z_axis', [True, False])
+@pytest.mark.parametrize("z_axis", [True, False])
 def test_recreate_metrics(xshift, yshift, z_axis):
 
     # reconstruct all the metrics by hand and compare to inferred output
@@ -180,22 +176,21 @@ def test_recreate_metrics(xshift, yshift, z_axis):
     ds = _test_data(z_axis=z_axis)
 
     # TODO: generalize so this also works with e.g. zonal average sections (which dont have a X axis)
-    coord_dict =  {"X": "x", "Y": "y"}
+    coord_dict = {"X": "x", "Y": "y"}
     if z_axis:
-        coord_dict['Z'] = 'lev'
+        coord_dict["Z"] = "lev"
 
     ds_full = generate_grid_ds(
-        ds,
-        coord_dict,
-        position={"X": ("center", xshift), "Y": ("center", yshift)},
+        ds, coord_dict, position={"X": ("center", xshift), "Y": ("center", yshift)},
     )
 
     grid = Grid(ds_full)
-    print(grid)
-    print(ds)
-    print(ds_full)
 
     ds_metrics, metrics_dict = recreate_metrics(ds_full, grid)
+
+    if z_axis:
+        # Check that the bound values are intact (previously those got alterd due to unexpected behaviour of .assign_coords())
+        assert "bnds" in ds_metrics.lev_bounds.dims
 
     # compute the more complex metrics (I could wrap this into a function I guess?)
     lon0, lon1 = grid.axes["X"]._get_neighbor_data_pairs(ds.lon.load(), xshift)
@@ -275,14 +270,13 @@ def test_recreate_metrics(xshift, yshift, z_axis):
     )
     dx_gy_expected = distance(lon0, lat0, lon1, lat1)
 
-
     if z_axis:
         dz_t_expected = ds.lev_bounds.diff("bnds").squeeze().data
     else:
-        dz_t_expected = None 
+        dz_t_expected = None
 
     for var, expected in [
-        ("dz_t",  dz_t_expected),
+        ("dz_t", dz_t_expected),
         (
             "dx_t",
             distance(
@@ -316,10 +310,10 @@ def test_recreate_metrics(xshift, yshift, z_axis):
             np.testing.assert_allclose(control, expected)
 
     if z_axis:
-        assert set(['X', 'Y', 'Z']).issubset(set(metrics_dict.keys()))
+        assert set(["X", "Y", "Z"]).issubset(set(metrics_dict.keys()))
     else:
-        assert set(['X', 'Y']).issubset(set(metrics_dict.keys()))
-        assert not 'Z' in list(metrics_dict.keys())
+        assert set(["X", "Y"]).issubset(set(metrics_dict.keys()))
+        assert not "Z" in list(metrics_dict.keys())
 
 
 # TODO: inner and outer (needs to be implemented in xgcm autogenerate first)
@@ -366,12 +360,12 @@ def test_create_full_grid(xshift, yshift, grid_label):
     ds_base = _test_data(grid_label=grid_label)
 
     # TODO: This should be specific to the grid_label: e.g grid_dict = {'model':{'gr':{'axis_shift':{'X':'left}}}}
-    grid_dict = {"test_model":{grid_label: {"axis_shift": {"X": xshift, "Y": yshift}}}}
+    grid_dict = {"test_model": {grid_label: {"axis_shift": {"X": xshift, "Y": yshift}}}}
 
     ds_full = create_full_grid(ds_base, grid_dict=grid_dict)
 
     shift_dict = {"left": -0.5, "right": 0.5}
-    
+
     assert ds_full["x"].attrs["axis"] == "X"
     assert ds_full["x_" + xshift].attrs["axis"] == "X"
     assert ds_full["x_" + xshift].attrs["c_grid_axis_shift"] == shift_dict[xshift]
@@ -411,7 +405,7 @@ def test_combine_staggered_grid(recalculate_metrics, xshift, yshift, grid_label)
         ds["lat"] = ds["lat"] - 0.5
     elif yshift == "right":
         ds["lat"] = ds["lat"] + 0.5
-    grid_dict = {"test_model":{grid_label: {"axis_shift": {"X": xshift, "Y": yshift}}}}
+    grid_dict = {"test_model": {grid_label: {"axis_shift": {"X": xshift, "Y": yshift}}}}
 
     grid, ds_combined = combine_staggered_grid(
         ds_base, [ds], grid_dict=grid_dict, recalculate_metrics=recalculate_metrics

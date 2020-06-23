@@ -209,14 +209,17 @@ def test_parse_lon_lat_bounds():
     assert "lat_verticies" in ds_test.coords
 
     # introduce a time diemension
-    ds_wrong = ds.copy()
-    ds_wrong.coords["lon_bounds"] = ds_wrong.coords["lon_bounds"] * xr.DataArray(
-        range(5), dims=["time"]
-    )
+    for wrong_coord in ["lon_bounds", "lat_bounds"]:
+        # TODO: this should also test lev_bounds.
+        # Are there other coords that should be purged of the
+        ds_wrong = ds.copy()
+        ds_wrong.coords[wrong_coord] = ds_wrong.coords[wrong_coord] * xr.DataArray(
+            range(5), dims=["time"]
+        )
 
-    ds_test2 = parse_lon_lat_bounds(ds_wrong)
-    assert "time" in ds_wrong.dims
-    assert "time" not in ds_test2.variables
+        ds_test2 = parse_lon_lat_bounds(ds_wrong)
+        assert "time" in ds_wrong.dims
+        assert "time" not in ds_test2.variables
 
 
 @pytest.mark.parametrize("missing_values", [False, 1e36, -1e36])
