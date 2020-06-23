@@ -255,11 +255,11 @@ def recreate_metrics(ds, grid):
         ).coords,
     )
 
-    # TODO: and now the last one, the metrics centered on the corner point corner point
-
     # infer dz at tracer point
     if "lev_bounds" in ds.coords:
-        ds.coords["dz_t"] = ds.coords["lev_bounds"].diff("bnds").squeeze(drop=True)
+        ds = ds.assign_coords(
+            dz_t=("lev", ds["lev_bounds"].diff("bnds").squeeze(drop=True).data)
+        )
 
     metrics_dict = {
         "X": [co for co in ["dx_t", "dx_gy", "dx_gx"] if co in ds.coords],
@@ -267,7 +267,7 @@ def recreate_metrics(ds, grid):
         "Z": [co for co in ["dz_t"] if co in ds.coords],
     }
     # # only put out axes that have entries
-    metrics_dict = {k:v for k,v in metrics_dict.items() if len(v) >0}
+    metrics_dict = {k: v for k, v in metrics_dict.items() if len(v) > 0}
 
     return ds, metrics_dict
 

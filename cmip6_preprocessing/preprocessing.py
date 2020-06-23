@@ -246,7 +246,7 @@ def correct_lon(ds):
 def parse_lon_lat_bounds(ds):
     """both `regular` 2d bounds and vertex bounds are parsed as `*_bounds`.
     This function renames them to `*_verticies` if the vertex dimension is found.
-    Also removes time dimension from lon/lat bounds as found in `SAM0-UNICON` model.
+    Also removes time dimension from static bounds as found in e.g. `SAM0-UNICON` model.
     """
     if "source_id" in ds.attrs.keys():
         if ds.attrs["source_id"] == "FGOALS-f3-L":
@@ -262,11 +262,11 @@ def parse_lon_lat_bounds(ds):
         if "y" not in ds.lon_bounds.dims:
             ds.coords["lon_bounds"] = ds.coords["lon_bounds"] * xr.ones_like(ds.y)
 
-    # I am assuming that all bound fields with time were broadcasted in error,
+    # I am assuming that all bound fields with time were broadcasted in error (except time bounds obviously),
     # and will drop the time dimension.
     error_dims = ["time"]
     for ed in error_dims:
-        for co in ["lon_bounds", "lat_bounds"]:
+        for co in ["lon_bounds", "lat_bounds", "lev_bounds"]:
             if co in ds.variables:
                 if ed in ds[co].dims:
                     warnings.warn(
