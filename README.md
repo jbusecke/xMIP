@@ -49,3 +49,7 @@ Install `cmip6_preprocessing` via pip:
 or conda:
 
 `conda install -c conda-forge cmip6_preprocessing`
+
+To install the newest master from github you can use pip aswell:
+
+`pip install git+pip install git+https://github.com/jbusecke/cmip6_preprocessing.git`
