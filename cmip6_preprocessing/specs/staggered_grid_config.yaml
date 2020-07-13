@@ -332,3 +332,10 @@ UKESM1-0-LL:
     axis_shift:
       X: right
       Y: right
+# This is manually added (due to missing velocity data in the cloud). Might have to adjust if it causes issues.
+MPI-ESM1-2-LR:
+  gn:
+    axis_shift:
+      X: left
+      Y: left
+      
