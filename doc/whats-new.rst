@@ -34,6 +34,9 @@ Documentation
 
 Internal Changes
 ~~~~~~~~~~~~~~~~
+-  Add `ni` and `nj` to the `rename_dict` dictionary in _preprocessing.py_ as dimensions to be corrected (:pull:`54`)
+   By `Markus Ritschel <https://github.com/markusritschel>`_
+   
 
 .. _whats-new.0.1.2:
 
