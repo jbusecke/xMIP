@@ -16,10 +16,10 @@ import os
 print("python exec:", sys.executable)
 print("sys.path:", sys.path)
 
-# This is what xarray folks do. But lets first see if that yml update fixed it.
-# root = pathlib.Path(__file__).parent.parent.absolute()
-# os.environ["PYTHONPATH"] = str(root)
-# sys.path.insert(0, str(root))
+# This is what xarray folks do to get the source version working.
+root = pathlib.Path(__file__).parent.parent.absolute()
+os.environ["PYTHONPATH"] = str(root)
+sys.path.insert(0, str(root))
 
 import cmip6_preprocessing
 import sphinx_pangeo_theme
