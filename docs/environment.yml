@@ -13,3 +13,4 @@ dependencies:
     - sphinx_pangeo_theme
     - jupyter_client
     - jupyter-sphinx
+    - sphinxcontrib-srclinks
