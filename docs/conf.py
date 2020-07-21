@@ -11,13 +11,14 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import sys
- 	
-sys.path.insert(0, os.path.abspath('../'))
+
+sys.path.insert(0, os.path.abspath("../"))
+sys.path.insert(0, os.path.abspath("."))
 
 print("python exec:", sys.executable)
 print("sys.path:", sys.path)
 
-import cmip6-preprocessing # why is this not importing?
+import cmip6_preprocessing
 import sphinx_pangeo_theme
 
 
