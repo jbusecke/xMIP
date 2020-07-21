@@ -71,7 +71,7 @@ html_static_path = ["_static"]
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
-# The full version, including alpha/beta/rc tags.
-release = cmip6_preprocessing.__version__
-# The short X.Y version.
-version = ".".join(release.split(".")[:2])
+# # The full version, including alpha/beta/rc tags.
+# release = cmip6_preprocessing.__version__
+# # The short X.Y version.
+# version = ".".join(release.split(".")[:2])
