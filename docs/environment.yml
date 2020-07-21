@@ -1,0 +1,15 @@
+name: cmip6_preprocessing-docs
+dependencies:
+  - python
+  - future
+  - pytest
+  - numpydoc
+  - sphinx
+  - sphinx_pangeo_theme 
+  - ipykernel
+  # 
+  - pip:
+    - docrep
+    - nbsphinx
+    - jupyter_client
+    - jupyter-sphinx
