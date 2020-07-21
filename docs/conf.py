@@ -13,13 +13,15 @@
 import sys
 import os
 
-# sys.path.insert(0, os.path.abspath("../"))
-# sys.path.insert(0, os.path.abspath("."))
-
 print("python exec:", sys.executable)
 print("sys.path:", sys.path)
 
-# import cmip6_preprocessing
+# This is what xarray folks do. But lets first see if that yml update fixed it.
+# root = pathlib.Path(__file__).parent.parent.absolute()
+# os.environ["PYTHONPATH"] = str(root)
+# sys.path.insert(0, str(root))
+
+import cmip6_preprocessing
 import sphinx_pangeo_theme
 
 
@@ -71,7 +73,7 @@ html_static_path = ["_static"]
 # |version| and |release|, also used in various other places throughout the
 # built documents.
 #
-# # The full version, including alpha/beta/rc tags.
-# release = cmip6_preprocessing.__version__
-# # The short X.Y version.
-# version = ".".join(release.split(".")[:2])
+# The full version, including alpha/beta/rc tags.
+release = cmip6_preprocessing.__version__
+# The short X.Y version.
+version = ".".join(release.split(".")[:2])
