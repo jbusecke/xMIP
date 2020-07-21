@@ -5,11 +5,11 @@ dependencies:
   - pytest
   - numpydoc
   - sphinx
-  - sphinx_pangeo_theme 
   - ipykernel
-  # 
+  - pip
   - pip:
     - docrep
     - nbsphinx
+    - sphinx_pangeo_theme
     - jupyter_client
     - jupyter-sphinx

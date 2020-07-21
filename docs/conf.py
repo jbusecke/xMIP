@@ -10,9 +10,13 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+import sys
+import os
+import cmip6_preprocessing
+import sphinx_pangeo_theme
+
+print("python exec:", sys.executable)
+print("sys.path:", sys.path)
 
 
 # -- Project information -----------------------------------------------------
@@ -36,7 +40,7 @@ templates_path = ['_templates']
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = ["_build", ".ipynb_checkpoints"]
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -50,3 +54,12 @@ html_theme = "pangeo"
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+# The version info for the project you're documenting, acts as replacement for
+# |version| and |release|, also used in various other places throughout the
+# built documents.
+#
+# The full version, including alpha/beta/rc tags.
+release = cmip6_preprocessing.__version__
+# The short X.Y version.
+version = ".".join(release.split(".")[:2])
