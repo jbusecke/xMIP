@@ -12,6 +12,8 @@
 #
 import sys
 import os
+import pathlib
+
 
 print("python exec:", sys.executable)
 print("sys.path:", sys.path)
