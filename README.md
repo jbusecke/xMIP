@@ -38,6 +38,7 @@ The following issues are under development:
 1. Reconstruct/find grid metrics
 2. Arrange different variables on their respective staggered grid, so they can work seamlessly with [xgcm](https://xgcm.readthedocs.io/en/latest/)
 
+Check out this recent Earthcube [notebook](https://github.com/earthcube2020/ec20_busecke_etal) for a high level demo of `cmip6_preprocessing` and [xgcm](https://github.com/xgcm/xgcm).
 
 
 ## Installation
