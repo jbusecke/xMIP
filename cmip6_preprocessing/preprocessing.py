@@ -13,7 +13,7 @@ def cmip6_renaming_dict():
         # dim labels (order represents the priority when checking for the dim labels)
         "x": ["x", "i", "ni", "xh", "nlon", "lon", "longitude"],
         "y": ["y", "j", "nj", "yh", "nlat", "lat", "latitude"],
-        "lev": ["lev", "deptht", "olevel", "zlev", "olev"],
+        "lev": ["lev", "deptht", "olevel", "zlev", "olev", "depth"],
         "bnds": ["bnds", "axis_nbounds", "d2"],
         "vertex": ["vertex", "nvertex", "vertices"],
         # coordinate labels
