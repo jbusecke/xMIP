@@ -59,9 +59,7 @@ def rename(da, da_tracer, da_u, da_v, grid_type, position, verbose=False):
     loc = loc[0]
     if loc != "tracer":
         re_dict = {
-            k: v
-            for k, v in rename_dict[grid_type][loc].items()
-            if k in da.variables
+            k: v for k, v in rename_dict[grid_type][loc].items() if k in da.variables
         }
         da = da.rename(re_dict)
     return da
@@ -78,13 +76,15 @@ def merge_variables_on_staggered_grid(
 ):
     """Parses datavariables according to their staggered grid position.
     Should also work for gr variables, which are assumed to be on an A-grid."""
-    
+
     if any([not a in data_dict.keys() for a in [tracer_ref, u_ref, v_ref]]):
-        print('NON-REFERENCE MODE. This should just be used for a bunch of variables on the same grid')
-        grid_type = 'A'
-        
+        print(
+            "NON-REFERENCE MODE. This should just be used for a bunch of variables on the same grid"
+        )
+        grid_type = "A"
+
     else:
-        
+
         # extract reference dataarrays (those need to be in there)
         tracer = data_dict[tracer_ref]
         u = data_dict[u_ref]
@@ -184,6 +184,7 @@ def merge_variables_on_staggered_grid(
                     ds_full[dvar] = da_renamed[dvar]
     #             ds_full = xr.merge([ds_full, da_renamed])
     return ds_full
+
 
 def distance(lon0, lat0, lon1, lat1):
     geod = pyproj.Geod(ellps="WGS84")
