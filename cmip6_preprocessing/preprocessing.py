@@ -56,7 +56,8 @@ def rename_cmip6(ds, rename_dict=None):
     # rename variables
     if len(rename_dict) == 0:
         warnings.warn(
-            "input dictionary empty.", UserWarning,
+            "input dictionary empty.",
+            UserWarning,
         )
     else:
         for di in rename_dict.keys():

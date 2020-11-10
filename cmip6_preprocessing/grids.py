@@ -45,7 +45,7 @@ def distance_deg(lon0, lat0, lon1, lat1):
         Latitude of first point
     lon1 : np.array
         Longitude of second point
-    lat1 : np.array                             
+    lat1 : np.array
         Latitude of second point
     """
     delta_lon = lon1 - lon0
@@ -82,7 +82,7 @@ def distance(lon0, lat0, lon1, lat1):
         Latitude of first point
     lon1 : np.array
         Longitude of second point
-    lat1 : np.array                             
+    lat1 : np.array
         Latitude of second point
     """
     Re = 6.378e6
@@ -97,13 +97,13 @@ def recreate_metrics(ds, grid):
 
     Calculates distances between points in lon/lat coordinates
 
-    
+
     The naming of the metrics is as follows:
     [metric_axis]_t : metric centered at tracer point
-    [metric_axis]_gx : metric at the cell face on the x-axis. 
+    [metric_axis]_gx : metric at the cell face on the x-axis.
         For instance `dx_gx` is the x distance centered on the eastern cell face if the shift is `right`
     [metric_axis]_gy : As above but along the y-axis
-    [metric_axis]_gxgy : The metric located at the corner point. 
+    [metric_axis]_gxgy : The metric located at the corner point.
         For example `dy_dxdy` is the y distance on the south-west corner if both axes as shifted left.
 
     Parameters
@@ -274,7 +274,7 @@ def recreate_metrics(ds, grid):
 
 def detect_shift(ds_base, ds, axis):
     """Detects the shift of `ds` relative to `ds` on logical grid axes, using
-    lon and lat positions.  
+    lon and lat positions.
 
     Parameters
     ----------
@@ -329,7 +329,7 @@ def create_full_grid(base_ds, grid_dict=None):
     base_ds : xr.Dataset
         The reference ('base') datasets, assumed to be at the tracer position/cell center
     grid_dict : dict, optional
-        Dictionary with info about the grid staggering. 
+        Dictionary with info about the grid staggering.
         Must be encoded using the base_ds attrs (e.g. {'model_name':{'axis_shift':{'X':'left',...}}}).
         If deactivated (default), will load from the internal database for CMIP6 models, by default None
 
@@ -378,7 +378,7 @@ def create_full_grid(base_ds, grid_dict=None):
 def combine_staggered_grid(
     ds_base, other_ds=None, recalculate_metrics=False, grid_dict=None, **kwargs
 ):
-    """Combine a reference datasets with a list of other datasets to a full xgcm-compatible staggered grid datasets. 
+    """Combine a reference datasets with a list of other datasets to a full xgcm-compatible staggered grid datasets.
 
 
     Parameters
@@ -392,7 +392,7 @@ def combine_staggered_grid(
     recalculate_metrics : bool, optional
         nables the reconstruction of grid metrics usign simple
         spherical geometry, by default False
-        
+
         !!! Check your results carefully when using reconstructed values,
         these might differe substantially if the grid geometry is complicated.
     grid_dict : dict, optional
@@ -401,7 +401,7 @@ def combine_staggered_grid(
 
     Returns
     -------
-    xr.Dataset  
+    xr.Dataset
         Single xgcm-compatible dataset, containing all variables on their respective staggered grid position.
     """
     ds_base = ds_base.copy()
