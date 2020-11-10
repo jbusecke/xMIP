@@ -17,6 +17,7 @@ from cmip6_preprocessing.preprocessing import (
     maybe_convert_bounds_to_vertex,
     maybe_convert_vertex_to_bounds,
     sort_vertex_order,
+    combined_preprocessing,
 )
 
 # get all available ocean models from the cloud.
@@ -30,9 +31,10 @@ all_models = ocean_models
 
 
 def create_test_ds(xname, yname, zname, xlen, ylen, zlen):
-    x = np.linspace(0, 359, 10)
-    y = np.linspace(-90, 89, 5)
-    z = np.linspace(0, 5000, 6)
+    x = np.linspace(0, 359, xlen)
+    y = np.linspace(-90, 89, ylen)
+    z = np.linspace(0, 5000, zlen)
+
     data = np.random.rand(len(x), len(y), len(z))
     ds = xr.DataArray(data, coords=[(xname, x), (yname, y), (zname, z)]).to_dataset(
         name="test"
@@ -50,7 +52,7 @@ def create_test_ds(xname, yname, zname, xlen, ylen, zlen):
 
 @pytest.mark.parametrize("xname", ["i", "x", "lon"])
 @pytest.mark.parametrize("yname", ["j", "y", "lat"])
-@pytest.mark.parametrize("zname", ["lev", "olev", "olevel", "deptht", "deptht"])
+@pytest.mark.parametrize("zname", ["lev", "olev", "olevel"])
 @pytest.mark.parametrize("missing_dim", [None, "x", "y", "z"])
 def test_rename_cmip6(xname, yname, zname, missing_dim):
     xlen, ylen, zlen = (10, 5, 6)
@@ -377,3 +379,18 @@ def test_sort_vertex_order():
         da_shift = da_shift.assign_coords(vertex=da_shift.vertex + 10)
         da_sorted_shift = sort_vertex_order(da_shift).squeeze()
         np.testing.assert_allclose(da_sorted_shift.vertex.data, np.arange(4))
+
+
+### Combination test - involving###
+
+
+def test_combined_preprocessing_mislabeled_coords():
+    """Test if the renaming is applied to datavariables and then if they are moved to the coords."""
+    # create a 2d dataset
+    xlen, ylen, zlen = (10, 5, 1)
+    ds = create_test_ds("x", "y", "dummy", xlen, ylen, zlen).squeeze().drop("dummy")
+    ds = ds.assign(depth=5.0)
+
+    ds_pp = combined_preprocessing(ds)
+    assert "lev" in ds_pp.coords
+    np.testing.assert_allclose(ds.depth.data, ds_pp.lev.data)
