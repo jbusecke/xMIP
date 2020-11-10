@@ -225,7 +225,14 @@ def test_parse_lon_lat_bounds():
 
 
 @pytest.mark.parametrize("missing_values", [False, 1e36, -1e36])
-@pytest.mark.parametrize("shift", [-70, -180, -360,])  # cant handle positive shifts yet
+@pytest.mark.parametrize(
+    "shift",
+    [
+        -70,
+        -180,
+        -360,
+    ],
+)  # cant handle positive shifts yet
 def test_correct_lon(missing_values, shift):
     xlen, ylen, zlen = (40, 20, 6)
     ds = create_test_ds("x", "y", "lev", xlen, ylen, zlen)

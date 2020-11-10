@@ -88,8 +88,8 @@ def extract_static_metric(
 
 
 def parse_metrics(data_dict, col, varname="areacello", preprocess=None, rename=False):
-    """parse matching static metrics for each element of `data_dict`. 
-    preprocessing shouls eventually eliminate renam...once the """
+    """parse matching static metrics for each element of `data_dict`.
+    preprocessing shouls eventually eliminate renam...once the"""
     data_dict_parsed = {}
     for k, ds in data_dict.items():
         metric = extract_static_metric(

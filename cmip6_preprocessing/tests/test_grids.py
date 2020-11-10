@@ -37,7 +37,10 @@ def _test_data(grid_label="gn", z_axis=True):
         coords.append(("lev", lev))
         data = np.random.rand(len(x), len(y), len(lev))
 
-    tr = xr.DataArray(data, coords=coords,)
+    tr = xr.DataArray(
+        data,
+        coords=coords,
+    )
 
     lon_raw = xr.DataArray(xt, coords=[("x", xt)])
     lat_raw = xr.DataArray(yt, coords=[("y", yt)])
@@ -181,7 +184,9 @@ def test_recreate_metrics(xshift, yshift, z_axis):
         coord_dict["Z"] = "lev"
 
     ds_full = generate_grid_ds(
-        ds, coord_dict, position={"X": ("center", xshift), "Y": ("center", yshift)},
+        ds,
+        coord_dict,
+        position={"X": ("center", xshift), "Y": ("center", yshift)},
     )
 
     grid = Grid(ds_full)
