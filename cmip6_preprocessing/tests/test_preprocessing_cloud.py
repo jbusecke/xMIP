@@ -1,4 +1,5 @@
-# This module tests data directly from the pangeo google cloud storage
+# This module tests data directly from the pangeo google cloud storage.
+# Tests are meant to be more high level and also serve to document known problems (see skip statements).
 import pytest
 import numpy as np
 import intake

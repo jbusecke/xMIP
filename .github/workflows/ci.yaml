@@ -43,7 +43,7 @@ jobs:
       - name: Run Tests
         shell: bash -l {0}
         run: |
-          pytest -n auto --cov=./ --cov-report=xml --ignore=cmip6_preprocessing/tests/test_preprocessing_cloud.py
+          pytest -n auto --cov=./ --cov-report=xml
       - name: Upload code coverage to Codecov
         uses: codecov/codecov-action@v1
         with:
@@ -81,4 +81,4 @@ jobs:
     - name: Run Tests
       shell: bash -l {0}
       run: |
-        pytest -n auto --ignore=cmip6_preprocessing/tests/test_preprocessing_cloud.py
+        pytest -n auto
