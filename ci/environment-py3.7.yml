@@ -6,6 +6,7 @@ dependencies:
   - xarray
   - numpy
   - pandas
+  - intake
   - intake-esm
   - gcsfs
   - zarr
