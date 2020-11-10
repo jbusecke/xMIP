@@ -56,15 +56,6 @@ def test_preprocessing_combined(col, source_id, experiment_id, grid_label, varia
         grid_label=grid_label,
     )
 
-    # ddict_raw = cat.to_dataset_dict(
-    #     zarr_kwargs={"consolidated": True, "decode_times": False},
-    #     preprocess=None,
-    #     storage_options={"token": "anon"},
-    # )
-    # if len(ddict_raw) > 0:
-    #     _, ds_raw = ddict_raw.popitem()
-    #     print(ds_raw)
-
     ddict = cat.to_dataset_dict(
         zarr_kwargs={"consolidated": True, "decode_times": False},
         preprocess=combined_preprocessing,
@@ -74,6 +65,8 @@ def test_preprocessing_combined(col, source_id, experiment_id, grid_label, varia
     if len(ddict) > 0:
 
         _, ds = ddict.popitem()
+
+        print(ds)
 
         if source_id == "CESM2-FV2":
             pytest.skip("And `` has nans in the lon/lat")
@@ -149,11 +142,12 @@ def test_preprocessing_combined(col, source_id, experiment_id, grid_label, varia
 
         # Test the staggered grid creation
 
-        print(ds)
         # This is just a rudimentary test to see if the creation works
         staggered_grid, ds_staggered = combine_staggered_grid(
             ds, recalculate_metrics=True
         )
+
+        print(ds_staggered)
 
         if source_id == "MPI-ESM-1-2-HAM" or source_id == "MPI-ESM1-2-LR":
             pytest.skip("No available grid shift info")
