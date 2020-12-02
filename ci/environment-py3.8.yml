@@ -7,7 +7,6 @@ dependencies:
   - numpy
   - pandas
   - intake-esm
-  - gcsfs
   - zarr
   - xgcm
   - pyproj
