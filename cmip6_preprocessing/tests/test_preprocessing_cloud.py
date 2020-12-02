@@ -128,7 +128,7 @@ def check_grid(ds):
 @pytest.mark.parametrize("grid_label", ["gr", "gn"])
 @pytest.mark.parametrize("experiment_id", ["historical"])
 @pytest.mark.parametrize("variable_id", ["o2", "thetao"])
-@pytest.mark.parametrize("source_id", all_models())
+@pytest.mark.parametrize("source_id", all_models(col))
 def test_preprocessing_combined(col, source_id, experiment_id, grid_label, variable_id):
     cat = col.search(
         source_id=source_id,
