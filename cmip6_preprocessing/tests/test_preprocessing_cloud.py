@@ -1,6 +1,7 @@
 # This module tests data directly from the pangeo google cloud storage.
 # Tests are meant to be more high level and also serve to document known problems (see skip statements).
 import pytest
+import contextlib
 import numpy as np
 import intake
 from cmip6_preprocessing.preprocessing import combined_preprocessing
