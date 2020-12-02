@@ -152,20 +152,20 @@ def test_preprocessing_combined(col, source_id, experiment_id, grid_label, varia
         _, ds = ddict.popitem()
 
         print(ds)
-        
+
         ### Coordinate checks
         fail_models = []  # "CESM2-FV2"
         ctx_mgr = pytest.xfail() if source_id in fail_models else contextlib.suppress()
         with ctx_mgr:
             check_dim_coord_values(ds)
-        
+
         ### Coordinate bound checks
         fail_models = ["FGOALS-f3-L"]
         # "`FGOALS-f3-L` does not come with lon/lat bounds"
         ctx_mgr = pytest.xfail() if source_id in fail_models else contextlib.suppress()
         with ctx_mgr:
             check_bounds_verticies(ds)
-       
+
         ### staggered grid checks
         # Test the staggered grid creation
         fail_models = []  # "CESM2-FV2"
