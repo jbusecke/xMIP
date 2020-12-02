@@ -1,0 +1,19 @@
+name: test_env_cmip6_preprocessing
+channels:
+  - conda-forge
+dependencies:
+  - python=3.8
+  - xarray
+  - numpy
+  - pandas
+  - intake-esm
+  - gcsfs
+  - zarr
+  - xgcm
+  - pyproj
+  - matplotlib
+  - regionmask # this will fail until the current version is released on conda
+  - black
+  - pytest-cov
+  - pytest-xdist
+  - codecov
