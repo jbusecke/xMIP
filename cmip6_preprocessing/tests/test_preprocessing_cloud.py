@@ -8,6 +8,7 @@ from cmip6_preprocessing.grids import combine_staggered_grid
 
 pytest.importorskip("gcsfs")
 
+
 def col():
     return intake.open_esm_datastore(
         "https://raw.githubusercontent.com/NCAR/intake-esm-datastore/master/catalogs/pangeo-cmip6.json"
