@@ -111,4 +111,4 @@ jobs:
     - name: Run Tests
       shell: bash -l {0}
       run: |
-        pytest -n auto cmip6_preprocessing/tests/test_preprocessing_cloud.py
+        pytest -n auto test_preprocessing_cloud.py
