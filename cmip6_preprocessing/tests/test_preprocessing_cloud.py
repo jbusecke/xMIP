@@ -15,7 +15,7 @@ def col():
 
 
 def all_models():
-    df = col.df
+    df = col().df
     all_models = df["source_id"].unique()
     return all_models
 
