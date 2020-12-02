@@ -16,10 +16,7 @@ def col():
     )
 
 
-def all_models():
-    col = intake.open_esm_datastore(
-        "https://raw.githubusercontent.com/NCAR/intake-esm-datastore/master/catalogs/pangeo-cmip6.json"
-    )
+def all_models(col):
     df = col.df
     all_models = df["source_id"].unique()
 
