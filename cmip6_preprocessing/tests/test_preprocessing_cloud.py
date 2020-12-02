@@ -138,7 +138,7 @@ def test_preprocessing_combined(source_id, experiment_id, grid_label, variable_i
         table_id="Omon",
         grid_label=grid_label,
     )
-    
+
     ddict_raw = cat.to_dataset_dict(
         zarr_kwargs={"consolidated": True, "decode_times": False},
         storage_options={"token": "anon"},
