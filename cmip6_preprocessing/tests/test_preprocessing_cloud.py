@@ -2,6 +2,7 @@
 # Tests are meant to be more high level and also serve to document known problems (see skip statements).
 import pytest
 import contextlib
+import xarray as xr
 import numpy as np
 import intake
 from cmip6_preprocessing.preprocessing import combined_preprocessing
@@ -19,6 +20,8 @@ def col():
 def all_models():
     df = col().df
     all_models = df["source_id"].unique()
+    # return all_models
+    # return ["CanESM5"]
     return all_models
 
 
@@ -31,7 +34,68 @@ def _diagnose_doubles(data):
         print(f"Missing values Indicies[{missing}]/ Values[{missing_values}]")
 
 
-def check_dim_coord_values(ds):
+def xfail_wrapper(models, fail_models):
+    return [
+        pytest.param(model, marks=pytest.mark.xfail(strict=True))
+        if model in fail_models
+        else model
+        for model in models
+    ]
+
+
+zarr_kwargs = {"consolidated": True, "decode_times": False}
+
+
+def data(grid_label, experiment_id, variable_id, source_id):
+    cat = col().search(
+        source_id=source_id,
+        experiment_id=experiment_id,
+        variable_id=variable_id,
+        # member_id="r1i1p1f1",
+        table_id="Omon",
+        grid_label=grid_label,
+    )
+
+    if len(cat.df["zstore"]) > 0:
+        ddict = cat.to_dataset_dict(
+            zarr_kwargs=zarr_kwargs,
+            preprocess=combined_preprocessing,
+            storage_options={"token": "anon"},
+        )
+
+        # load the dataset without intake-esm
+        ds_raw = xr.open_zarr(cat.df["zstore"][0], **zarr_kwargs)
+
+        ds_manual = combined_preprocessing(ds_raw)
+
+        _, ds = ddict.popitem()
+    else:
+        ds = None
+    return ds, cat
+
+
+# These are too many tests. Perhaps I could load all the data first and then
+# test each dict item?
+
+grid_labels = ["gn"]
+experiment_ids = ["historical"]
+variable_ids = ["thetao"]
+
+
+@pytest.mark.parametrize("grid_label", grid_labels)
+@pytest.mark.parametrize("experiment_id", experiment_ids)
+@pytest.mark.parametrize("variable_id", variable_ids)
+@pytest.mark.parametrize("source_id", xfail_wrapper(all_models(), []))
+def test_check_dim_coord_values(grid_label, experiment_id, variable_id, source_id):
+    # there must be a better way to build this at the class level and then tear it down again
+    # I can probably get this done with fixtures, but I dont know how atm
+    ds, cat = data(grid_label, experiment_id, variable_id, source_id)
+
+    if ds is None:
+        pytest.skip(
+            f"No data found for {source_id}|{variable_id}|{experiment_id}|{grid_label}"
+        )
+
     ##### Check for dim duplicates
     # check all dims for duplicates
     # for di in ds.dims:
@@ -56,7 +120,13 @@ def check_dim_coord_values(ds):
     assert len(ds.lat.shape) == 2
 
 
-def check_bounds_verticies(ds):
+@pytest.mark.parametrize("grid_label", grid_labels)
+@pytest.mark.parametrize("experiment_id", experiment_ids)
+@pytest.mark.parametrize("variable_id", variable_ids)
+@pytest.mark.parametrize("source_id", xfail_wrapper(all_models(), []))
+def test_check_bounds_verticies(grid_label, experiment_id, variable_id, source_id):
+
+    ds, cat = data(grid_label, experiment_id, variable_id, source_id)
     if "vertex" in ds.dims:
         np.testing.assert_allclose(ds.vertex.data, np.arange(4))
 
@@ -101,14 +171,17 @@ def check_bounds_verticies(ds):
     assert (lat_diffs <= 0).sum() <= (5 * len(lat_diffs.y))
 
 
-def check_grid(ds):
+@pytest.mark.parametrize("grid_label", grid_labels)
+@pytest.mark.parametrize("experiment_id", experiment_ids)
+@pytest.mark.parametrize("variable_id", variable_ids)
+@pytest.mark.parametrize("source_id", xfail_wrapper(all_models(), []))
+def test_check_grid(grid_label, experiment_id, variable_id, source_id):
+
+    ds, cat = data(grid_label, experiment_id, variable_id, source_id)
     # This is just a rudimentary test to see if the creation works
     staggered_grid, ds_staggered = combine_staggered_grid(ds, recalculate_metrics=True)
 
     print(ds_staggered)
-
-    if source_id == "MPI-ESM-1-2-HAM" or source_id == "MPI-ESM1-2-LR":
-        pytest.skip("No available grid shift info")
 
     assert ds_staggered is not None
     #
@@ -119,63 +192,3 @@ def check_grid(ds):
         for metric in ["_t", "_gx", "_gy", "_gxgy"]:
             assert f"d{axis.lower()}{metric}" in list(ds_staggered.coords)
     # TODO: Include actual test to combine variables
-
-
-# These are too many tests. Perhaps I could load all the data first and then
-# test each dict item?
-
-
-@pytest.mark.parametrize("grid_label", ["gr", "gn"])
-@pytest.mark.parametrize("experiment_id", ["historical"])
-@pytest.mark.parametrize("variable_id", ["o2", "thetao"])
-@pytest.mark.parametrize("source_id", all_models())
-def test_preprocessing_combined(source_id, experiment_id, grid_label, variable_id):
-    cat = col().search(
-        source_id=source_id,
-        experiment_id=experiment_id,
-        variable_id=variable_id,
-        # member_id="r1i1p1f1",
-        table_id="Omon",
-        grid_label=grid_label,
-    )
-
-    ddict_raw = cat.to_dataset_dict(
-        zarr_kwargs={"consolidated": True, "decode_times": False},
-        storage_options={"token": "anon"},
-    )
-
-    ddict = cat.to_dataset_dict(
-        zarr_kwargs={"consolidated": True, "decode_times": False},
-        preprocess=combined_preprocessing,
-        storage_options={"token": "anon"},
-    )
-
-    if len(ddict) > 0:
-        _, ds_raw = ddict_raw.popitem()
-        _, ds = ddict.popitem()
-
-        print(ds_raw)
-        print(ds)
-
-        ### Coordinate checks
-        fail_models = []  # "CESM2-FV2"
-        ctx_mgr = pytest.xfail() if source_id in fail_models else contextlib.suppress()
-        with ctx_mgr:
-            check_dim_coord_values(ds)
-
-        ### Coordinate bound checks
-        fail_models = []
-        # "`FGOALS-f3-L`, `MCM-UA-1-0`, `TaiESM1`, 'MIROC-ES2L' does not come with lon/lat bounds"
-        ctx_mgr = pytest.xfail() if source_id in fail_models else contextlib.suppress()
-        with ctx_mgr:
-            check_bounds_verticies(ds)
-
-        ### staggered grid checks
-        # Test the staggered grid creation
-        fail_models = []  # "CESM2-FV2"
-        ctx_mgr = pytest.xfail() if source_id in fail_models else contextlib.suppress()
-        with ctx_mgr:
-            check_grid(ds)
-
-    else:
-        pytest.skip("Model data not available")
