@@ -9,15 +9,14 @@ from cmip6_preprocessing.grids import combine_staggered_grid
 pytest.importorskip("gcsfs")
 
 
-@pytest.fixture
 def col():
     return intake.open_esm_datastore(
         "https://raw.githubusercontent.com/NCAR/intake-esm-datastore/master/catalogs/pangeo-cmip6.json"
     )
 
 
-def all_models(col):
-    df = col.df
+def all_models():
+    df = col().df
     all_models = df["source_id"].unique()
     return all_models
 
@@ -128,7 +127,7 @@ def check_grid(ds):
 @pytest.mark.parametrize("grid_label", ["gr", "gn"])
 @pytest.mark.parametrize("experiment_id", ["historical"])
 @pytest.mark.parametrize("variable_id", ["o2", "thetao"])
-@pytest.mark.parametrize("source_id", all_models(col))
+@pytest.mark.parametrize("source_id", all_models())
 def test_preprocessing_combined(col, source_id, experiment_id, grid_label, variable_id):
     cat = col.search(
         source_id=source_id,
