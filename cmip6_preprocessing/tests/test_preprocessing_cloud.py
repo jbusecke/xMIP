@@ -21,6 +21,7 @@ def all_models(col):
     all_models = df["source_id"].unique()
     return all_models
 
+
 def _diagnose_doubles(data):
     """displays non-unique entries in data"""
     _, idx = np.unique(data, return_index=True)
@@ -30,7 +31,6 @@ def _diagnose_doubles(data):
         print(f"Missing values Indicies[{missing}]/ Values[{missing_values}]")
 
 
-        
 def check_dim_coord_values(ds):
     ##### Check for dim duplicates
     # check all dims for duplicates
@@ -54,8 +54,8 @@ def check_dim_coord_values(ds):
     # make sure lon and lat are 2d
     assert len(ds.lon.shape) == 2
     assert len(ds.lat.shape) == 2
-    
-    
+
+
 def check_bounds_verticies(ds):
     if "vertex" in ds.dims:
         np.testing.assert_allclose(ds.vertex.data, np.arange(4))
@@ -99,12 +99,11 @@ def check_bounds_verticies(ds):
 
     assert (lon_diffs <= 0).sum() <= (5 * len(lon_diffs.y))
     assert (lat_diffs <= 0).sum() <= (5 * len(lat_diffs.y))
-  
+
+
 def check_grid(ds):
     # This is just a rudimentary test to see if the creation works
-    staggered_grid, ds_staggered = combine_staggered_grid(
-        ds, recalculate_metrics=True
-    )
+    staggered_grid, ds_staggered = combine_staggered_grid(ds, recalculate_metrics=True)
 
     print(ds_staggered)
 
@@ -120,7 +119,8 @@ def check_grid(ds):
         for metric in ["_t", "_gx", "_gy", "_gxgy"]:
             assert f"d{axis.lower()}{metric}" in list(ds_staggered.coords)
     # TODO: Include actual test to combine variables
-    
+
+
 # These are too many tests. Perhaps I could load all the data first and then
 # test each dict item?
 
@@ -146,7 +146,7 @@ def test_preprocessing_combined(col, source_id, experiment_id, grid_label, varia
     )
 
     if len(ddict) > 0:
-        
+
         print(ddict)
 
         _, ds = ddict.popitem()
@@ -154,21 +154,21 @@ def test_preprocessing_combined(col, source_id, experiment_id, grid_label, varia
         print(ds)
         
         ### Coordinate checks
-        fail_models = [] #"CESM2-FV2"
+        fail_models = []  # "CESM2-FV2"
         ctx_mgr = pytest.xfail() if source_id in fail_models else contextlib.suppress()
         with ctx_mgr:
             check_dim_coord_values(ds)
         
         ### Coordinate bound checks
         fail_models = ["FGOALS-f3-L"]
-        #"`FGOALS-f3-L` does not come with lon/lat bounds"
+        # "`FGOALS-f3-L` does not come with lon/lat bounds"
         ctx_mgr = pytest.xfail() if source_id in fail_models else contextlib.suppress()
         with ctx_mgr:
             check_bounds_verticies(ds)
        
         ### staggered grid checks
         # Test the staggered grid creation
-        fail_models = [] #"CESM2-FV2"
+        fail_models = []  # "CESM2-FV2"
         ctx_mgr = pytest.xfail() if source_id in fail_models else contextlib.suppress()
         with ctx_mgr:
             check_grid(ds)
