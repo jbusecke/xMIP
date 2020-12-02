@@ -164,23 +164,6 @@ def test_preprocessing_combined(source_id, experiment_id, grid_label, variable_i
             check_dim_coord_values(ds)
 
         ### Coordinate bound checks
-        # Why do all of these fail? Did the lon/lat bounds get removed?
-#         fail_models = [
-#             "FGOALS-f3-L",
-#             "MCM-UA-1-0",
-#             "TaiESM1",
-#             "MIROC-ES2L",
-#             "BCC-ESM1",
-#             "CNRM-ESM2-1",
-#             "MPI-ESM1-2-LR",
-#             "CESM2",
-#             "MIROC6",
-#             "UKESM1-0-LL",
-#             "CNRM-CM6-1",
-#             "MRI-ESM2-0",
-#             "HadGEM3-GC31-LL",
-#             "GISS-E2-1-G",
-#         ]
         fail_models = []
         # "`FGOALS-f3-L`, `MCM-UA-1-0`, `TaiESM1`, 'MIROC-ES2L' does not come with lon/lat bounds"
         ctx_mgr = pytest.xfail() if source_id in fail_models else contextlib.suppress()
