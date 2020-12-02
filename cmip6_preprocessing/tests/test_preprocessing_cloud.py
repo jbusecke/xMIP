@@ -8,6 +8,7 @@ from cmip6_preprocessing.grids import combine_staggered_grid
 
 pytest.importorskip("gcsfs")
 
+
 @pytest.fixture
 def col():
     return intake.open_esm_datastore(
