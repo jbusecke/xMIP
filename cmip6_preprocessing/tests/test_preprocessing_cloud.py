@@ -57,7 +57,7 @@ def check_dim_coord_values(ds):
     
     
 def check_bounds_verticies(ds):
-     if "vertex" in ds.dims:
+    if "vertex" in ds.dims:
         np.testing.assert_allclose(ds.vertex.data, np.arange(4))
 
     ####Check for existing bounds and verticies
