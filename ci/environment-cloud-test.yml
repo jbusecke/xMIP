@@ -16,4 +16,5 @@ dependencies:
   - black
   - pytest-cov
   - pytest-xdist
+  - pytest-rerunfailures
   - codecov
