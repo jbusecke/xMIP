@@ -81,6 +81,8 @@ grid_labels = ["gn"]
 experiment_ids = ["historical"]
 variable_ids = ["thetao"]
 
+# some models have read errors? Indicates that there is a problem with the catalog?
+
 
 @pytest.mark.parametrize("grid_label", grid_labels)
 @pytest.mark.parametrize("experiment_id", experiment_ids)
@@ -130,6 +132,11 @@ def test_check_bounds_verticies(grid_label, experiment_id, variable_id, source_i
     if "vertex" in ds.dims:
         np.testing.assert_allclose(ds.vertex.data, np.arange(4))
 
+    if ds is None:
+        pytest.skip(
+            f"No data found for {source_id}|{variable_id}|{experiment_id}|{grid_label}"
+        )
+
     ####Check for existing bounds and verticies
     for co in ["lon_bounds", "lat_bounds", "lon_verticies", "lat_verticies"]:
         assert co in ds.coords
@@ -178,6 +185,12 @@ def test_check_bounds_verticies(grid_label, experiment_id, variable_id, source_i
 def test_check_grid(grid_label, experiment_id, variable_id, source_id):
 
     ds, cat = data(grid_label, experiment_id, variable_id, source_id)
+
+    if ds is None:
+        pytest.skip(
+            f"No data found for {source_id}|{variable_id}|{experiment_id}|{grid_label}"
+        )
+
     # This is just a rudimentary test to see if the creation works
     staggered_grid, ds_staggered = combine_staggered_grid(ds, recalculate_metrics=True)
 
