@@ -21,6 +21,7 @@ def col():
 def all_models():
     df = col().df
     all_models = df["source_id"].unique()
+    all_models = np.sort(all_models)
     # For testing purposes, only put out a subset of models
     # return ["CanESM5", "GFDL-ESM4"]
     return all_models
@@ -81,8 +82,12 @@ def data(grid_label, experiment_id, variable_id, source_id):
         _, ds = ddict.popitem()
     else:
         ds = None
+
+    print(ds)
     return ds, cat
 
+
+print(f"\n\n\n\n$$$$$$$ All available models: {all_models()}$$$$$$$\n\n\n\n")
 
 # These are too many tests. Perhaps I could load all the data first and then
 # test each dict item?
@@ -91,13 +96,24 @@ grid_labels = ["gn"]
 experiment_ids = ["historical"]
 variable_ids = ["thetao"]
 
-# some models have read errors? Indicates that there is a problem with the catalog?
-
 
 @pytest.mark.parametrize("grid_label", grid_labels)
 @pytest.mark.parametrize("experiment_id", experiment_ids)
 @pytest.mark.parametrize("variable_id", variable_ids)
-@pytest.mark.parametrize("source_id", xfail_wrapper(all_models(), []))
+@pytest.mark.parametrize(
+    "source_id",
+    xfail_wrapper(
+        all_models(),
+        [
+            "IPSL-CM6A-LR",  # There is a file not found error for thetao. Need to investigate. # some models have read errors? Indicates that there is a problem with the catalog?
+            "NorESM2-MM",  # gives concat error with undecoded time (duplicate values)
+            "CESM2-FV2",  # has duplicate values in the x
+            #! This should be fixed already
+            "AWI-CM-1-1-MR",  # these unstructured AWI outputs are not currently supported.
+            "AWI-ESM-1-1-LR",
+        ],
+    ),
+)
 def test_check_dim_coord_values(grid_label, experiment_id, variable_id, source_id):
     # there must be a better way to build this at the class level and then tear it down again
     # I can probably get this done with fixtures, but I dont know how atm
