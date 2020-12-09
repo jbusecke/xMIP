@@ -21,8 +21,8 @@ def all_models():
     df = col().df
     all_models = df["source_id"].unique()
     # return all_models
-    # return ["CanESM5"]
-    return all_models
+    return ["CanESM5"]
+    # return all_models
 
 
 def _diagnose_doubles(data):
