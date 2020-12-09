@@ -69,31 +69,31 @@ def data(grid_label, experiment_id, variable_id, source_id):
             preprocess=combined_preprocessing,
             storage_options={"token": "anon"},
         )
+        _, ds = ddict.popitem()
 
+        ##### debugging options (can be deactivated once everything works)
         # @charlesbluca suggested this to make this work in GHA
         # https://github.com/jbusecke/cmip6_preprocessing/pull/62#issuecomment-741928365
         mm = fsspec.get_mapper(
             cat.df["zstore"][0]
         )  # think you can pass in storage options here as well?
         ds_raw = xr.open_zarr(mm, **zarr_kwargs)
-
         ds_manual = combined_preprocessing(ds_raw)
 
-        _, ds = ddict.popitem()
+        print("####################### DEBUGGING ##########################")
+        print("####################### Output dataset ##########################")
+        print(ds)
+
+        print("####################### Raw dataset ##########################")
+        print(ds_raw)
+
+        print(
+            "####################### Processed dataset without intake-esm ##########################"
+        )
+        print(ds_manual)
     else:
         ds = None
 
-    print("####################### DEBUGGING ##########################")
-    print("####################### Output dataset ##########################")
-    print(ds)
-
-    print("####################### Raw dataset ##########################")
-    print(ds_raw)
-
-    print(
-        "####################### Processed dataset without intake-esm ##########################"
-    )
-    print(ds_raw)
     return ds, cat
 
 
