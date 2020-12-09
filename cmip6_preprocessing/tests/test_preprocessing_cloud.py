@@ -46,9 +46,9 @@ def xfail_wrapper(models, fail_models):
 
 zarr_kwargs = {
     "consolidated": True,
-    # "decode_times": False,
-    "decode_times": True,
-    "use_cftime": True,
+    "decode_times": False,
+    # "decode_times": True,
+    # "use_cftime": True,
 }
 
 
