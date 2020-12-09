@@ -5,6 +5,7 @@ import contextlib
 import xarray as xr
 import numpy as np
 import intake
+import fsspec
 from cmip6_preprocessing.preprocessing import combined_preprocessing
 from cmip6_preprocessing.grids import combine_staggered_grid
 
@@ -66,7 +67,13 @@ def data(grid_label, experiment_id, variable_id, source_id):
         )
 
         # load the dataset without intake-esm
-        ds_raw = xr.open_zarr(cat.df["zstore"][0], **zarr_kwargs)
+        # ds_raw = xr.open_zarr(cat.df["zstore"][0], **zarr_kwargs)
+
+        # solution from Charles to make this work in GHA
+        mm = fsspec.get_mapper(
+            cat.df["zstore"][0]
+        )  # think you can pass in storage options here as well?
+        ds_raw = xr.open_zarr(mm, **zarr_kwargs)
 
         ds_manual = combined_preprocessing(ds_raw)
 
