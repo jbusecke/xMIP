@@ -111,4 +111,4 @@ jobs:
     - name: Run Tests
       shell: bash -l {0}
       run: |
-        pytest -n auto --maxfail 300 --reruns 2 --reruns-delay 5
+        pytest -n auto --maxfail 5 --reruns 1 --reruns-delay 2
