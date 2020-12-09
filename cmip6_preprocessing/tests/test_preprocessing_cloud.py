@@ -169,13 +169,14 @@ def test_check_dim_coord_values(grid_label, experiment_id, variable_id, source_i
 def test_check_bounds_verticies(grid_label, experiment_id, variable_id, source_id):
 
     ds, cat = data(grid_label, experiment_id, variable_id, source_id)
-    if "vertex" in ds.dims:
-        np.testing.assert_allclose(ds.vertex.data, np.arange(4))
 
     if ds is None:
         pytest.skip(
             f"No data found for {source_id}|{variable_id}|{experiment_id}|{grid_label}"
         )
+
+    if "vertex" in ds.dims:
+        np.testing.assert_allclose(ds.vertex.data, np.arange(4))
 
     ####Check for existing bounds and verticies
     for co in ["lon_bounds", "lat_bounds", "lon_verticies", "lat_verticies"]:
