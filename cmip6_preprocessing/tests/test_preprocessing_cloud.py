@@ -83,7 +83,17 @@ def data(grid_label, experiment_id, variable_id, source_id):
     else:
         ds = None
 
+    print("####################### DEBUGGING ##########################")
+    print("####################### Output dataset ##########################")
     print(ds)
+
+    print("####################### Raw dataset ##########################")
+    print(ds_raw)
+
+    print(
+        "####################### Processed dataset without intake-esm ##########################"
+    )
+    print(ds_raw)
     return ds, cat
 
 
@@ -163,6 +173,9 @@ def test_check_dim_coord_values(grid_label, experiment_id, variable_id, source_i
             #! This should be fixed already
             "AWI-CM-1-1-MR",  # these unstructured AWI outputs are not currently supported.
             "AWI-ESM-1-1-LR",
+            # models that have no lon/lat bounds.
+            # TODO: Reconstruct them at least crudely with cf-xarray
+            "SAM0-UNICON",
         ],
     ),
 )
