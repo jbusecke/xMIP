@@ -43,7 +43,9 @@ def xfail_wrapper(models, fail_models):
     ]
 
 
-zarr_kwargs = {"consolidated": True, "decode_times": False}
+# zarr_kwargs = {"consolidated": True, "decode_times": False}
+# just for testing
+zarr_kwargs = {"consolidated": False, "decode_times": False}
 
 
 def data(grid_label, experiment_id, variable_id, source_id):
