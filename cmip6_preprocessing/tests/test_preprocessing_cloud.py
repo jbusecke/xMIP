@@ -21,8 +21,8 @@ def col():
 def all_models():
     df = col().df
     all_models = df["source_id"].unique()
-    # return all_models
-    return ["CanESM5"]
+    # For testing purposes, only put out a subset of models
+    return ["CanESM5", "GFDL-ESM4"]
     # return all_models
 
 
@@ -44,9 +44,12 @@ def xfail_wrapper(models, fail_models):
     ]
 
 
-# zarr_kwargs = {"consolidated": True, "decode_times": False}
-# just for testing
-zarr_kwargs = {"consolidated": False, "decode_times": False}
+zarr_kwargs = {
+    "consolidated": True,
+    # "decode_times": False,
+    "decode_times": True,
+    "use_cftime": True,
+}
 
 
 def data(grid_label, experiment_id, variable_id, source_id):
@@ -66,10 +69,8 @@ def data(grid_label, experiment_id, variable_id, source_id):
             storage_options={"token": "anon"},
         )
 
-        # load the dataset without intake-esm
-        # ds_raw = xr.open_zarr(cat.df["zstore"][0], **zarr_kwargs)
-
-        # solution from Charles to make this work in GHA
+        # @charlesbluca suggested this to make this work in GHA
+        # https://github.com/jbusecke/cmip6_preprocessing/pull/62#issuecomment-741928365
         mm = fsspec.get_mapper(
             cat.df["zstore"][0]
         )  # think you can pass in storage options here as well?
@@ -116,8 +117,9 @@ def test_check_dim_coord_values(grid_label, experiment_id, variable_id, source_i
         if di in ds.dims:
             _diagnose_doubles(ds[di].load().data)
             assert len(ds[di]) == len(np.unique(ds[di]))
-            assert ~np.all(np.isnan(ds[di]))
-            assert np.all(ds[di].diff(di) >= 0)
+            if di != "time":  # these tests do not make sense for decoded time
+                assert ~np.all(np.isnan(ds[di]))
+                assert np.all(ds[di].diff(di) >= 0)
 
     assert ds.lon.min().load() >= 0
     assert ds.lon.max().load() <= 360

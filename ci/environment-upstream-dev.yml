@@ -12,6 +12,7 @@ dependencies:
   - pytest-cov
   - black
   - numpy
+  - cftime
   - pip
   - pip:
     - pytest-xdist
