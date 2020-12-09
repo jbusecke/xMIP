@@ -22,8 +22,8 @@ def all_models():
     df = col().df
     all_models = df["source_id"].unique()
     # For testing purposes, only put out a subset of models
-    return ["CanESM5", "GFDL-ESM4"]
-    # return all_models
+    # return ["CanESM5", "GFDL-ESM4"]
+    return all_models
 
 
 def _diagnose_doubles(data):
