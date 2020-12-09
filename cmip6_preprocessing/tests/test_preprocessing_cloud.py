@@ -122,86 +122,86 @@ def test_check_dim_coord_values(grid_label, experiment_id, variable_id, source_i
     assert len(ds.lat.shape) == 2
 
 
-@pytest.mark.parametrize("grid_label", grid_labels)
-@pytest.mark.parametrize("experiment_id", experiment_ids)
-@pytest.mark.parametrize("variable_id", variable_ids)
-@pytest.mark.parametrize("source_id", xfail_wrapper(all_models(), []))
-def test_check_bounds_verticies(grid_label, experiment_id, variable_id, source_id):
+# @pytest.mark.parametrize("grid_label", grid_labels)
+# @pytest.mark.parametrize("experiment_id", experiment_ids)
+# @pytest.mark.parametrize("variable_id", variable_ids)
+# @pytest.mark.parametrize("source_id", xfail_wrapper(all_models(), []))
+# def test_check_bounds_verticies(grid_label, experiment_id, variable_id, source_id):
 
-    ds, cat = data(grid_label, experiment_id, variable_id, source_id)
-    if "vertex" in ds.dims:
-        np.testing.assert_allclose(ds.vertex.data, np.arange(4))
+#     ds, cat = data(grid_label, experiment_id, variable_id, source_id)
+#     if "vertex" in ds.dims:
+#         np.testing.assert_allclose(ds.vertex.data, np.arange(4))
 
-    if ds is None:
-        pytest.skip(
-            f"No data found for {source_id}|{variable_id}|{experiment_id}|{grid_label}"
-        )
+#     if ds is None:
+#         pytest.skip(
+#             f"No data found for {source_id}|{variable_id}|{experiment_id}|{grid_label}"
+#         )
 
-    ####Check for existing bounds and verticies
-    for co in ["lon_bounds", "lat_bounds", "lon_verticies", "lat_verticies"]:
-        assert co in ds.coords
-        # make sure that all other dims are eliminated from the bounds.
-        assert (set(ds[co].dims) - set(["bnds", "vertex"])) == set(["x", "y"])
+#     ####Check for existing bounds and verticies
+#     for co in ["lon_bounds", "lat_bounds", "lon_verticies", "lat_verticies"]:
+#         assert co in ds.coords
+#         # make sure that all other dims are eliminated from the bounds.
+#         assert (set(ds[co].dims) - set(["bnds", "vertex"])) == set(["x", "y"])
 
-    #### Check the order of the vertex
-    # Ill only check these south of the Arctic for now. Up there
-    # things are still weird.
+#     #### Check the order of the vertex
+#     # Ill only check these south of the Arctic for now. Up there
+#     # things are still weird.
 
-    test_ds = ds.sel(y=slice(-40, 40))
+#     test_ds = ds.sel(y=slice(-40, 40))
 
-    vertex_lon_diff1 = test_ds.lon_verticies.isel(
-        vertex=3
-    ) - test_ds.lon_verticies.isel(vertex=0)
-    vertex_lon_diff2 = test_ds.lon_verticies.isel(
-        vertex=2
-    ) - test_ds.lon_verticies.isel(vertex=1)
-    vertex_lat_diff1 = test_ds.lat_verticies.isel(
-        vertex=1
-    ) - test_ds.lat_verticies.isel(vertex=0)
-    vertex_lat_diff2 = test_ds.lat_verticies.isel(
-        vertex=2
-    ) - test_ds.lat_verticies.isel(vertex=3)
-    for vertex_diff in [vertex_lon_diff1, vertex_lon_diff2]:
-        assert (vertex_diff <= 0).sum() <= (3 * len(vertex_diff.y))
-        # allowing for a few rows to be negative
+#     vertex_lon_diff1 = test_ds.lon_verticies.isel(
+#         vertex=3
+#     ) - test_ds.lon_verticies.isel(vertex=0)
+#     vertex_lon_diff2 = test_ds.lon_verticies.isel(
+#         vertex=2
+#     ) - test_ds.lon_verticies.isel(vertex=1)
+#     vertex_lat_diff1 = test_ds.lat_verticies.isel(
+#         vertex=1
+#     ) - test_ds.lat_verticies.isel(vertex=0)
+#     vertex_lat_diff2 = test_ds.lat_verticies.isel(
+#         vertex=2
+#     ) - test_ds.lat_verticies.isel(vertex=3)
+#     for vertex_diff in [vertex_lon_diff1, vertex_lon_diff2]:
+#         assert (vertex_diff <= 0).sum() <= (3 * len(vertex_diff.y))
+#         # allowing for a few rows to be negative
 
-    for vertex_diff in [vertex_lat_diff1, vertex_lat_diff2]:
-        assert (vertex_diff <= 0).sum() <= (5 * len(vertex_diff.x))
-        # allowing for a few rows to be negative
-    # This is just to make sure that not the majority of values is negative or zero.
+#     for vertex_diff in [vertex_lat_diff1, vertex_lat_diff2]:
+#         assert (vertex_diff <= 0).sum() <= (5 * len(vertex_diff.x))
+#         # allowing for a few rows to be negative
+#     # This is just to make sure that not the majority of values is negative or zero.
 
-    # Same for the bounds:
-    lon_diffs = test_ds.lon_bounds.diff("bnds")
-    lat_diffs = test_ds.lat_bounds.diff("bnds")
+#     # Same for the bounds:
+#     lon_diffs = test_ds.lon_bounds.diff("bnds")
+#     lat_diffs = test_ds.lat_bounds.diff("bnds")
 
-    assert (lon_diffs <= 0).sum() <= (5 * len(lon_diffs.y))
-    assert (lat_diffs <= 0).sum() <= (5 * len(lat_diffs.y))
+#     assert (lon_diffs <= 0).sum() <= (5 * len(lon_diffs.y))
+#     assert (lat_diffs <= 0).sum() <= (5 * len(lat_diffs.y))
 
 
-@pytest.mark.parametrize("grid_label", grid_labels)
-@pytest.mark.parametrize("experiment_id", experiment_ids)
-@pytest.mark.parametrize("variable_id", variable_ids)
-@pytest.mark.parametrize("source_id", xfail_wrapper(all_models(), []))
-def test_check_grid(grid_label, experiment_id, variable_id, source_id):
+# @pytest.mark.parametrize("grid_label", grid_labels)
+# @pytest.mark.parametrize("experiment_id", experiment_ids)
+# @pytest.mark.parametrize("variable_id", variable_ids)
+# @pytest.mark.parametrize("source_id", xfail_wrapper(all_models(), []))
+# def test_check_grid(grid_label, experiment_id, variable_id, source_id):
 
-    ds, cat = data(grid_label, experiment_id, variable_id, source_id)
+#     ds, cat = data(grid_label, experiment_id, variable_id, source_id)
 
-    if ds is None:
-        pytest.skip(
-            f"No data found for {source_id}|{variable_id}|{experiment_id}|{grid_label}"
-        )
+#     if ds is None:
+#         pytest.skip(
+#             f"No data found for {source_id}|{variable_id}|{experiment_id}|{grid_label}"
+#         )
 
-    # This is just a rudimentary test to see if the creation works
-    staggered_grid, ds_staggered = combine_staggered_grid(ds, recalculate_metrics=True)
+#     # This is just a rudimentary test to see if the creation works
+#     staggered_grid, ds_staggered = combine_staggered_grid(ds, recalculate_metrics=True)
 
-    print(ds_staggered)
+#     print(ds_staggered)
 
-    assert ds_staggered is not None
-    #
-    if "lev" in ds_staggered.dims:
-        assert "bnds" in ds_staggered.lev_bounds.dims
+#     assert ds_staggered is not None
+#     #
+#     if "lev" in ds_staggered.dims:
+#         assert "bnds" in ds_staggered.lev_bounds.dims
 
-    for axis in ["X", "Y"]:
-        for metric in ["_t", "_gx", "_gy", "_gxgy"]:
-            assert f"d{axis.lower()}{metric}" in list(ds_staggered.coords)
-    # TODO: Include actual test to combine variables
+#     for axis in ["X", "Y"]:
+#         for metric in ["_t", "_gx", "_gy", "_gxgy"]:
+#             assert f"d{axis.lower()}{metric}" in list(ds_staggered.coords)
+#     # TODO: Include actual test to combine variables
