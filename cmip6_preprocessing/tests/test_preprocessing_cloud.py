@@ -71,26 +71,26 @@ def data(grid_label, experiment_id, variable_id, source_id):
         )
         _, ds = ddict.popitem()
 
-        ##### debugging options (can be deactivated once everything works)
-        # @charlesbluca suggested this to make this work in GHA
-        # https://github.com/jbusecke/cmip6_preprocessing/pull/62#issuecomment-741928365
-        mm = fsspec.get_mapper(
-            cat.df["zstore"][0]
-        )  # think you can pass in storage options here as well?
-        ds_raw = xr.open_zarr(mm, **zarr_kwargs)
-        ds_manual = combined_preprocessing(ds_raw)
+        # ##### debugging options (can be deactivated once everything works)
+        # # @charlesbluca suggested this to make this work in GHA
+        # # https://github.com/jbusecke/cmip6_preprocessing/pull/62#issuecomment-741928365
+        # mm = fsspec.get_mapper(
+        #     cat.df["zstore"][0]
+        # )  # think you can pass in storage options here as well?
+        # ds_raw = xr.open_zarr(mm, **zarr_kwargs)
+        # ds_manual = combined_preprocessing(ds_raw)
 
-        print("####################### DEBUGGING ##########################")
-        print("####################### Output dataset ##########################")
-        print(ds)
+        # print("####################### DEBUGGING ##########################")
+        # print("####################### Output dataset ##########################")
+        # print(ds)
 
-        print("####################### Raw dataset ##########################")
-        print(ds_raw)
+        # print("####################### Raw dataset ##########################")
+        # print(ds_raw)
 
-        print(
-            "####################### Processed dataset without intake-esm ##########################"
-        )
-        print(ds_manual)
+        # print(
+        #     "####################### Processed dataset without intake-esm ##########################"
+        # )
+        # print(ds_manual)
     else:
         ds = None
 
@@ -173,9 +173,9 @@ def test_check_dim_coord_values(grid_label, experiment_id, variable_id, source_i
             #! This should be fixed already
             "AWI-CM-1-1-MR",  # these unstructured AWI outputs are not currently supported.
             "AWI-ESM-1-1-LR",
-            # models that have no lon/lat bounds.
-            # TODO: Reconstruct them at least crudely with cf-xarray
-            "SAM0-UNICON",
+            # These models do not come with lon/lat bounds to begin with.
+            # TODO: reconstruct them with cf-xarray?
+            "FGOALS-f3-L",
         ],
     ),
 )
@@ -242,10 +242,17 @@ def test_check_bounds_verticies(grid_label, experiment_id, variable_id, source_i
         [
             "IPSL-CM6A-LR",  # There is a file not found error for thetao. Need to investigate. # some models have read errors? Indicates that there is a problem with the catalog?
             "NorESM2-MM",  # gives concat error with undecoded time (duplicate values)
-            "CESM2-FV2",  # has duplicate values in the x
             #! This should be fixed already
+            "CESM2-FV2",  # has duplicate values in the x
             "AWI-CM-1-1-MR",  # these unstructured AWI outputs are not currently supported.
             "AWI-ESM-1-1-LR",
+            # These models do not come with lon/lat bounds to begin with.
+            # TODO: reconstruct them with cf-xarray?
+            "FGOALS-f3-L",
+            # These are not in the grid config lookup table yet
+            # TODO: Run the notebook to crawl the output regularly
+            "CMCC-CM2-SR5",
+            "MPI-ESM-1-2-HAM",
         ],
     ),
 )
