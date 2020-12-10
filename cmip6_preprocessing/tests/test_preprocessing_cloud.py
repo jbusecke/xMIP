@@ -53,7 +53,7 @@ zarr_kwargs = {
 }
 
 
-def data(grid_label, experiment_id, variable_id, source_id):
+def data(grid_label, experiment_id, variable_id, source_id, use_intake_esm):
     cat = col().search(
         source_id=source_id,
         experiment_id=experiment_id,
@@ -69,28 +69,21 @@ def data(grid_label, experiment_id, variable_id, source_id):
             preprocess=combined_preprocessing,
             storage_options={"token": "anon"},
         )
-        _, ds = ddict.popitem()
+        _, ds_intake = ddict.popitem()
 
-        # ##### debugging options (can be deactivated once everything works)
-        # # @charlesbluca suggested this to make this work in GHA
-        # # https://github.com/jbusecke/cmip6_preprocessing/pull/62#issuecomment-741928365
-        # mm = fsspec.get_mapper(
-        #     cat.df["zstore"][0]
-        # )  # think you can pass in storage options here as well?
-        # ds_raw = xr.open_zarr(mm, **zarr_kwargs)
-        # ds_manual = combined_preprocessing(ds_raw)
+        if use_intake_esm:
+            ds = ds_intake
+        else:
+            ##### debugging options
+            # @charlesbluca suggested this to make this work in GHA
+            # https://github.com/jbusecke/cmip6_preprocessing/pull/62#issuecomment-741928365
+            mm = fsspec.get_mapper(
+                cat.df["zstore"][0]
+            )  # think you can pass in storage options here as well?
+            ds_raw = xr.open_zarr(mm, **zarr_kwargs)
+            ds_manual = combined_preprocessing(ds_raw)
+            ds = ds_manual
 
-        # print("####################### DEBUGGING ##########################")
-        # print("####################### Output dataset ##########################")
-        # print(ds)
-
-        # print("####################### Raw dataset ##########################")
-        # print(ds_raw)
-
-        # print(
-        #     "####################### Processed dataset without intake-esm ##########################"
-        # )
-        # print(ds_manual)
     else:
         ds = None
 
@@ -102,11 +95,12 @@ print(f"\n\n\n\n$$$$$$$ All available models: {all_models()}$$$$$$$\n\n\n\n")
 # These are too many tests. Perhaps I could load all the data first and then
 # test each dict item?
 
-grid_labels = ["gn"]
-experiment_ids = ["historical"]
-variable_ids = ["thetao"]
+grid_labels = ["gn", "gr"]
+experiment_ids = ["historical", "ssp585"]
+variable_ids = ["thetao", "o2"]
 
 
+@pytest.mark.parametrize("use_intake_esm", (True, False))
 @pytest.mark.parametrize("grid_label", grid_labels)
 @pytest.mark.parametrize("experiment_id", experiment_ids)
 @pytest.mark.parametrize("variable_id", variable_ids)
@@ -124,10 +118,12 @@ variable_ids = ["thetao"]
         ],
     ),
 )
-def test_check_dim_coord_values(grid_label, experiment_id, variable_id, source_id):
+def test_check_dim_coord_values(
+    grid_label, experiment_id, variable_id, source_id, use_intake_esm
+):
     # there must be a better way to build this at the class level and then tear it down again
     # I can probably get this done with fixtures, but I dont know how atm
-    ds, cat = data(grid_label, experiment_id, variable_id, source_id)
+    ds, cat = data(grid_label, experiment_id, variable_id, source_id, use_intake_esm)
 
     if ds is None:
         pytest.skip(
@@ -181,7 +177,7 @@ def test_check_dim_coord_values(grid_label, experiment_id, variable_id, source_i
 )
 def test_check_bounds_verticies(grid_label, experiment_id, variable_id, source_id):
 
-    ds, cat = data(grid_label, experiment_id, variable_id, source_id)
+    ds, cat = data(grid_label, experiment_id, variable_id, source_id, True)
 
     if ds is None:
         pytest.skip(
@@ -258,7 +254,7 @@ def test_check_bounds_verticies(grid_label, experiment_id, variable_id, source_i
 )
 def test_check_grid(grid_label, experiment_id, variable_id, source_id):
 
-    ds, cat = data(grid_label, experiment_id, variable_id, source_id)
+    ds, cat = data(grid_label, experiment_id, variable_id, source_id, True)
 
     if ds is None:
         pytest.skip(
