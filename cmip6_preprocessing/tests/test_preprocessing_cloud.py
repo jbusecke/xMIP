@@ -122,12 +122,12 @@ test_specs = list(
 
 expected_failures = [
     ("AWI-ESM-1-1-LR", "thetao", "historical", "gn"),
-    (
-        "CanESM5",
-        "thetao",
-        "historical",
-        "gn",
-    ),
+    ("AWI-ESM-1-1-LR", "thetao", "ssp585", "gn"),
+    ("AWI-CM-1-1-MR", "thetao", "historical", "gn"),
+    ("AWI-CM-1-1-MR", "thetao", "ssp585", "gn"),
+    # TODO: would be nice to have a "*" matching...
+    ("CESM2-FV2", "thetao", "historical", "gn"),
+    ("CESM2-FV2", "thetao", "ssp585", "gn"),
 ]
 
 
