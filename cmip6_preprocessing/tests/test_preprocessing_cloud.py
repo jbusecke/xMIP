@@ -134,7 +134,7 @@ expected_failures = [
 @pytest.mark.parametrize("use_intake_esm", (True, False))
 @pytest.mark.parametrize(
     "source_id,variable_id,experiment_id,grid_label",
-    xfail_wrapper(test_combos, expected_failures),
+    xfail_wrapper(test_specs, expected_failures),
 )
 def test_check_dim_coord_values(
     source_id, variable_id, experiment_id, grid_label, use_intake_esm
@@ -187,7 +187,7 @@ expected_failures = [
 
 @pytest.mark.parametrize(
     "source_id,variable_id,experiment_id,grid_label",
-    xfail_wrapper(test_combos, expected_failures),
+    xfail_wrapper(test_specs, expected_failures),
 )
 def test_check_bounds_verticies(source_id, variable_id, experiment_id, grid_label):
 
@@ -256,7 +256,7 @@ expected_failures = [
 
 @pytest.mark.parametrize(
     "source_id,variable_id,experiment_id,grid_label",
-    xfail_wrapper(test_combos, expected_failures),
+    xfail_wrapper(test_specs, expected_failures),
 )
 def test_check_grid(source_id, variable_id, experiment_id, grid_label):
 
