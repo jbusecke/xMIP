@@ -6,6 +6,7 @@ import xarray as xr
 import numpy as np
 import intake
 import fsspec
+import itertools
 from cmip6_preprocessing.preprocessing import combined_preprocessing
 from cmip6_preprocessing.grids import combine_staggered_grid
 
@@ -18,15 +19,6 @@ def col():
     )
 
 
-def all_models():
-    df = col().df
-    all_models = df["source_id"].unique()
-    all_models = np.sort(all_models)
-    # For testing purposes, only put out a subset of models
-    # return ["CanESM5", "GFDL-ESM4"]
-    return all_models
-
-
 def _diagnose_doubles(data):
     """displays non-unique entries in data"""
     _, idx = np.unique(data, return_index=True)
@@ -36,24 +28,26 @@ def _diagnose_doubles(data):
         print(f"Missing values Indicies[{missing}]/ Values[{missing_values}]")
 
 
-def xfail_wrapper(models, fail_models):
-    return [
-        pytest.param(model, marks=pytest.mark.xfail(strict=True))
-        if model in fail_models
-        else model
-        for model in models
-    ]
+def xfail_wrapper(specs, fail_specs):
+    wrapped_specs = []
+    for spec in specs:
+        if spec in fail_specs:
+            wrapped_specs.append(
+                pytest.param(*spec, marks=pytest.mark.xfail(strict=True))
+            )
+        else:
+            wrapped_specs.append(spec)
+    return wrapped_specs
 
 
-zarr_kwargs = {
-    "consolidated": True,
-    "decode_times": False,
-    # "decode_times": True,
-    # "use_cftime": True,
-}
+def data(source_id, variable_id, experiment_id, grid_label, use_intake_esm):
+    zarr_kwargs = {
+        "consolidated": True,
+        "decode_times": False,
+        # "decode_times": True,
+        # "use_cftime": True,
+    }
 
-
-def data(grid_label, experiment_id, variable_id, source_id, use_intake_esm):
     cat = col().search(
         source_id=source_id,
         experiment_id=experiment_id,
@@ -90,7 +84,18 @@ def data(grid_label, experiment_id, variable_id, source_id, use_intake_esm):
     return ds, cat
 
 
+def all_models():
+    df = col().df
+    all_models = df["source_id"].unique()
+    all_models = np.sort(all_models)
+    # For testing purposes, only put out a subset of models
+    # return ["CanESM5", "GFDL-ESM4"]
+    return all_models
+    # return ["AWI-ESM-1-1-LR", "CanESM5"]
+
+
 print(f"\n\n\n\n$$$$$$$ All available models: {all_models()}$$$$$$$\n\n\n\n")
+
 
 # These are too many tests. Perhaps I could load all the data first and then
 # test each dict item?
@@ -99,31 +104,44 @@ grid_labels = ["gn", "gr"]
 experiment_ids = ["historical", "ssp585"]
 variable_ids = ["thetao", "o2"]
 
+# manually combine all pytest parameters, so that I have very fine grained control over
+# which combination of parameters is expected to fail.
+test_specs = list(
+    itertools.product(
+        *[
+            tuple(all_models()),
+            tuple(variable_ids),
+            tuple(experiment_ids),
+            tuple(grid_labels),
+        ]
+    )
+)
+
+
+########################### Most basic test #########################
+
+expected_failures = [
+    ("AWI-ESM-1-1-LR", "thetao", "historical", "gn"),
+    (
+        "CanESM5",
+        "thetao",
+        "historical",
+        "gn",
+    ),
+]
+
 
 @pytest.mark.parametrize("use_intake_esm", (True, False))
-@pytest.mark.parametrize("grid_label", grid_labels)
-@pytest.mark.parametrize("experiment_id", experiment_ids)
-@pytest.mark.parametrize("variable_id", variable_ids)
 @pytest.mark.parametrize(
-    "source_id",
-    xfail_wrapper(
-        all_models(),
-        [
-            "IPSL-CM6A-LR",  # There is a file not found error for thetao. Need to investigate. # some models have read errors? Indicates that there is a problem with the catalog?
-            "NorESM2-MM",  # gives concat error with undecoded time (duplicate values)
-            "CESM2-FV2",  # has duplicate values in the x
-            #! This should be fixed already
-            "AWI-CM-1-1-MR",  # these unstructured AWI outputs are not currently supported.
-            "AWI-ESM-1-1-LR",
-        ],
-    ),
+    "source_id,variable_id,experiment_id,grid_label",
+    xfail_wrapper(test_combos, expected_failures),
 )
 def test_check_dim_coord_values(
-    grid_label, experiment_id, variable_id, source_id, use_intake_esm
+    source_id, variable_id, experiment_id, grid_label, use_intake_esm
 ):
     # there must be a better way to build this at the class level and then tear it down again
     # I can probably get this done with fixtures, but I dont know how atm
-    ds, cat = data(grid_label, experiment_id, variable_id, source_id, use_intake_esm)
+    ds, cat = data(source_id, variable_id, experiment_id, grid_label, use_intake_esm)
 
     if ds is None:
         pytest.skip(
@@ -155,29 +173,25 @@ def test_check_dim_coord_values(
     assert len(ds.lat.shape) == 2
 
 
-@pytest.mark.parametrize("grid_label", grid_labels)
-@pytest.mark.parametrize("experiment_id", experiment_ids)
-@pytest.mark.parametrize("variable_id", variable_ids)
-@pytest.mark.parametrize(
-    "source_id",
-    xfail_wrapper(
-        all_models(),
-        [
-            "IPSL-CM6A-LR",  # There is a file not found error for thetao. Need to investigate. # some models have read errors? Indicates that there is a problem with the catalog?
-            "NorESM2-MM",  # gives concat error with undecoded time (duplicate values)
-            "CESM2-FV2",  # has duplicate values in the x
-            #! This should be fixed already
-            "AWI-CM-1-1-MR",  # these unstructured AWI outputs are not currently supported.
-            "AWI-ESM-1-1-LR",
-            # These models do not come with lon/lat bounds to begin with.
-            # TODO: reconstruct them with cf-xarray?
-            "FGOALS-f3-L",
-        ],
+############################### Specific Bound Coords Test ###############################
+expected_failures = [
+    ("AWI-ESM-1-1-LR", "thetao", "historical", "gn"),
+    (
+        "CanESM5",
+        "thetao",
+        "historical",
+        "gn",
     ),
-)
-def test_check_bounds_verticies(grid_label, experiment_id, variable_id, source_id):
+]
 
-    ds, cat = data(grid_label, experiment_id, variable_id, source_id, True)
+
+@pytest.mark.parametrize(
+    "source_id,variable_id,experiment_id,grid_label",
+    xfail_wrapper(test_combos, expected_failures),
+)
+def test_check_bounds_verticies(source_id, variable_id, experiment_id, grid_label):
+
+    ds, cat = data(source_id, variable_id, experiment_id, grid_label, True)
 
     if ds is None:
         pytest.skip(
@@ -228,33 +242,25 @@ def test_check_bounds_verticies(grid_label, experiment_id, variable_id, source_i
     assert (lat_diffs <= 0).sum() <= (5 * len(lat_diffs.y))
 
 
-@pytest.mark.parametrize("grid_label", grid_labels)
-@pytest.mark.parametrize("experiment_id", experiment_ids)
-@pytest.mark.parametrize("variable_id", variable_ids)
-@pytest.mark.parametrize(
-    "source_id",
-    xfail_wrapper(
-        all_models(),
-        [
-            "IPSL-CM6A-LR",  # There is a file not found error for thetao. Need to investigate. # some models have read errors? Indicates that there is a problem with the catalog?
-            "NorESM2-MM",  # gives concat error with undecoded time (duplicate values)
-            #! This should be fixed already
-            "CESM2-FV2",  # has duplicate values in the x
-            "AWI-CM-1-1-MR",  # these unstructured AWI outputs are not currently supported.
-            "AWI-ESM-1-1-LR",
-            # These models do not come with lon/lat bounds to begin with.
-            # TODO: reconstruct them with cf-xarray?
-            "FGOALS-f3-L",
-            # These are not in the grid config lookup table yet
-            # TODO: Run the notebook to crawl the output regularly
-            "CMCC-CM2-SR5",
-            "MPI-ESM-1-2-HAM",
-        ],
+################################# xgcm grid specific tests ########################################
+expected_failures = [
+    ("AWI-ESM-1-1-LR", "thetao", "historical", "gn"),
+    (
+        "CanESM5",
+        "thetao",
+        "historical",
+        "gn",
     ),
-)
-def test_check_grid(grid_label, experiment_id, variable_id, source_id):
+]
 
-    ds, cat = data(grid_label, experiment_id, variable_id, source_id, True)
+
+@pytest.mark.parametrize(
+    "source_id,variable_id,experiment_id,grid_label",
+    xfail_wrapper(test_combos, expected_failures),
+)
+def test_check_grid(source_id, variable_id, experiment_id, grid_label):
+
+    ds, cat = data(source_id, variable_id, experiment_id, grid_label, True)
 
     if ds is None:
         pytest.skip(
@@ -275,3 +281,106 @@ def test_check_grid(grid_label, experiment_id, variable_id, source_id):
         for metric in ["_t", "_gx", "_gy", "_gxgy"]:
             assert f"d{axis.lower()}{metric}" in list(ds_staggered.coords)
     # TODO: Include actual test to combine variables
+
+
+# @pytest.mark.parametrize("use_intake_esm", (True, False))
+# @pytest.mark.parametrize("grid_label", grid_labels)
+# @pytest.mark.parametrize("experiment_id", experiment_ids)
+# @pytest.mark.parametrize("variable_id", variable_ids)
+# @pytest.mark.parametrize(
+#     "source_id",
+#     xfail_wrapper(
+#         all_models(),
+#         [
+#             "IPSL-CM6A-LR",  # There is a file not found error for thetao. Need to investigate. # some models have read errors? Indicates that there is a problem with the catalog?
+#             "NorESM2-MM",  # gives concat error with undecoded time (duplicate values)
+#             "CESM2-FV2",  # has duplicate values in the x
+#             #! This should be fixed already
+#             "AWI-CM-1-1-MR",  # these unstructured AWI outputs are not currently supported.
+#             "AWI-ESM-1-1-LR",
+#         ],
+#     ),
+# )
+# def test_check_dim_coord_values(
+#     source_id, variable_id, experiment_id, grid_label, use_intake_esm
+# ):
+#     # there must be a better way to build this at the class level and then tear it down again
+#     # I can probably get this done with fixtures, but I dont know how atm
+#     ds, cat = data(source_id, variable_id, experiment_id, grid_label, use_intake_esm)
+
+#     if ds is None:
+#         pytest.skip(
+#             f"No data found for {source_id}|{variable_id}|{experiment_id}|{grid_label}"
+#         )
+
+#     ##### Check for dim duplicates
+#     # check all dims for duplicates
+#     # for di in ds.dims:
+#     # for now only test a subset of the dims. TODO: Add the bounds once they
+#     # are cleaned up.
+#     for di in ["x", "y", "lev", "time"]:
+#         if di in ds.dims:
+#             _diagnose_doubles(ds[di].load().data)
+#             assert len(ds[di]) == len(np.unique(ds[di]))
+#             if di != "time":  # these tests do not make sense for decoded time
+#                 assert ~np.all(np.isnan(ds[di]))
+#                 assert np.all(ds[di].diff(di) >= 0)
+
+#     assert ds.lon.min().load() >= 0
+#     assert ds.lon.max().load() <= 360
+#     if "lon_bounds" in ds.variables:
+#         assert ds.lon_bounds.min().load() >= 0
+#         assert ds.lon_bounds.max().load() <= 360
+#     assert ds.lat.min().load() >= -90
+#     assert ds.lat.max().load() <= 90
+#     # make sure lon and lat are 2d
+#     assert len(ds.lon.shape) == 2
+#     assert len(ds.lat.shape) == 2
+
+
+# @pytest.mark.parametrize("grid_label", grid_labels)
+# @pytest.mark.parametrize("experiment_id", experiment_ids)
+# @pytest.mark.parametrize("variable_id", variable_ids)
+# @pytest.mark.parametrize(
+#     "source_id",
+#     xfail_wrapper(
+#         all_models(),
+#         [
+#             "IPSL-CM6A-LR",  # There is a file not found error for thetao. Need to investigate. # some models have read errors? Indicates that there is a problem with the catalog?
+#             "NorESM2-MM",  # gives concat error with undecoded time (duplicate values)
+#             "CESM2-FV2",  # has duplicate values in the x
+#             #! This should be fixed already
+#             "AWI-CM-1-1-MR",  # these unstructured AWI outputs are not currently supported.
+#             "AWI-ESM-1-1-LR",
+#             # These models do not come with lon/lat bounds to begin with.
+#             # TODO: reconstruct them with cf-xarray?
+#             "FGOALS-f3-L",
+#         ],
+#     ),
+# )
+
+
+# @pytest.mark.parametrize("grid_label", grid_labels)
+# @pytest.mark.parametrize("experiment_id", experiment_ids)
+# @pytest.mark.parametrize("variable_id", variable_ids)
+# @pytest.mark.parametrize(
+#     "source_id",
+#     xfail_wrapper(
+#         all_models(),
+#         [
+#             "IPSL-CM6A-LR",  # There is a file not found error for thetao. Need to investigate. # some models have read errors? Indicates that there is a problem with the catalog?
+#             "NorESM2-MM",  # gives concat error with undecoded time (duplicate values)
+#             #! This should be fixed already
+#             "CESM2-FV2",  # has duplicate values in the x
+#             "AWI-CM-1-1-MR",  # these unstructured AWI outputs are not currently supported.
+#             "AWI-ESM-1-1-LR",
+#             # These models do not come with lon/lat bounds to begin with.
+#             # TODO: reconstruct them with cf-xarray?
+#             "FGOALS-f3-L",
+#             # These are not in the grid config lookup table yet
+#             # TODO: Run the notebook to crawl the output regularly
+#             "CMCC-CM2-SR5",
+#             "MPI-ESM-1-2-HAM",
+#         ],
+#     ),
+# )
