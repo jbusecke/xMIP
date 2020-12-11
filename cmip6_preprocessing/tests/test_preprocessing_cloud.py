@@ -29,6 +29,12 @@ def _diagnose_doubles(data):
 
 
 def xfail_wrapper(specs, fail_specs):
+    # fail out if there is a fail spec that is not in the list
+    unknown_fail_specs = [fail for fail in fail_specs if fail not in specs]
+    if len(unknown_fail_specs) > 0:
+        raise ValueError(
+            f"Found fail specs that are not part of the testing {unknown_fail_specs}"
+        )
     wrapped_specs = []
     for spec in specs:
         if spec in fail_specs:
@@ -58,15 +64,13 @@ def data(source_id, variable_id, experiment_id, grid_label, use_intake_esm):
     )
 
     if len(cat.df["zstore"]) > 0:
-        ddict = cat.to_dataset_dict(
-            zarr_kwargs=zarr_kwargs,
-            preprocess=combined_preprocessing,
-            storage_options={"token": "anon"},
-        )
-        _, ds_intake = ddict.popitem()
-
         if use_intake_esm:
-            ds = ds_intake
+            ddict = cat.to_dataset_dict(
+                zarr_kwargs=zarr_kwargs,
+                preprocess=combined_preprocessing,
+                storage_options={"token": "anon"},
+            )
+            _, ds = ddict.popitem()
         else:
             ##### debugging options
             # @charlesbluca suggested this to make this work in GHA
@@ -75,26 +79,12 @@ def data(source_id, variable_id, experiment_id, grid_label, use_intake_esm):
                 cat.df["zstore"][0]
             )  # think you can pass in storage options here as well?
             ds_raw = xr.open_zarr(mm, **zarr_kwargs)
-            ds_manual = combined_preprocessing(ds_raw)
-            ds = ds_manual
-
+            print(ds_raw)
+            ds = combined_preprocessing(ds_raw)
     else:
         ds = None
 
     return ds, cat
-
-
-def all_models():
-    df = col().df
-    all_models = df["source_id"].unique()
-    all_models = np.sort(all_models)
-    # For testing purposes, only put out a subset of models
-    # return ["CanESM5", "GFDL-ESM4"]
-    return all_models
-    # return ["AWI-ESM-1-1-LR", "CanESM5"]
-
-
-print(f"\n\n\n\n$$$$$$$ All available models: {all_models()}$$$$$$$\n\n\n\n")
 
 
 # These are too many tests. Perhaps I could load all the data first and then
@@ -103,6 +93,17 @@ print(f"\n\n\n\n$$$$$$$ All available models: {all_models()}$$$$$$$\n\n\n\n")
 grid_labels = ["gn", "gr"]
 experiment_ids = ["historical", "ssp585"]
 variable_ids = ["thetao", "o2"]
+
+
+def all_models():
+    df = col().df
+    all_models = df["source_id"].unique()
+    all_models = np.sort(all_models)
+    return all_models
+
+
+print(f"\n\n\n\n$$$$$$$ All available models: {all_models()}$$$$$$$\n\n\n\n")
+
 
 # manually combine all pytest parameters, so that I have very fine grained control over
 # which combination of parameters is expected to fail.
@@ -128,6 +129,14 @@ expected_failures = [
     # TODO: would be nice to have a "*" matching...
     ("CESM2-FV2", "thetao", "historical", "gn"),
     ("CESM2-FV2", "thetao", "ssp585", "gn"),
+    (
+        "IPSL-CM6A-LR",
+        "thetao",
+        "historical",
+        "gn",
+    ),  # IPSL has an issue with `lev` dims concatting
+    ("IPSL-CM6A-LR", "o2", "historical", "gn"),
+    ("NorESM2-MM", "thetao", "historical", "gn"),
 ]
 
 
@@ -176,12 +185,15 @@ def test_check_dim_coord_values(
 ############################### Specific Bound Coords Test ###############################
 expected_failures = [
     ("AWI-ESM-1-1-LR", "thetao", "historical", "gn"),
-    (
-        "CanESM5",
-        "thetao",
-        "historical",
-        "gn",
-    ),
+    ("AWI-ESM-1-1-MR", "thetao", "historical", "gn"),
+    ("AWI-ESM-1-1-MR", "thetao", "ssp585", "gn"),
+    ("CESM2-FV2", "thetao", "historical", "gn"),
+    ("FGOALS-f3-L", "thetao", "historical", "gn"),
+    ("FGOALS-f3-L", "thetao", "ssp585", "gn"),
+    ("FGOALS-g3", "thetao", "ssp585", "gn"),
+    ("NorESM2-MM", "thetao", "historical", "gn"),
+    ("IPSL-CM6A-LR", "thetao", "historical", "gn"),
+    ("IPSL-CM6A-LR", "o2", "historical", "gn"),
 ]
 
 
@@ -245,12 +257,17 @@ def test_check_bounds_verticies(source_id, variable_id, experiment_id, grid_labe
 ################################# xgcm grid specific tests ########################################
 expected_failures = [
     ("AWI-ESM-1-1-LR", "thetao", "historical", "gn"),
-    (
-        "CanESM5",
-        "thetao",
-        "historical",
-        "gn",
-    ),
+    ("AWI-ESM-1-1-MR", "thetao", "historical", "gn"),
+    ("AWI-ESM-1-1-MR", "thetao", "ssp585", "gn"),
+    ("CESM2-FV2", "thetao", "historical", "gn"),
+    ("CMCC-CM2-SR5", "thetao", "historical", "gn"),
+    ("CMCC-CM2-SR5", "thetao", "ssp585", "gn"),
+    ("FGOALS-f3-L", "thetao", "historical", "gn"),
+    ("FGOALS-f3-L", "thetao", "ssp585", "gn"),
+    ("FGOALS-g3", "thetao", "ssp585", "gn"),
+    ("NorESM2-MM", "thetao", "historical", "gn"),
+    ("IPSL-CM6A-LR", "thetao", "historical", "gn"),
+    ("IPSL-CM6A-LR", "o2", "historical", "gn"),
 ]
 
 
