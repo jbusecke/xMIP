@@ -130,16 +130,17 @@ expected_failures = [
     ("CESM2-FV2", "thetao", "ssp585", "gn"),
 ]
 
+
 @pytest.mark.parametrize(
     "source_id,variable_id,experiment_id,grid_label",
     xfail_wrapper(test_specs, expected_failures),
 )
 def test_check_dim_coord_values_wo_intake(
-    source_id, variable_id, experiment_id, grid_label, False
+    source_id, variable_id, experiment_id, grid_label
 ):
     # there must be a better way to build this at the class level and then tear it down again
     # I can probably get this done with fixtures, but I dont know how atm
-    ds, cat = data(source_id, variable_id, experiment_id, grid_label, use_intake_esm)
+    ds, cat = data(source_id, variable_id, experiment_id, grid_label, False)
 
     if ds is None:
         pytest.skip(
@@ -189,16 +190,15 @@ expected_failures = [
     ("NorESM2-MM", "thetao", "historical", "gn"),
 ]
 
+
 @pytest.mark.parametrize(
     "source_id,variable_id,experiment_id,grid_label",
     xfail_wrapper(test_specs, expected_failures),
 )
-def test_check_dim_coord_values(
-    source_id, variable_id, experiment_id, grid_label, True
-):
+def test_check_dim_coord_values(source_id, variable_id, experiment_id, grid_label):
     # there must be a better way to build this at the class level and then tear it down again
     # I can probably get this done with fixtures, but I dont know how atm
-    ds, cat = data(source_id, variable_id, experiment_id, grid_label, use_intake_esm)
+    ds, cat = data(source_id, variable_id, experiment_id, grid_label, True)
 
     if ds is None:
         pytest.skip(
@@ -315,8 +315,8 @@ expected_failures = [
     ("FGOALS-f3-L", "thetao", "historical", "gn"),
     ("FGOALS-f3-L", "thetao", "ssp585", "gn"),
     ("FGOALS-g3", "thetao", "ssp585", "gn"),
-    ("MPI-ESM-1-2-HAM","thetao","historical","gn"),
-    ("MPI-ESM-1-2-HAM","o2","historical","gn"),
+    ("MPI-ESM-1-2-HAM", "thetao", "historical", "gn"),
+    ("MPI-ESM-1-2-HAM", "o2", "historical", "gn"),
     ("NorESM2-MM", "thetao", "historical", "gn"),
     ("IPSL-CM6A-LR", "thetao", "historical", "gn"),
     ("IPSL-CM6A-LR", "o2", "historical", "gn"),
