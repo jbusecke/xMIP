@@ -120,6 +120,56 @@ test_specs = list(
 
 
 ########################### Most basic test #########################
+expected_failures = [
+    ("AWI-ESM-1-1-LR", "thetao", "historical", "gn"),
+    ("AWI-ESM-1-1-LR", "thetao", "ssp585", "gn"),
+    ("AWI-CM-1-1-MR", "thetao", "historical", "gn"),
+    ("AWI-CM-1-1-MR", "thetao", "ssp585", "gn"),
+    # TODO: would be nice to have a "*" matching...
+    ("CESM2-FV2", "thetao", "historical", "gn"),
+    ("CESM2-FV2", "thetao", "ssp585", "gn"),
+]
+
+@pytest.mark.parametrize(
+    "source_id,variable_id,experiment_id,grid_label",
+    xfail_wrapper(test_specs, expected_failures),
+)
+def test_check_dim_coord_values_wo_intake(
+    source_id, variable_id, experiment_id, grid_label, False
+):
+    # there must be a better way to build this at the class level and then tear it down again
+    # I can probably get this done with fixtures, but I dont know how atm
+    ds, cat = data(source_id, variable_id, experiment_id, grid_label, use_intake_esm)
+
+    if ds is None:
+        pytest.skip(
+            f"No data found for {source_id}|{variable_id}|{experiment_id}|{grid_label}"
+        )
+
+    ##### Check for dim duplicates
+    # check all dims for duplicates
+    # for di in ds.dims:
+    # for now only test a subset of the dims. TODO: Add the bounds once they
+    # are cleaned up.
+    for di in ["x", "y", "lev", "time"]:
+        if di in ds.dims:
+            _diagnose_doubles(ds[di].load().data)
+            assert len(ds[di]) == len(np.unique(ds[di]))
+            if di != "time":  # these tests do not make sense for decoded time
+                assert ~np.all(np.isnan(ds[di]))
+                assert np.all(ds[di].diff(di) >= 0)
+
+    assert ds.lon.min().load() >= 0
+    assert ds.lon.max().load() <= 360
+    if "lon_bounds" in ds.variables:
+        assert ds.lon_bounds.min().load() >= 0
+        assert ds.lon_bounds.max().load() <= 360
+    assert ds.lat.min().load() >= -90
+    assert ds.lat.max().load() <= 90
+    # make sure lon and lat are 2d
+    assert len(ds.lon.shape) == 2
+    assert len(ds.lat.shape) == 2
+
 
 expected_failures = [
     ("AWI-ESM-1-1-LR", "thetao", "historical", "gn"),
@@ -139,14 +189,12 @@ expected_failures = [
     ("NorESM2-MM", "thetao", "historical", "gn"),
 ]
 
-
-@pytest.mark.parametrize("use_intake_esm", (True, False))
 @pytest.mark.parametrize(
     "source_id,variable_id,experiment_id,grid_label",
     xfail_wrapper(test_specs, expected_failures),
 )
 def test_check_dim_coord_values(
-    source_id, variable_id, experiment_id, grid_label, use_intake_esm
+    source_id, variable_id, experiment_id, grid_label, True
 ):
     # there must be a better way to build this at the class level and then tear it down again
     # I can probably get this done with fixtures, but I dont know how atm
@@ -259,12 +307,16 @@ expected_failures = [
     ("AWI-ESM-1-1-LR", "thetao", "historical", "gn"),
     ("AWI-ESM-1-1-MR", "thetao", "historical", "gn"),
     ("AWI-ESM-1-1-MR", "thetao", "ssp585", "gn"),
+    ("AWI-CM-1-1-MR", "thetao", "historical", "gn"),
+    ("AWI-CM-1-1-MR", "thetao", "ssp585", "gn"),
     ("CESM2-FV2", "thetao", "historical", "gn"),
     ("CMCC-CM2-SR5", "thetao", "historical", "gn"),
-    ("CMCC-CM2-SR5", "thetao", "historical", "gn"),
+    ("CMCC-CM2-SR5", "thetao", "ssp585", "gn"),
     ("FGOALS-f3-L", "thetao", "historical", "gn"),
     ("FGOALS-f3-L", "thetao", "ssp585", "gn"),
     ("FGOALS-g3", "thetao", "ssp585", "gn"),
+    ("MPI-ESM-1-2-HAM","thetao","historical","gn"),
+    ("MPI-ESM-1-2-HAM","o2","historical","gn"),
     ("NorESM2-MM", "thetao", "historical", "gn"),
     ("IPSL-CM6A-LR", "thetao", "historical", "gn"),
     ("IPSL-CM6A-LR", "o2", "historical", "gn"),
