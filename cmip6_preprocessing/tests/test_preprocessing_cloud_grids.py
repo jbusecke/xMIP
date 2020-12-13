@@ -13,6 +13,7 @@ from cmip6_preprocessing.tests.cloud_test_utils import (
 from cmip6_preprocessing.preprocessing import combined_preprocessing
 from cmip6_preprocessing.grids import combine_staggered_grid
 
+pytest.skip("Deactivate sep test for now")
 pytest.importorskip("gcsfs")
 
 print(f"\n\n\n\n$$$$$$$ All available models: {all_models()}$$$$$$$\n\n\n\n")
