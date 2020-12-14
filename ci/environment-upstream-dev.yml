@@ -6,8 +6,6 @@ dependencies:
   - pyproj
   - matplotlib
   - cartopy
-  - gcsfs # needed for google cloud storage
-  - zarr # needed for google cloud storage tests
   - codecov
   - pytest-cov
   - black
@@ -19,5 +17,4 @@ dependencies:
     - git+https://github.com/mathause/regionmask.git
     - git+https://github.com/pydata/xarray.git
     - git+https://github.com/pandas-dev/pandas.git
-    - git+https://github.com/NCAR/intake-esm.git
     - git+https://github.com/xgcm/xgcm.git

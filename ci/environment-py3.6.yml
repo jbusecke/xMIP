@@ -6,7 +6,6 @@ dependencies:
   - xarray
   - numpy
   - pandas
-  - intake-esm==2020.08.15 #temporary solution see https://github.com/intake/intake-esm/issues/305
   - xgcm
   - pyproj
   - matplotlib
