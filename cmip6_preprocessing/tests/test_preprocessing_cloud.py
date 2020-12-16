@@ -91,6 +91,7 @@ expected_failures = [
     ),  # IPSL has an issue with `lev` dims concatting
     ("IPSL-CM6A-LR", "o2", "historical", "gn"),
     ("NorESM2-MM", "thetao", "historical", "gn"),
+    ("NorESM2-MM", "thetao", "historical", "gn"),
 ]
 
 
@@ -145,6 +146,7 @@ expected_failures = [
     ("FGOALS-f3-L", "thetao", "ssp585", "gn"),
     ("FGOALS-g3", "thetao", "ssp585", "gn"),
     ("NorESM2-MM", "thetao", "historical", "gn"),
+    ("NorESM2-MM", "thetao", "historical", "gr"),
     ("IPSL-CM6A-LR", "thetao", "historical", "gn"),
     ("IPSL-CM6A-LR", "o2", "historical", "gn"),
 ]
@@ -223,6 +225,7 @@ expected_failures = [
     ("MPI-ESM-1-2-HAM", "thetao", "historical", "gn"),
     ("MPI-ESM-1-2-HAM", "o2", "historical", "gn"),
     ("NorESM2-MM", "thetao", "historical", "gn"),
+    ("NorESM2-MM", "thetao", "historical", "gr"),
     ("IPSL-CM6A-LR", "thetao", "historical", "gn"),
     ("IPSL-CM6A-LR", "o2", "historical", "gn"),
 ]
