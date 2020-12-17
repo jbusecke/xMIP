@@ -91,7 +91,7 @@ expected_failures = [
     ),  # IPSL has an issue with `lev` dims concatting
     ("IPSL-CM6A-LR", "o2", "historical", "gn"),
     ("NorESM2-MM", "thetao", "historical", "gn"),
-    ("NorESM2-MM", "thetao", "historical", "gn"),
+    ("NorESM2-MM", "thetao", "historical", "gr"),
 ]
 
 
