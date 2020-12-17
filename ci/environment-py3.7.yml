@@ -6,8 +6,6 @@ dependencies:
   - xarray
   - numpy
   - pandas
-  - intake-esm
-  - gcsfs
   - zarr
   - xgcm
   - pyproj
@@ -17,3 +15,4 @@ dependencies:
   - pytest-cov
   - pytest-xdist
   - codecov
+  - cftime

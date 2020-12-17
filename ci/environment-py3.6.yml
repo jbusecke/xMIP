@@ -6,10 +6,10 @@ dependencies:
   - xarray
   - numpy
   - pandas
-  - intake-esm
   - xgcm
   - pyproj
   - matplotlib
+  - cftime
   - pip
   - pip:
     - codecov

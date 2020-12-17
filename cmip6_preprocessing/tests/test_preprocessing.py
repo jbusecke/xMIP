@@ -1,5 +1,4 @@
 import pytest
-import intake
 import pandas as pd
 import numpy as np
 import xarray as xr
@@ -19,15 +18,6 @@ from cmip6_preprocessing.preprocessing import (
     sort_vertex_order,
     combined_preprocessing,
 )
-
-# get all available ocean models from the cloud.
-url = "https://storage.googleapis.com/cmip6/pangeo-cmip6.csv"
-df = pd.read_csv(url)
-df_ocean = df[(df.table_id == "Omon") + (df.table_id == "Oyr")]
-ocean_models = df_ocean.source_id.unique()
-
-# TODO: Need to adapt atmos only models
-all_models = ocean_models
 
 
 def create_test_ds(xname, yname, zname, xlen, ylen, zlen):

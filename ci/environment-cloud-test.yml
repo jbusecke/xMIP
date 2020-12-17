@@ -2,10 +2,13 @@ name: test_env_cmip6_preprocessing
 channels:
   - conda-forge
 dependencies:
+  
   - python=3.8
   - xarray
   - numpy
   - pandas
+  - intake-esm==2020.08.15 #temporary solution see https://github.com/intake/intake-esm/issues/305
+  - gcsfs
   - zarr
   - xgcm
   - pyproj
@@ -14,5 +17,6 @@ dependencies:
   - black
   - pytest-cov
   - pytest-xdist
+  - pytest-rerunfailures
   - codecov
   - cftime
