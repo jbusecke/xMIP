@@ -20,3 +20,5 @@ dependencies:
   - pytest-rerunfailures
   - codecov
   - cftime
+  - pip
+    - git+https://github.com/intake/intake-esm.git
