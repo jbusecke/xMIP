@@ -83,7 +83,7 @@ expected_failures = [
     # TODO: would be nice to have a "*" matching...
     ("CESM2-FV2", "thetao", "historical", "gn"),
     ("CESM2-FV2", "thetao", "ssp585", "gn"),
-    ("FGOALS-g3", "thetao", "historical","gn"),
+    ("FGOALS-g3", "thetao", "historical", "gn"),
     (
         "IPSL-CM6A-LR",
         "thetao",
@@ -145,7 +145,7 @@ expected_failures = [
     ("CESM2-FV2", "thetao", "historical", "gn"),
     ("FGOALS-f3-L", "thetao", "historical", "gn"),
     ("FGOALS-f3-L", "thetao", "ssp585", "gn"),
-    ("FGOALS-g3", "thetao", "historical","gn"),
+    ("FGOALS-g3", "thetao", "historical", "gn"),
     ("FGOALS-g3", "thetao", "ssp585", "gn"),
     ("NorESM2-MM", "thetao", "historical", "gn"),
     ("NorESM2-MM", "thetao", "historical", "gr"),
