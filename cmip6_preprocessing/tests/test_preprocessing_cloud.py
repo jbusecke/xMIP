@@ -223,6 +223,7 @@ expected_failures = [
     ("CMCC-CM2-SR5", "thetao", "ssp585", "gn"),
     ("FGOALS-f3-L", "thetao", "historical", "gn"),
     ("FGOALS-f3-L", "thetao", "ssp585", "gn"),
+    ("FGOALS-g3", "thetao", "historical", "gn"),
     ("FGOALS-g3", "thetao", "ssp585", "gn"),
     ("MPI-ESM-1-2-HAM", "thetao", "historical", "gn"),
     ("MPI-ESM-1-2-HAM", "o2", "historical", "gn"),
