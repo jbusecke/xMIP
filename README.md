@@ -53,3 +53,4 @@ or conda:
 To install the newest master from github you can use pip aswell:
 
 `pip install git+pip install git+https://github.com/jbusecke/cmip6_preprocessing.git`
+
