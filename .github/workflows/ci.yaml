@@ -84,7 +84,13 @@ jobs:
         pytest -n auto --ignore=cmip6_preprocessing/tests/test_preprocessing_cloud.py
         
   cloud-tests:
-    name: Build (cloud-data-tests)
+    name: Build (cloud-data-tests | {{ matrix.variable_id }} | {{ matrix.experiment_id }} | {{ matrix.grid_label }})
+    strategy:
+      fail-fast: false
+      matrix:
+        variable_id: ["thetao", "o2"]
+        experiment_id: ["historical", "ssp585"]
+        grid_label: ["gn", "gr"]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -111,4 +117,4 @@ jobs:
     - name: Run Tests
       shell: bash -l {0}
       run: |
-        pytest -v -n auto --maxfail 100 --reruns 1 --reruns-delay 10
+        pytest -v -n auto --maxfail 100 --reruns 1 --reruns-delay 10 cmip6_preprocessing/tests/test_preprocessing_cloud.py --grid_label_global {{ matrix.grid_label }} --variable_id_global {{ matrix.variable_id }} --experiment_id_global {{ matrix.variable_id }}

@@ -16,6 +16,21 @@ from cmip6_preprocessing.grids import combine_staggered_grid
 
 pytest.importorskip("gcsfs")
 
+# does this work?
+def pytest_generate_tests(metafunc):
+    # This is called for every test. Only get/set command line arguments
+    # if the argument is specified in the list of test "fixturenames".
+
+    for name in ["variable_id_global", "grid_label_global", "experiment_id_global"]:
+
+        option_value = getattr(metafunc.config.option, name)
+
+        if isinstance(option_value, str):
+            option_value = [option_value]
+
+        if name in metafunc.fixturenames and option_value is not None:
+            metafunc.parametrize(name, option_value)
+
 
 @pytest.fixture(params=all_models())
 def source_id(request):
@@ -39,8 +54,8 @@ expected_failures = [
 
 
 @pytest.fixture()
-def spec(source_id, variable_id, experiment_id, grid_label):
-    spec = (source_id, variable_id, experiment_id, grid_label)
+def spec(source_id, variable_id_global, experiment_id_global, grid_label_global):
+    spec = (source_id, variable_id_global, experiment_id_global, grid_label_global)
     if spec in expected_failures:
         pytest.xfail()
         # This is not very satisfying, since it does not allow me
