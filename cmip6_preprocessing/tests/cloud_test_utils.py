@@ -26,6 +26,13 @@ def diagnose_doubles(data):
         print(f"Missing values Indicies[{missing}]/ Values[{missing_values}]")
 
 
+def xfail_wrapper_single(spec, fail_specs):
+    if spec in fail_specs:
+        return pytest.param(*spec, marks=pytest.mark.xfail(strict=True))
+    else:
+        return spec
+
+
 def xfail_wrapper(specs, fail_specs):
     # fail out if there is a fail spec that is not in the list
     # unknown_fail_specs = [fail for fail in fail_specs if fail not in specs]
@@ -35,12 +42,7 @@ def xfail_wrapper(specs, fail_specs):
     #     )
     wrapped_specs = []
     for spec in specs:
-        if spec in fail_specs:
-            wrapped_specs.append(
-                pytest.param(*spec, marks=pytest.mark.xfail(strict=True))
-            )
-        else:
-            wrapped_specs.append(spec)
+        wrapped_specs.append(xfail_wrapper_single(spec, fail_specs))
     return wrapped_specs
 
 
@@ -92,12 +94,26 @@ def all_models():
     return all_models
 
 
-def full_specs():
-    grid_labels = tuple(["gn", "gr"])
-    experiment_ids = tuple(["historical", "ssp585"])
-    variable_ids = tuple(["thetao", "o2"])
+def _maybe_make_list(item):
+    if isinstance(item, str):
+        return [item]
+    elif isinstance(item, list):
+        return item
+    else:
+        return list(item)
 
-    test_specs = list(
+
+def combine_specs(
+    grid_labels=["gn", "gr"],
+    experiments=["historical", "ssp585"],
+    variables=["thetao", "o2"],
+):
+
+    grid_labels = tuple(_maybe_make_list(grid_labels))
+    experiment_ids = tuple(_maybe_make_list(experiments))
+    variable_ids = tuple(_maybe_make_list(variables))
+
+    combined_specs = list(
         itertools.product(
             *[
                 all_models(),
@@ -107,4 +123,4 @@ def full_specs():
             ]
         )
     )
-    return test_specs
+    return combined_specs
