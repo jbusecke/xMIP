@@ -117,4 +117,4 @@ jobs:
     - name: Run Tests
       shell: bash -l {0}
       run: |
-        pytest -v -n auto --maxfail 10 --reruns 1 --reruns-delay 10 tests/test_preprocessing_cloud.py --grid_label_global ${{ matrix.grid_label }} --variable_id_global ${{ matrix.variable_id }} --experiment_id_global ${{ matrix.variable_id }}
+        pytest -v -n auto --maxfail 10 --reruns 1 --reruns-delay 10 ./tests/test_preprocessing_cloud.py 
