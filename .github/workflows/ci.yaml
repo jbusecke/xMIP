@@ -107,7 +107,7 @@ jobs:
         activate-environment: test_env_cmip6_preprocessing # Defined in ci/environment-upstream-dev.yml
         auto-update-conda: false
         python-version: 3.8
-        environment-file: sci/environment-cloud-test.yml
+        environment-file: ci/environment-cloud-test.yml
         use-only-tar-bz2: true # IMPORTANT: This needs to be set for caching to work properly!
     - name: Set up conda environment
       shell: bash -l {0}
