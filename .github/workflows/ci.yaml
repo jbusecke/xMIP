@@ -118,4 +118,5 @@ jobs:
       shell: bash -l {0}
       run: |
         pwd
-        pytest -v -n auto --maxfail 10 --reruns 1 --reruns-delay 10 ./tests/test_preprocessing_cloud.py 
+        echo($PYTHONPATH)
+        pytest -v -n auto --maxfail 10 --reruns 1 --reruns-delay 10 cmip6_preprocessing/tests/test_preprocessing_cloud.py 
