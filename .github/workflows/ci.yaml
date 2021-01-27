@@ -119,4 +119,4 @@ jobs:
       run: |
         pwd
         echo $PYTHONPATH
-        pytest -v -n auto --maxfail 10 --reruns 1 --reruns-delay 10 cmip6_preprocessing/tests/test_preprocessing_cloud.py 
+        pytest -v -n auto --maxfail 10 --reruns 1 --reruns-delay 10 cmip6_preprocessing/tests/test_preprocessing_cloud.py --grid_label ${{ matrix.grid_label }}

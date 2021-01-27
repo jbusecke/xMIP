@@ -48,8 +48,13 @@ expected_failures = [
     ("AWI-CM-1-1-MR", "thetao", "historical", "gn"),
     ("AWI-CM-1-1-MR", "thetao", "ssp585", "gn"),
     # TODO: would be nice to have a "*" matching...
-    # ("CESM2-FV2", "thetao", "historical", "gn"),
-    ("GFDL-CM4", "thetao", "historical", "gn"),
+    ("CESM2-FV2", "thetao", "historical", "gn"),  # this should fail
+    # (
+    #     "GFDL-CM4",
+    #     "thetao",
+    #     "historical",
+    #     "gn",
+    # ),  # this should not fail and should trigger an xfail
     ("CESM2-FV2", "thetao", "ssp585", "gn"),
 ]
 
@@ -57,6 +62,8 @@ expected_failures = [
 @pytest.fixture()
 def spec(source_id, variable_id_global, experiment_id_global, grid_label_global):
     spec = (source_id, variable_id_global, experiment_id_global, grid_label_global)
+    # print(source_id.param)
+    print(spec)
     if spec in expected_failures:
         pytest.xfail()
         # This is not very satisfying, since it does not allow me
@@ -65,6 +72,7 @@ def spec(source_id, variable_id_global, experiment_id_global, grid_label_global)
         # It would be nicer if I can mark a set of parameters as strictly xfailing
 
         # This is what I tried, and it doesnt work...
+        # spec = tuple(pytest)
         # spec = pytest.param(spec, marks=pytest.mark.xfail(strict=True))
         # spec = tuple(
         #     [pytest.param(s, marks=pytest.mark.xfail(strict=True)) for s in spec]
