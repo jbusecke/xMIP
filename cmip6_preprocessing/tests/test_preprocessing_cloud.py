@@ -4,8 +4,6 @@ import pytest
 import xarray as xr
 import numpy as np
 from cmip6_preprocessing.tests.cloud_test_utils import (
-    full_specs,
-    xfail_wrapper,
     all_models,
     data,
     diagnose_doubles,
@@ -15,35 +13,73 @@ from cmip6_preprocessing.grids import combine_staggered_grid
 
 pytest.importorskip("gcsfs")
 
+# test_models = ["CESM2-FV", "GFDL-ESM4", "GFDL-CM4", "CanESM5"]
+test_models = all_models()
+
+
+def pytest_generate_tests(metafunc):
+    # This is called for every test. Only get/set command line arguments
+    # if the argument is specified in the list of test "fixturenames".
+
+    for name in ["vi", "gl", "ei"]:
+
+        option_value = getattr(metafunc.config.option, name)
+
+        if isinstance(option_value, str):
+            option_value = [option_value]
+
+        if name in metafunc.fixturenames and option_value is not None:
+            metafunc.parametrize(name, option_value)
+
+
 print(f"\n\n\n\n$$$$$$$ All available models: {all_models()}$$$$$$$\n\n\n\n")
 
-
-# manually combine all pytest parameters, so that I have very fine grained control over
-# which combination of parameters is expected to fail.
-
+## Combine the input parameters according to command line input
 
 ########################### Most basic test #########################
-expected_failures = [
-    ("AWI-ESM-1-1-LR", "thetao", "historical", "gn"),
-    ("AWI-ESM-1-1-LR", "thetao", "ssp585", "gn"),
-    ("AWI-CM-1-1-MR", "thetao", "historical", "gn"),
-    ("AWI-CM-1-1-MR", "thetao", "ssp585", "gn"),
-    # TODO: would be nice to have a "*" matching...
-    ("CESM2-FV2", "thetao", "historical", "gn"),
-    ("CESM2-FV2", "thetao", "ssp585", "gn"),
-]
+
+# this fixture has to be redifined every time to account for different fail cases for each test
+@pytest.fixture
+def spec_check_dim_coord_values_wo_intake(request, gl, vi, ei):
+    expected_failures = [
+        ("AWI-ESM-1-1-LR", "thetao", "historical", "gn"),
+        ("AWI-ESM-1-1-LR", "thetao", "ssp585", "gn"),
+        ("AWI-CM-1-1-MR", "thetao", "historical", "gn"),
+        ("AWI-CM-1-1-MR", "thetao", "ssp585", "gn"),
+        # TODO: would be nice to have a "*" matching...
+        ("CESM2-FV2", "thetao", "historical", "gn"),
+        # (
+        #     "GFDL-CM4",
+        #     "thetao",
+        #     "historical",
+        #     "gn",
+        # ),  # this should not fail and should trigger an xpass (I just use this for dev purposes to check
+        #     # the strict option)
+        ("CESM2-FV2", "thetao", "ssp585", "gn"),
+    ]
+    spec = (request.param, vi, ei, gl)
+    request.param = spec
+    if request.param in expected_failures:
+        request.node.add_marker(pytest.mark.xfail(strict=True))
+    return request
 
 
 @pytest.mark.parametrize(
-    "source_id,variable_id,experiment_id,grid_label",
-    xfail_wrapper(full_specs(), expected_failures),
+    "spec_check_dim_coord_values_wo_intake", test_models, indirect=True
 )
 def test_check_dim_coord_values_wo_intake(
-    source_id, variable_id, experiment_id, grid_label
+    spec_check_dim_coord_values_wo_intake,
 ):
+    (
+        source_id,
+        variable_id,
+        experiment_id,
+        grid_label,
+    ) = spec_check_dim_coord_values_wo_intake.param
+
     # there must be a better way to build this at the class level and then tear it down again
     # I can probably get this done with fixtures, but I dont know how atm
-    ds, cat = data(source_id, variable_id, experiment_id, grid_label, False)
+    ds, _ = data(source_id, variable_id, experiment_id, grid_label, False)
 
     if ds is None:
         pytest.skip(
@@ -72,34 +108,46 @@ def test_check_dim_coord_values_wo_intake(
     assert ds.lat.max().load() <= 90
     # make sure lon and lat are 2d
     assert len(ds.lon.shape) == 2
-    assert len(ds.lat.shape) == 2
 
 
-expected_failures = [
-    ("AWI-ESM-1-1-LR", "thetao", "historical", "gn"),
-    ("AWI-ESM-1-1-LR", "thetao", "ssp585", "gn"),
-    ("AWI-CM-1-1-MR", "thetao", "historical", "gn"),
-    ("AWI-CM-1-1-MR", "thetao", "ssp585", "gn"),
-    # TODO: would be nice to have a "*" matching...
-    ("CESM2-FV2", "thetao", "historical", "gn"),
-    ("CESM2-FV2", "thetao", "ssp585", "gn"),
+# this fixture has to be redifined every time to account for different fail cases for each test
+@pytest.fixture
+def spec_check_dim_coord_values(request, gl, vi, ei):
+    expected_failures = [
+        ("AWI-ESM-1-1-LR", "thetao", "historical", "gn"),
+        ("AWI-ESM-1-1-LR", "thetao", "ssp585", "gn"),
+        ("AWI-CM-1-1-MR", "thetao", "historical", "gn"),
+        ("AWI-CM-1-1-MR", "thetao", "ssp585", "gn"),
+        # TODO: would be nice to have a "*" matching...
+        ("CESM2-FV2", "thetao", "historical", "gn"),
+        ("CESM2-FV2", "thetao", "ssp585", "gn"),
+        (
+            "IPSL-CM6A-LR",
+            "thetao",
+            "historical",
+            "gn",
+        ),  # IPSL has an issue with `lev` dims concatting
+        ("IPSL-CM6A-LR", "o2", "historical", "gn"),
+        ("NorESM2-MM", "thetao", "historical", "gn"),
+        ("NorESM2-MM", "thetao", "historical", "gr"),
+    ]
+    spec = (request.param, vi, ei, gl)
+    request.param = spec
+    if request.param in expected_failures:
+        request.node.add_marker(pytest.mark.xfail(strict=True))
+    return request
+
+
+@pytest.mark.parametrize("spec_check_dim_coord_values", test_models, indirect=True)
+def test_check_dim_coord_values(
+    spec_check_dim_coord_values,
+):
     (
-        "IPSL-CM6A-LR",
-        "thetao",
-        "historical",
-        "gn",
-    ),  # IPSL has an issue with `lev` dims concatting
-    ("IPSL-CM6A-LR", "o2", "historical", "gn"),
-    ("NorESM2-MM", "thetao", "historical", "gn"),
-    ("NorESM2-MM", "thetao", "historical", "gr"),
-]
-
-
-@pytest.mark.parametrize(
-    "source_id,variable_id,experiment_id,grid_label",
-    xfail_wrapper(full_specs(), expected_failures),
-)
-def test_check_dim_coord_values(source_id, variable_id, experiment_id, grid_label):
+        source_id,
+        variable_id,
+        experiment_id,
+        grid_label,
+    ) = spec_check_dim_coord_values.param
     # there must be a better way to build this at the class level and then tear it down again
     # I can probably get this done with fixtures, but I dont know how atm
     ds, cat = data(source_id, variable_id, experiment_id, grid_label, True)
@@ -135,30 +183,44 @@ def test_check_dim_coord_values(source_id, variable_id, experiment_id, grid_labe
 
 
 ############################### Specific Bound Coords Test ###############################
-expected_failures = [
-    ("AWI-ESM-1-1-LR", "thetao", "historical", "gn"),
-    ("AWI-ESM-1-1-MR", "thetao", "historical", "gn"),
-    ("AWI-ESM-1-1-MR", "thetao", "ssp585", "gn"),
-    ("AWI-CM-1-1-MR", "thetao", "historical", "gn"),
-    ("AWI-CM-1-1-MR", "thetao", "ssp585", "gn"),
-    ("CESM2-FV2", "thetao", "historical", "gn"),
-    ("FGOALS-f3-L", "thetao", "historical", "gn"),
-    ("FGOALS-f3-L", "thetao", "ssp585", "gn"),
-    ("FGOALS-g3", "thetao", "historical", "gn"),
-    ("FGOALS-g3", "thetao", "ssp585", "gn"),
-    ("NorESM2-MM", "thetao", "historical", "gn"),
-    ("NorESM2-MM", "thetao", "historical", "gr"),
-    ("IPSL-CM6A-LR", "thetao", "historical", "gn"),
-    ("IPSL-CM6A-LR", "o2", "historical", "gn"),
-]
 
 
-@pytest.mark.parametrize(
-    "source_id,variable_id,experiment_id,grid_label",
-    xfail_wrapper(full_specs(), expected_failures),
-)
-def test_check_bounds_verticies(source_id, variable_id, experiment_id, grid_label):
+# this fixture has to be redifined every time to account for different fail cases for each test
+@pytest.fixture
+def spec_check_bounds_verticies(request, gl, vi, ei):
+    expected_failures = [
+        ("AWI-ESM-1-1-LR", "thetao", "historical", "gn"),
+        ("AWI-ESM-1-1-MR", "thetao", "historical", "gn"),
+        ("AWI-ESM-1-1-MR", "thetao", "ssp585", "gn"),
+        ("AWI-CM-1-1-MR", "thetao", "historical", "gn"),
+        ("AWI-CM-1-1-MR", "thetao", "ssp585", "gn"),
+        ("CESM2-FV2", "thetao", "historical", "gn"),
+        ("FGOALS-f3-L", "thetao", "historical", "gn"),
+        ("FGOALS-f3-L", "thetao", "ssp585", "gn"),
+        ("FGOALS-g3", "thetao", "historical", "gn"),
+        ("FGOALS-g3", "thetao", "ssp585", "gn"),
+        ("NorESM2-MM", "thetao", "historical", "gn"),
+        ("NorESM2-MM", "thetao", "historical", "gr"),
+        ("IPSL-CM6A-LR", "thetao", "historical", "gn"),
+        ("IPSL-CM6A-LR", "o2", "historical", "gn"),
+    ]
+    spec = (request.param, vi, ei, gl)
+    request.param = spec
+    if request.param in expected_failures:
+        request.node.add_marker(pytest.mark.xfail(strict=True))
+    return request
 
+
+@pytest.mark.parametrize("spec_check_bounds_verticies", test_models, indirect=True)
+def test_check_bounds_verticies(
+    spec_check_bounds_verticies,
+):
+    (
+        source_id,
+        variable_id,
+        experiment_id,
+        grid_label,
+    ) = spec_check_bounds_verticies.param
     ds, cat = data(source_id, variable_id, experiment_id, grid_label, True)
 
     if ds is None:
@@ -211,33 +273,43 @@ def test_check_bounds_verticies(source_id, variable_id, experiment_id, grid_labe
 
 
 ################################# xgcm grid specific tests ########################################
-expected_failures = [
-    ("AWI-ESM-1-1-LR", "thetao", "historical", "gn"),
-    ("AWI-ESM-1-1-MR", "thetao", "historical", "gn"),
-    ("AWI-ESM-1-1-MR", "thetao", "ssp585", "gn"),
-    ("AWI-CM-1-1-MR", "thetao", "historical", "gn"),
-    ("AWI-CM-1-1-MR", "thetao", "ssp585", "gn"),
-    ("CESM2-FV2", "thetao", "historical", "gn"),
-    ("CMCC-CM2-SR5", "thetao", "historical", "gn"),
-    ("CMCC-CM2-SR5", "thetao", "ssp585", "gn"),
-    ("FGOALS-f3-L", "thetao", "historical", "gn"),
-    ("FGOALS-f3-L", "thetao", "ssp585", "gn"),
-    ("FGOALS-g3", "thetao", "historical", "gn"),
-    ("FGOALS-g3", "thetao", "ssp585", "gn"),
-    ("MPI-ESM-1-2-HAM", "thetao", "historical", "gn"),
-    ("MPI-ESM-1-2-HAM", "o2", "historical", "gn"),
-    ("NorESM2-MM", "thetao", "historical", "gn"),
-    ("NorESM2-MM", "thetao", "historical", "gr"),
-    ("IPSL-CM6A-LR", "thetao", "historical", "gn"),
-    ("IPSL-CM6A-LR", "o2", "historical", "gn"),
-]
 
 
-@pytest.mark.parametrize(
-    "source_id,variable_id,experiment_id,grid_label",
-    xfail_wrapper(full_specs(), expected_failures),
-)
-def test_check_grid(source_id, variable_id, experiment_id, grid_label):
+# this fixture has to be redifined every time to account for different fail cases for each test
+@pytest.fixture
+def spec_check_grid(request, gl, vi, ei):
+    expected_failures = [
+        ("AWI-ESM-1-1-LR", "thetao", "historical", "gn"),
+        ("AWI-ESM-1-1-MR", "thetao", "historical", "gn"),
+        ("AWI-ESM-1-1-MR", "thetao", "ssp585", "gn"),
+        ("AWI-CM-1-1-MR", "thetao", "historical", "gn"),
+        ("AWI-CM-1-1-MR", "thetao", "ssp585", "gn"),
+        ("CESM2-FV2", "thetao", "historical", "gn"),
+        ("CMCC-CM2-SR5", "thetao", "historical", "gn"),
+        ("CMCC-CM2-SR5", "thetao", "ssp585", "gn"),
+        ("FGOALS-f3-L", "thetao", "historical", "gn"),
+        ("FGOALS-f3-L", "thetao", "ssp585", "gn"),
+        ("FGOALS-g3", "thetao", "historical", "gn"),
+        ("FGOALS-g3", "thetao", "ssp585", "gn"),
+        ("MPI-ESM-1-2-HAM", "thetao", "historical", "gn"),
+        ("MPI-ESM-1-2-HAM", "o2", "historical", "gn"),
+        ("NorESM2-MM", "thetao", "historical", "gn"),
+        ("NorESM2-MM", "thetao", "historical", "gr"),
+        ("IPSL-CM6A-LR", "thetao", "historical", "gn"),
+        ("IPSL-CM6A-LR", "o2", "historical", "gn"),
+    ]
+    spec = (request.param, vi, ei, gl)
+    request.param = spec
+    if request.param in expected_failures:
+        request.node.add_marker(pytest.mark.xfail(strict=True))
+    return request
+
+
+@pytest.mark.parametrize("spec_check_grid", test_models, indirect=True)
+def test_check_grid(
+    spec_check_grid,
+):
+    source_id, variable_id, experiment_id, grid_label = spec_check_grid.param
 
     ds, cat = data(source_id, variable_id, experiment_id, grid_label, True)
 

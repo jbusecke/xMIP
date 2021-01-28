@@ -30,6 +30,8 @@ jobs:
           key: ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{ hashFiles('ci/environment-py${{ matrix.python-version }}.yml') }}
       - uses: conda-incubator/setup-miniconda@v2
         with:
+          mamba-version: "*"
+          channels: conda-forge, defaults
           activate-environment: test_env_cmip6_preprocessing # Defined in ci/environment*.yml
           auto-update-conda: false
           python-version: ${{ matrix.python-version }}
@@ -43,7 +45,7 @@ jobs:
       - name: Run Tests
         shell: bash -l {0}
         run: |
-          pytest -n auto --cov=./ --cov-report=xml --ignore=cmip6_preprocessing/tests/test_preprocessing_cloud.py
+          pytest --cov=./ --cov-report=xml --ignore=cmip6_preprocessing/tests/test_preprocessing_cloud.py
       - name: Upload code coverage to Codecov
         uses: codecov/codecov-action@v1
         with:
@@ -68,6 +70,8 @@ jobs:
         key: ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{ hashFiles('ci/environment-upstream-dev.yml') }}
     - uses: conda-incubator/setup-miniconda@v2
       with:
+        mamba-version: "*"
+        channels: conda-forge, defaults
         activate-environment: test_env_cmip6_preprocessing # Defined in ci/environment-upstream-dev.yml
         auto-update-conda: false
         python-version: 3.8
@@ -81,10 +85,16 @@ jobs:
     - name: Run Tests
       shell: bash -l {0}
       run: |
-        pytest -n auto --ignore=cmip6_preprocessing/tests/test_preprocessing_cloud.py
+        pytest --ignore=cmip6_preprocessing/tests/test_preprocessing_cloud.py
         
   cloud-tests:
-    name: Build (cloud-data-tests)
+    name: Build (cloud-data-tests | ${{ matrix.variable_id }} | ${{ matrix.experiment_id }} | ${{ matrix.grid_label }})
+    strategy:
+      fail-fast: false
+      matrix:
+        variable_id: ["thetao", "o2"]
+        experiment_id: ["historical", "ssp585"]
+        grid_label: ["gn", "gr"]
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -98,6 +108,8 @@ jobs:
         key: ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{ hashFiles('ci/environment-upstream-dev.yml') }}
     - uses: conda-incubator/setup-miniconda@v2
       with:
+        mamba-version: "*"
+        channels: conda-forge, defaults
         activate-environment: test_env_cmip6_preprocessing # Defined in ci/environment-upstream-dev.yml
         auto-update-conda: false
         python-version: 3.8
@@ -111,4 +123,6 @@ jobs:
     - name: Run Tests
       shell: bash -l {0}
       run: |
-        pytest -v -n auto --maxfail 100 --reruns 1 --reruns-delay 10
+        pwd
+        echo $PYTHONPATH
+        pytest --maxfail 5 --reruns 1 --reruns-delay 10 cmip6_preprocessing/tests/test_preprocessing_cloud.py --gl ${{ matrix.grid_label }} --ei ${{ matrix.experiment_id }} --vi ${{ matrix.variable_id }}

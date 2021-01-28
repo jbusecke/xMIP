@@ -4,7 +4,6 @@ import xarray as xr
 import numpy as np
 import intake
 import fsspec
-import itertools
 from cmip6_preprocessing.preprocessing import combined_preprocessing
 from cmip6_preprocessing.grids import combine_staggered_grid
 
@@ -24,24 +23,6 @@ def diagnose_doubles(data):
     if len(missing) > 0:
         missing_values = data[missing]
         print(f"Missing values Indicies[{missing}]/ Values[{missing_values}]")
-
-
-def xfail_wrapper(specs, fail_specs):
-    # fail out if there is a fail spec that is not in the list
-    # unknown_fail_specs = [fail for fail in fail_specs if fail not in specs]
-    # if len(unknown_fail_specs) > 0:
-    #     raise ValueError(
-    #         f"Found fail specs that are not part of the testing {unknown_fail_specs}"
-    #     )
-    wrapped_specs = []
-    for spec in specs:
-        if spec in fail_specs:
-            wrapped_specs.append(
-                pytest.param(*spec, marks=pytest.mark.xfail(strict=True))
-            )
-        else:
-            wrapped_specs.append(spec)
-    return wrapped_specs
 
 
 def data(source_id, variable_id, experiment_id, grid_label, use_intake_esm):
@@ -92,19 +73,10 @@ def all_models():
     return all_models
 
 
-def full_specs():
-    grid_labels = tuple(["gn", "gr"])
-    experiment_ids = tuple(["historical", "ssp585"])
-    variable_ids = tuple(["thetao", "o2"])
-
-    test_specs = list(
-        itertools.product(
-            *[
-                all_models(),
-                variable_ids,
-                experiment_ids,
-                grid_labels,
-            ]
-        )
-    )
-    return test_specs
+def _maybe_make_list(item):
+    if isinstance(item, str):
+        return [item]
+    elif isinstance(item, list):
+        return item
+    else:
+        return list(item)
