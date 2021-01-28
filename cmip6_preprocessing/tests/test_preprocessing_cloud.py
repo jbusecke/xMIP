@@ -60,12 +60,10 @@ expected_failures = [
 
 
 @pytest.fixture()
-def spec(source_id, variable_id_global, experiment_id_global, grid_label_global):
-    spec = (source_id, variable_id_global, experiment_id_global, grid_label_global)
-    # print(source_id.param)
-    print(spec)
+def spec(source_id, vi, ei, gl):
+    spec = (source_id, vi, ei, gl)
     if spec in expected_failures:
-        pytest.xfail()
+        # pytest.xfail()
         # This is not very satisfying, since it does not allow me
         # to check with strict true (and I might thus miss cases that
         # actually work but are marked as failing).
@@ -73,6 +71,7 @@ def spec(source_id, variable_id_global, experiment_id_global, grid_label_global)
 
         # This is what I tried, and it doesnt work...
         # spec = tuple(pytest)
+        pytest.param(*spec, marks=pytest.mark.xfail(strict=True))
         # spec = pytest.param(spec, marks=pytest.mark.xfail(strict=True))
         # spec = tuple(
         #     [pytest.param(s, marks=pytest.mark.xfail(strict=True)) for s in spec]
