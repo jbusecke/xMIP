@@ -16,8 +16,8 @@ from cmip6_preprocessing.grids import combine_staggered_grid
 
 pytest.importorskip("gcsfs")
 
-# test_models = all_models()
-test_models = ["CESM2-FV", "GFDL-ESM4"]
+test_models = all_models()
+# test_models = ["CESM2-FV", "GFDL-ESM4"]
 
 # does this work?
 def pytest_generate_tests(metafunc):
