@@ -67,11 +67,18 @@ def speccheck_dim_coord_values_wo_intake(request, gl, vi, ei):
     return request
 
 
-@pytest.mark.parametrize("spec", test_models, indirect=True)
+@pytest.mark.parametrize(
+    "spec_check_dim_coord_values_wo_intake", test_models, indirect=True
+)
 def test_check_dim_coord_values_wo_intake(
     spec_check_dim_coord_values_wo_intake,
 ):
-    source_id, variable_id, experiment_id, grid_label = spec.param
+    (
+        source_id,
+        variable_id,
+        experiment_id,
+        grid_label,
+    ) = spec_check_dim_coord_values_wo_intake.param
 
     # there must be a better way to build this at the class level and then tear it down again
     # I can probably get this done with fixtures, but I dont know how atm
@@ -134,11 +141,16 @@ def spec_check_dim_coord_values(request, gl, vi, ei):
     return request
 
 
-@pytest.mark.parametrize("spec", test_models, indirect=True)
+@pytest.mark.parametrize("spec_check_dim_coord_values", test_models, indirect=True)
 def test_check_dim_coord_values(
     spec_check_dim_coord_values,
 ):
-    source_id, variable_id, experiment_id, grid_label = spec.param
+    (
+        source_id,
+        variable_id,
+        experiment_id,
+        grid_label,
+    ) = spec_check_dim_coord_values.param
     # there must be a better way to build this at the class level and then tear it down again
     # I can probably get this done with fixtures, but I dont know how atm
     ds, cat = data(source_id, variable_id, experiment_id, grid_label, True)
@@ -202,11 +214,16 @@ def spec_check_bounds_verticies(request, gl, vi, ei):
     return request
 
 
-@pytest.mark.parametrize("spec", test_models, indirect=True)
+@pytest.mark.parametrize("spec_check_bounds_verticies", test_models, indirect=True)
 def test_check_bounds_verticies(
     spec_check_bounds_verticies,
 ):
-    source_id, variable_id, experiment_id, grid_label = spec.param
+    (
+        source_id,
+        variable_id,
+        experiment_id,
+        grid_label,
+    ) = spec_check_bounds_verticies.param
     ds, cat = data(source_id, variable_id, experiment_id, grid_label, True)
 
     if ds is None:
@@ -291,11 +308,11 @@ def spec_check_grid(request, gl, vi, ei):
     return request
 
 
-@pytest.mark.parametrize("spec", test_models, indirect=True)
+@pytest.mark.parametrize("spec_check_grid", test_models, indirect=True)
 def test_check_grid(
     spec_check_grid,
 ):
-    source_id, variable_id, experiment_id, grid_label = spec.param
+    source_id, variable_id, experiment_id, grid_label = spec_check_grid.param
 
     ds, cat = data(source_id, variable_id, experiment_id, grid_label, True)
 
