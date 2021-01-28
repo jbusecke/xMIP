@@ -80,7 +80,6 @@ def spec(source_id, vi, ei, gl):
 
 
 def test_check_dim_coord_values_wo_intake(
-    # source_id, variable_id, experiment_id, grid_label
     spec,
 ):
     source_id, variable_id, experiment_id, grid_label = spec
@@ -115,7 +114,6 @@ def test_check_dim_coord_values_wo_intake(
     assert ds.lat.max().load() <= 90
     # make sure lon and lat are 2d
     assert len(ds.lon.shape) == 2
-    assert len(ds.lat.shape) == 2
 
 
 # expected_failures = [
