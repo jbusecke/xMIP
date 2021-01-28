@@ -40,26 +40,26 @@ print(f"\n\n\n\n$$$$$$$ All available models: {all_models()}$$$$$$$\n\n\n\n")
 ## Combine the input parameters according to command line input
 
 ########################### Most basic test #########################
-expected_failures = [
-    ("AWI-ESM-1-1-LR", "thetao", "historical", "gn"),
-    ("AWI-ESM-1-1-LR", "thetao", "ssp585", "gn"),
-    ("AWI-CM-1-1-MR", "thetao", "historical", "gn"),
-    ("AWI-CM-1-1-MR", "thetao", "ssp585", "gn"),
-    # TODO: would be nice to have a "*" matching...
-    ("CESM2-FV2", "thetao", "historical", "gn"),
-    # (
-    #     "GFDL-CM4",
-    #     "thetao",
-    #     "historical",
-    #     "gn",
-    # ),  # this should not fail and should trigger an xpass (I just use this for dev purposes to check
-    #     # the strict option)
-    ("CESM2-FV2", "thetao", "ssp585", "gn"),
-]
 
 # this fixture has to be redifined every time to account for different fail cases for each test
 @pytest.fixture
-def spec(request, gl, vi, ei):
+def speccheck_dim_coord_values_wo_intake(request, gl, vi, ei):
+    expected_failures = [
+        ("AWI-ESM-1-1-LR", "thetao", "historical", "gn"),
+        ("AWI-ESM-1-1-LR", "thetao", "ssp585", "gn"),
+        ("AWI-CM-1-1-MR", "thetao", "historical", "gn"),
+        ("AWI-CM-1-1-MR", "thetao", "ssp585", "gn"),
+        # TODO: would be nice to have a "*" matching...
+        ("CESM2-FV2", "thetao", "historical", "gn"),
+        # (
+        #     "GFDL-CM4",
+        #     "thetao",
+        #     "historical",
+        #     "gn",
+        # ),  # this should not fail and should trigger an xpass (I just use this for dev purposes to check
+        #     # the strict option)
+        ("CESM2-FV2", "thetao", "ssp585", "gn"),
+    ]
     spec = (request.param, vi, ei, gl)
     request.param = spec
     if request.param in expected_failures:
@@ -69,7 +69,7 @@ def spec(request, gl, vi, ei):
 
 @pytest.mark.parametrize("spec", test_models, indirect=True)
 def test_check_dim_coord_values_wo_intake(
-    spec,
+    spec_check_dim_coord_values_wo_intake,
 ):
     source_id, variable_id, experiment_id, grid_label = spec.param
 
@@ -106,28 +106,27 @@ def test_check_dim_coord_values_wo_intake(
     assert len(ds.lon.shape) == 2
 
 
-expected_failures = [
-    ("AWI-ESM-1-1-LR", "thetao", "historical", "gn"),
-    ("AWI-ESM-1-1-LR", "thetao", "ssp585", "gn"),
-    ("AWI-CM-1-1-MR", "thetao", "historical", "gn"),
-    ("AWI-CM-1-1-MR", "thetao", "ssp585", "gn"),
-    # TODO: would be nice to have a "*" matching...
-    ("CESM2-FV2", "thetao", "historical", "gn"),
-    ("CESM2-FV2", "thetao", "ssp585", "gn"),
-    (
-        "IPSL-CM6A-LR",
-        "thetao",
-        "historical",
-        "gn",
-    ),  # IPSL has an issue with `lev` dims concatting
-    ("IPSL-CM6A-LR", "o2", "historical", "gn"),
-    ("NorESM2-MM", "thetao", "historical", "gn"),
-    ("NorESM2-MM", "thetao", "historical", "gr"),
-]
-
 # this fixture has to be redifined every time to account for different fail cases for each test
 @pytest.fixture
-def spec(request, gl, vi, ei):
+def spec_check_dim_coord_values(request, gl, vi, ei):
+    expected_failures = [
+        ("AWI-ESM-1-1-LR", "thetao", "historical", "gn"),
+        ("AWI-ESM-1-1-LR", "thetao", "ssp585", "gn"),
+        ("AWI-CM-1-1-MR", "thetao", "historical", "gn"),
+        ("AWI-CM-1-1-MR", "thetao", "ssp585", "gn"),
+        # TODO: would be nice to have a "*" matching...
+        ("CESM2-FV2", "thetao", "historical", "gn"),
+        ("CESM2-FV2", "thetao", "ssp585", "gn"),
+        (
+            "IPSL-CM6A-LR",
+            "thetao",
+            "historical",
+            "gn",
+        ),  # IPSL has an issue with `lev` dims concatting
+        ("IPSL-CM6A-LR", "o2", "historical", "gn"),
+        ("NorESM2-MM", "thetao", "historical", "gn"),
+        ("NorESM2-MM", "thetao", "historical", "gr"),
+    ]
     spec = (request.param, vi, ei, gl)
     request.param = spec
     if request.param in expected_failures:
@@ -137,7 +136,7 @@ def spec(request, gl, vi, ei):
 
 @pytest.mark.parametrize("spec", test_models, indirect=True)
 def test_check_dim_coord_values(
-    spec,
+    spec_check_dim_coord_values,
 ):
     source_id, variable_id, experiment_id, grid_label = spec.param
     # there must be a better way to build this at the class level and then tear it down again
@@ -175,26 +174,27 @@ def test_check_dim_coord_values(
 
 
 ############################### Specific Bound Coords Test ###############################
-expected_failures = [
-    ("AWI-ESM-1-1-LR", "thetao", "historical", "gn"),
-    ("AWI-ESM-1-1-MR", "thetao", "historical", "gn"),
-    ("AWI-ESM-1-1-MR", "thetao", "ssp585", "gn"),
-    ("AWI-CM-1-1-MR", "thetao", "historical", "gn"),
-    ("AWI-CM-1-1-MR", "thetao", "ssp585", "gn"),
-    ("CESM2-FV2", "thetao", "historical", "gn"),
-    ("FGOALS-f3-L", "thetao", "historical", "gn"),
-    ("FGOALS-f3-L", "thetao", "ssp585", "gn"),
-    ("FGOALS-g3", "thetao", "historical", "gn"),
-    ("FGOALS-g3", "thetao", "ssp585", "gn"),
-    ("NorESM2-MM", "thetao", "historical", "gn"),
-    ("NorESM2-MM", "thetao", "historical", "gr"),
-    ("IPSL-CM6A-LR", "thetao", "historical", "gn"),
-    ("IPSL-CM6A-LR", "o2", "historical", "gn"),
-]
+
 
 # this fixture has to be redifined every time to account for different fail cases for each test
 @pytest.fixture
-def spec(request, gl, vi, ei):
+def spec_check_bounds_verticies(request, gl, vi, ei):
+    expected_failures = [
+        ("AWI-ESM-1-1-LR", "thetao", "historical", "gn"),
+        ("AWI-ESM-1-1-MR", "thetao", "historical", "gn"),
+        ("AWI-ESM-1-1-MR", "thetao", "ssp585", "gn"),
+        ("AWI-CM-1-1-MR", "thetao", "historical", "gn"),
+        ("AWI-CM-1-1-MR", "thetao", "ssp585", "gn"),
+        ("CESM2-FV2", "thetao", "historical", "gn"),
+        ("FGOALS-f3-L", "thetao", "historical", "gn"),
+        ("FGOALS-f3-L", "thetao", "ssp585", "gn"),
+        ("FGOALS-g3", "thetao", "historical", "gn"),
+        ("FGOALS-g3", "thetao", "ssp585", "gn"),
+        ("NorESM2-MM", "thetao", "historical", "gn"),
+        ("NorESM2-MM", "thetao", "historical", "gr"),
+        ("IPSL-CM6A-LR", "thetao", "historical", "gn"),
+        ("IPSL-CM6A-LR", "o2", "historical", "gn"),
+    ]
     spec = (request.param, vi, ei, gl)
     request.param = spec
     if request.param in expected_failures:
@@ -204,7 +204,7 @@ def spec(request, gl, vi, ei):
 
 @pytest.mark.parametrize("spec", test_models, indirect=True)
 def test_check_bounds_verticies(
-    spec,
+    spec_check_bounds_verticies,
 ):
     source_id, variable_id, experiment_id, grid_label = spec.param
     ds, cat = data(source_id, variable_id, experiment_id, grid_label, True)
@@ -259,30 +259,31 @@ def test_check_bounds_verticies(
 
 
 ################################# xgcm grid specific tests ########################################
-expected_failures = [
-    ("AWI-ESM-1-1-LR", "thetao", "historical", "gn"),
-    ("AWI-ESM-1-1-MR", "thetao", "historical", "gn"),
-    ("AWI-ESM-1-1-MR", "thetao", "ssp585", "gn"),
-    ("AWI-CM-1-1-MR", "thetao", "historical", "gn"),
-    ("AWI-CM-1-1-MR", "thetao", "ssp585", "gn"),
-    ("CESM2-FV2", "thetao", "historical", "gn"),
-    ("CMCC-CM2-SR5", "thetao", "historical", "gn"),
-    ("CMCC-CM2-SR5", "thetao", "ssp585", "gn"),
-    ("FGOALS-f3-L", "thetao", "historical", "gn"),
-    ("FGOALS-f3-L", "thetao", "ssp585", "gn"),
-    ("FGOALS-g3", "thetao", "historical", "gn"),
-    ("FGOALS-g3", "thetao", "ssp585", "gn"),
-    ("MPI-ESM-1-2-HAM", "thetao", "historical", "gn"),
-    ("MPI-ESM-1-2-HAM", "o2", "historical", "gn"),
-    ("NorESM2-MM", "thetao", "historical", "gn"),
-    ("NorESM2-MM", "thetao", "historical", "gr"),
-    ("IPSL-CM6A-LR", "thetao", "historical", "gn"),
-    ("IPSL-CM6A-LR", "o2", "historical", "gn"),
-]
+
 
 # this fixture has to be redifined every time to account for different fail cases for each test
 @pytest.fixture
-def spec(request, gl, vi, ei):
+def spec_check_grid(request, gl, vi, ei):
+    expected_failures = [
+        ("AWI-ESM-1-1-LR", "thetao", "historical", "gn"),
+        ("AWI-ESM-1-1-MR", "thetao", "historical", "gn"),
+        ("AWI-ESM-1-1-MR", "thetao", "ssp585", "gn"),
+        ("AWI-CM-1-1-MR", "thetao", "historical", "gn"),
+        ("AWI-CM-1-1-MR", "thetao", "ssp585", "gn"),
+        ("CESM2-FV2", "thetao", "historical", "gn"),
+        ("CMCC-CM2-SR5", "thetao", "historical", "gn"),
+        ("CMCC-CM2-SR5", "thetao", "ssp585", "gn"),
+        ("FGOALS-f3-L", "thetao", "historical", "gn"),
+        ("FGOALS-f3-L", "thetao", "ssp585", "gn"),
+        ("FGOALS-g3", "thetao", "historical", "gn"),
+        ("FGOALS-g3", "thetao", "ssp585", "gn"),
+        ("MPI-ESM-1-2-HAM", "thetao", "historical", "gn"),
+        ("MPI-ESM-1-2-HAM", "o2", "historical", "gn"),
+        ("NorESM2-MM", "thetao", "historical", "gn"),
+        ("NorESM2-MM", "thetao", "historical", "gr"),
+        ("IPSL-CM6A-LR", "thetao", "historical", "gn"),
+        ("IPSL-CM6A-LR", "o2", "historical", "gn"),
+    ]
     spec = (request.param, vi, ei, gl)
     request.param = spec
     if request.param in expected_failures:
@@ -292,7 +293,7 @@ def spec(request, gl, vi, ei):
 
 @pytest.mark.parametrize("spec", test_models, indirect=True)
 def test_check_grid(
-    spec,
+    spec_check_grid,
 ):
     source_id, variable_id, experiment_id, grid_label = spec.param
 
