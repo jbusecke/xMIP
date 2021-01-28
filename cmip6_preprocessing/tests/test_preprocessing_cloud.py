@@ -4,9 +4,6 @@ import pytest
 import xarray as xr
 import numpy as np
 from cmip6_preprocessing.tests.cloud_test_utils import (
-    combine_specs,
-    xfail_wrapper,
-    xfail_wrapper_single,
     all_models,
     data,
     diagnose_doubles,
@@ -16,10 +13,10 @@ from cmip6_preprocessing.grids import combine_staggered_grid
 
 pytest.importorskip("gcsfs")
 
-test_models = all_models()
 # test_models = ["CESM2-FV", "GFDL-ESM4", "GFDL-CM4", "CanESM5"]
+test_models = all_models()
 
-# does this work?
+
 def pytest_generate_tests(metafunc):
     # This is called for every test. Only get/set command line arguments
     # if the argument is specified in the list of test "fixturenames".
