@@ -17,7 +17,7 @@ from cmip6_preprocessing.grids import combine_staggered_grid
 pytest.importorskip("gcsfs")
 
 test_models = all_models()
-# test_models = ["CESM2-FV", "GFDL-ESM4"]
+# test_models = ["CESM2-FV", "GFDL-ESM4"]  # , "GFDL-CM4", "CanESM5"]
 
 # does this work?
 def pytest_generate_tests(metafunc):
@@ -43,7 +43,7 @@ print(f"\n\n\n\n$$$$$$$ All available models: {all_models()}$$$$$$$\n\n\n\n")
 
 # this fixture has to be redifined every time to account for different fail cases for each test
 @pytest.fixture
-def speccheck_dim_coord_values_wo_intake(request, gl, vi, ei):
+def spec_check_dim_coord_values_wo_intake(request, gl, vi, ei):
     expected_failures = [
         ("AWI-ESM-1-1-LR", "thetao", "historical", "gn"),
         ("AWI-ESM-1-1-LR", "thetao", "ssp585", "gn"),
