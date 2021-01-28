@@ -1,6 +1,9 @@
 name: Full Archive CI
 on:
   workflow_dispatch: # enable a manual trigger
+    inputs:
+        name:
+          description: 'Testing a manual trigger'
   schedule:
     - cron: "0 13 * * 1" # run every monday
 
