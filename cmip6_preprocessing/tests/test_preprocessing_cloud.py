@@ -21,7 +21,7 @@ def pytest_generate_tests(metafunc):
     # This is called for every test. Only get/set command line arguments
     # if the argument is specified in the list of test "fixturenames".
 
-    for name in ["variable_id_global", "grid_label_global", "experiment_id_global"]:
+    for name in ["vi", "gl", "ei"]:
 
         option_value = getattr(metafunc.config.option, name)
 
