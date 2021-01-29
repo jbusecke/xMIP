@@ -29,6 +29,8 @@ New Features
 
 Bug fixes
 ~~~~~~~~~
+- Updated cmip6 catalog location for the pangeo gc archive (:issue:`80`) (:pull:`81`)
+By `Julius Busecke <https://github.com/jbusecke>`_
 
 
 Documentation
