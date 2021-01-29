@@ -2,18 +2,12 @@ import pytest
 import contextlib
 import xarray as xr
 import numpy as np
-import intake
 import fsspec
 from cmip6_preprocessing.preprocessing import combined_preprocessing
 from cmip6_preprocessing.grids import combine_staggered_grid
+from cmip6_preprocessing.utils import google_cmip_col
 
 pytest.importorskip("gcsfs")
-
-
-def col():
-    return intake.open_esm_datastore(
-        "https://cmip6.storage.googleapis.com/pangeo-cmip6.json"
-    )
 
 
 def diagnose_doubles(data):
@@ -33,7 +27,7 @@ def data(source_id, variable_id, experiment_id, grid_label, use_intake_esm):
         # "use_cftime": True,
     }
 
-    cat = col().search(
+    cat = google_cmip_col().search(
         source_id=source_id,
         experiment_id=experiment_id,
         variable_id=variable_id,
@@ -67,7 +61,7 @@ def data(source_id, variable_id, experiment_id, grid_label, use_intake_esm):
 
 
 def all_models():
-    df = col().df
+    df = google_cmip_col().df
     all_models = df["source_id"].unique()
     all_models = tuple(np.sort(all_models))
     return all_models

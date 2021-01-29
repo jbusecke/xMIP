@@ -1,0 +1,367 @@
+ACCESS-CM2:
+  gn:
+    axis_shift:
+      X: right
+      Y: right
+ACCESS-ESM1-5:
+  gn:
+    axis_shift:
+      X: right
+      Y: right
+BCC-CSM2-MR:
+  gn:
+    axis_shift:
+      X: right
+      Y: right
+BCC-ESM1:
+  gn:
+    axis_shift:
+      X: right
+      Y: right
+CAMS-CSM1-0:
+  gn:
+    axis_shift:
+      X: right
+      Y: right
+CAS-ESM2-0:
+  gn:
+    axis_shift:
+      X: left
+      Y: left
+CESM1-1-CAM5-CMIP5:
+  gn:
+    axis_shift:
+      X: left
+      Y: left
+  gr:
+    axis_shift:
+      X: left
+      Y: left
+CESM2:
+  gn:
+    axis_shift:
+      X: left
+      Y: right
+  gr:
+    axis_shift:
+      X: left
+      Y: left
+CESM2-FV2:
+  gn:
+    axis_shift:
+      X: left
+      Y: right
+  gr:
+    axis_shift:
+      X: left
+      Y: left
+CESM2-WACCM:
+  gn:
+    axis_shift:
+      X: left
+      Y: right
+  gr:
+    axis_shift:
+      X: left
+      Y: left
+CESM2-WACCM-FV2:
+  gn:
+    axis_shift:
+      X: left
+      Y: right
+  gr:
+    axis_shift:
+      X: left
+      Y: left
+CIESM:
+  gn:
+    axis_shift:
+      X: left
+      Y: left
+CMCC-CM2-HR4:
+  gn:
+    axis_shift:
+      X: left
+      Y: left
+CMCC-ESM2:
+  gn:
+    axis_shift:
+      X: left
+      Y: left
+CNRM-CM6-1:
+  gn:
+    axis_shift:
+      X: right
+      Y: right
+  gr1:
+    axis_shift:
+      X: left
+      Y: left
+CNRM-CM6-1-HR:
+  gn:
+    axis_shift:
+      X: left
+      Y: right
+CNRM-ESM2-1:
+  gn:
+    axis_shift:
+      X: right
+      Y: right
+  gr1:
+    axis_shift:
+      X: left
+      Y: left
+CanESM5:
+  gn:
+    axis_shift:
+      X: right
+      Y: right
+CanESM5-CanOE:
+  gn:
+    axis_shift:
+      X: right
+      Y: right
+E3SM-1-0:
+  gr:
+    axis_shift:
+      X: left
+      Y: left
+E3SM-1-1:
+  gr:
+    axis_shift:
+      X: left
+      Y: left
+E3SM-1-1-ECA:
+  gr:
+    axis_shift:
+      X: left
+      Y: left
+EC-Earth3:
+  gn:
+    axis_shift:
+      X: right
+      Y: right
+  gr:
+    axis_shift:
+      X: left
+      Y: left
+EC-Earth3-AerChem:
+  gn:
+    axis_shift:
+      X: left
+      Y: left
+EC-Earth3-LR:
+  gn:
+    axis_shift:
+      X: right
+      Y: right
+EC-Earth3-Veg:
+  gn:
+    axis_shift:
+      X: right
+      Y: right
+  gr:
+    axis_shift:
+      X: left
+      Y: left
+EC-Earth3-Veg-LR:
+  gn:
+    axis_shift:
+      X: left
+      Y: left
+FGOALS-f3-L:
+  gn:
+    axis_shift:
+      X: left
+      Y: left
+FGOALS-g3:
+  gn:
+    axis_shift:
+      X: left
+      Y: left
+FIO-ESM-2-0:
+  gn:
+    axis_shift:
+      X: left
+      Y: right
+GFDL-CM4:
+  gn:
+    axis_shift:
+      X: left
+      Y: left
+  gr:
+    axis_shift:
+      X: left
+      Y: left
+GFDL-ESM2M:
+  gn:
+    axis_shift:
+      X: left
+      Y: left
+GFDL-ESM4:
+  gn:
+    axis_shift:
+      X: left
+      Y: left
+  gr:
+    axis_shift:
+      X: left
+      Y: left
+GFDL-OM4p5B:
+  gn:
+    axis_shift:
+      X: left
+      Y: left
+  gr:
+    axis_shift:
+      X: left
+      Y: left
+GISS-E2-1-G:
+  gn:
+    axis_shift:
+      X: left
+      Y: left
+GISS-E2-1-G-CC:
+  gn:
+    axis_shift:
+      X: right
+      Y: left
+GISS-E2-1-H:
+  gn:
+    axis_shift:
+      X: left
+      Y: left
+  gr:
+    axis_shift:
+      X: left
+      Y: left
+GISS-E2-2-G:
+  gn:
+    axis_shift:
+      X: right
+      Y: left
+HadGEM3-GC31-LL:
+  gn:
+    axis_shift:
+      X: right
+      Y: right
+HadGEM3-GC31-MM:
+  gn:
+    axis_shift:
+      X: left
+      Y: right
+IITM-ESM:
+  gn:
+    axis_shift:
+      X: left
+      Y: left
+INM-CM4-8:
+  gr1:
+    axis_shift:
+      X: left
+      Y: left
+INM-CM5-0:
+  gr1:
+    axis_shift:
+      X: left
+      Y: left
+IPSL-CM6A-LR:
+  gn:
+    axis_shift:
+      X: right
+      Y: right
+KACE-1-0-G:
+  gr:
+    axis_shift:
+      X: left
+      Y: left
+KIOST-ESM:
+  gr1:
+    axis_shift:
+      X: left
+      Y: left
+MCM-UA-1-0:
+  gn:
+    axis_shift:
+      X: right
+      Y: right
+MIROC-ES2L:
+  gn:
+    axis_shift:
+      X: right
+      Y: right
+  gr1:
+    axis_shift:
+      X: left
+      Y: left
+MIROC6:
+  gn:
+    axis_shift:
+      X: right
+      Y: right
+MPI-ESM1-2-HR:
+  gn:
+    axis_shift:
+      X: right
+      Y: left
+MRI-ESM2-0:
+  gn:
+    axis_shift:
+      X: left
+      Y: left
+  gr:
+    axis_shift:
+      X: left
+      Y: left
+NESM3:
+  gn:
+    axis_shift:
+      X: right
+      Y: right
+NorCPM1:
+  gn:
+    axis_shift:
+      X: left
+      Y: left
+  gr:
+    axis_shift:
+      X: left
+      Y: left
+NorESM1-F:
+  gn:
+    axis_shift:
+      X: left
+      Y: left
+NorESM2-LM:
+  gn:
+    axis_shift:
+      X: right
+      Y: left
+  gr:
+    axis_shift:
+      X: right
+      Y: left
+NorESM2-MM:
+  gn:
+    axis_shift:
+      X: right
+      Y: left
+  gr:
+    axis_shift:
+      X: right
+      Y: left
+SAM0-UNICON:
+  gn:
+    axis_shift:
+      X: left
+      Y: right
+TaiESM1:
+  gn:
+    axis_shift:
+      X: left
+      Y: right
+UKESM1-0-LL:
+  gn:
+    axis_shift:
+      X: right
+      Y: right
