@@ -1,6 +1,5 @@
+pytest.importorskip("intake")
 from cmip6_preprocessing.utils import google_cmip_col
-
-pytest.importorskip("gcsfs")
 
 def test_google_cmip_col():
     col = google_cmip_col()
