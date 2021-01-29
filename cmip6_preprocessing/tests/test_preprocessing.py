@@ -244,7 +244,7 @@ def test_parse_lon_lat_bounds():
         -360,
     ],
 )  # cant handle positive shifts yet
-def test_correct_lon(missing_values, shift, nans):
+def test_correct_lon(missing_values, shift):
     xlen, ylen, zlen = (40, 20, 6)
     ds = create_test_ds("x", "y", "lev", xlen, ylen, zlen)
     ds = ds.assign_coords(x=ds.x.data + shift)
