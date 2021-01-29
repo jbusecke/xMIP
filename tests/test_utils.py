@@ -1,7 +1,9 @@
 import pytest
 
-pytest.importorskip("intake")
 from cmip6_preprocessing.utils import google_cmip_col
+
+
+pytest.importorskip("intake")
 
 
 def test_google_cmip_col():

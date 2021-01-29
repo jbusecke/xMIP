@@ -1,13 +1,16 @@
 # This module tests data directly from the pangeo google cloud storage.
 # Tests are meant to be more high level and also serve to document known problems (see skip statements).
+import contextlib
+
+import fsspec
+import numpy as np
 import pytest
 import xarray as xr
-import numpy as np
-import contextlib
-import fsspec
-from cmip6_preprocessing.preprocessing import combined_preprocessing
+
 from cmip6_preprocessing.grids import combine_staggered_grid
+from cmip6_preprocessing.preprocessing import combined_preprocessing
 from cmip6_preprocessing.utils import google_cmip_col
+
 
 pytest.importorskip("gcsfs")
 

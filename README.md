@@ -8,7 +8,7 @@
 
 ![BLM](BLM.png)
 
-Science is not immune to racism. Academia is an elitist system with numerous gatekeepers that has mostly allowed a very limited spectrum of people to pursue a career. I believe we need to change that. 
+Science is not immune to racism. Academia is an elitist system with numerous gatekeepers that has mostly allowed a very limited spectrum of people to pursue a career. I believe we need to change that.
 
 Open source development and reproducible science are a great way to democratize the means for scientific analysis. **But you can't git clone software if you are being murdered by the police for being Black!**
 
@@ -53,4 +53,3 @@ or conda:
 To install the newest master from github you can use pip aswell:
 
 `pip install git+pip install git+https://github.com/jbusecke/cmip6_preprocessing.git`
-

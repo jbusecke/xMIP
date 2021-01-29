@@ -13,13 +13,14 @@ ignore-private = true
 ignore-property-decorators = true
 ignore-module = false
 fail-under = 95
-exclude = ["setup.py", "docs", "tests"]
+# This somehow does not work...the excludes are defined in the pre-commit-config.yaml for now
+# exclude = ["setup.py", "docs", "tests/*", "cmip6_preprocessing/_version.py"]
 verbose = 1
 quiet = false
 color = true
 
 [tool.isort]
-known_third_party = ["numpy", "pytest", "setuptools"]
+known_third_party = ["fsspec", "intake", "matplotlib", "numpy", "pandas", "pkg_resources", "pyproj", "pytest", "setuptools", "xarray", "xgcm", "yaml"]
 
 [tool.pytest.ini_options]
 minversion = "6.0"

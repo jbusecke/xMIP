@@ -7,7 +7,7 @@ on:
   schedule:
     - cron: "0 13 * * 1" # run every monday
 
-jobs: 
+jobs:
   cloud-tests:
     name: Build (cloud-data-tests | ${{ matrix.variable_id }} | ${{ matrix.experiment_id }} | ${{ matrix.grid_label }})
     strategy:

@@ -54,7 +54,7 @@ jobs:
           env_vars: OS,PYTHON
           name: codecov-umbrella
           fail_ci_if_error: false
-          
+
   upstream-dev:
     name: Build (upstream-dev)
     runs-on: ubuntu-latest
@@ -86,7 +86,7 @@ jobs:
       shell: bash -l {0}
       run: |
         pytest --ignore=tests/test_preprocessing_cloud.py
-        
+
   cloud-tests:
     name: Build (cloud-data-tests | ${{ matrix.variable_id }} | ${{ matrix.experiment_id }} | ${{ matrix.grid_label }})
     strategy:

@@ -1,9 +1,11 @@
-from xgcm.autogenerate import generate_grid_ds
-import xarray as xr
-import numpy as np
-from xgcm import Grid
-import pyproj
 import matplotlib.pyplot as plt
+import numpy as np
+import pyproj
+import xarray as xr
+
+from xgcm import Grid
+from xgcm.autogenerate import generate_grid_ds
+
 
 # now sort all other variables in accordingly
 def rename(da, da_tracer, da_u, da_v, grid_type, position, verbose=False):
