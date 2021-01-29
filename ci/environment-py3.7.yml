@@ -8,6 +8,7 @@ dependencies:
   - pandas
   - zarr
   - xgcm
+  - intake-esm
   - pyproj
   - matplotlib
   - regionmask # this will fail until the current version is released on conda
