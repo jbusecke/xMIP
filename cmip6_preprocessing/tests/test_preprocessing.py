@@ -91,7 +91,8 @@ def test_promote_empty_dims():
 
 
 @pytest.mark.parametrize("dask", [True, False])
-def test_replace_x_y_nominal_lat_lon(dask):
+@pytest.mark.parametrize("nans", [True, False])
+def test_replace_x_y_nominal_lat_lon(dask, nans):
     x = np.linspace(0, 720, 10)
     y = np.linspace(-200, 140, 5)
     lon = xr.DataArray(np.linspace(0, 360, len(x)), coords=[("x", x)])
@@ -103,6 +104,15 @@ def test_replace_x_y_nominal_lat_lon(dask):
     ds = xr.DataArray(data, coords=[("x", x), ("y", y)]).to_dataset(name="data")
     ds.coords["lon"] = llon
     ds.coords["lat"] = llat
+
+    if nans:
+        lon = ds["lon"].load().data
+        lon[0, :] = np.nan
+        lon[-1, :] = np.nan
+        lon[:, 0] = np.nan
+        lon[:, -1] = np.nan
+        lon[15:23, 23:26] = np.nan
+        ds["lon"].data = lon
 
     if dask:
         ds = ds.chunk({"x": -1, "y": -1})
@@ -119,6 +129,8 @@ def test_replace_x_y_nominal_lat_lon(dask):
     assert len(replaced_ds.lat.shape) == 2
     assert set(replaced_ds.lon.dims) == set(["x", "y"])
     assert set(replaced_ds.lat.dims) == set(["x", "y"])
+    assert all(~np.isnan(replaced_ds.x))
+    assert all(~np.isnan(replaced_ds.y))
 
     # test a dataset that would result in duplicates with current method
     x = np.linspace(0, 720, 4)
@@ -214,7 +226,7 @@ def test_parse_lon_lat_bounds():
         assert "time" not in ds_test2.variables
 
 
-@pytest.mark.parametrize("missing_values", [False, 1e36, -1e36])
+@pytest.mark.parametrize("missing_values", [False, 1e36, -1e36, 1001, -1001])
 @pytest.mark.parametrize(
     "shift",
     [
@@ -223,7 +235,7 @@ def test_parse_lon_lat_bounds():
         -360,
     ],
 )  # cant handle positive shifts yet
-def test_correct_lon(missing_values, shift):
+def test_correct_lon(missing_values, shift, nans):
     xlen, ylen, zlen = (40, 20, 6)
     ds = create_test_ds("x", "y", "lev", xlen, ylen, zlen)
     ds = ds.assign_coords(x=ds.x.data + shift)
@@ -234,6 +246,7 @@ def test_correct_lon(missing_values, shift):
         lon = ds["lon"].load().data
         lon[10:20, 10:20] = missing_values
         ds["lon"].data = lon
+
     ds_lon_corrected = correct_lon(ds)
     assert ds_lon_corrected.lon.min() >= 0
     assert ds_lon_corrected.lon.max() <= 360

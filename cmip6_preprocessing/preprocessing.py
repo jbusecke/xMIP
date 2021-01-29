@@ -230,8 +230,8 @@ def correct_lon(ds):
 
     # remove out of bounds values found in some
     # models as missing values
-    ds["lon"] = ds["lon"].where(abs(ds["lon"]) <= 1e35)
-    ds["lat"] = ds["lat"].where(abs(ds["lat"]) <= 1e35)
+    ds["lon"] = ds["lon"].where(abs(ds["lon"]) <= 1000)
+    ds["lat"] = ds["lat"].where(abs(ds["lat"]) <= 1000)
 
     # adjust lon convention
     lon = ds["lon"].where(ds["lon"] > 0, 360 + ds["lon"])
