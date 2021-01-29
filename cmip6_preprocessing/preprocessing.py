@@ -107,6 +107,12 @@ def broadcast_lonlat(ds, verbose=True):
     return ds
 
 
+def _interp_nominal_lon(lon_1d):
+    x = np.arange(len(lon_1d))
+    idx = np.isnan(lon_1d)
+    return np.interp(x, x[~idx], lon_1d[~idx], period=360)
+
+
 def replace_x_y_nominal_lat_lon(ds):
     """Approximate the dimensional values of x and y with mean lat and lon at the equator"""
     ds = ds.copy()
@@ -135,14 +141,27 @@ def replace_x_y_nominal_lat_lon(ds):
             return data
 
     if "x" in ds.dims and "y" in ds.dims:
+        # define 'nominal' longitude/latitude values
+        # latitude is defined as the max value of `lat` in the zonal direction
+        # longitude is taken from the `middle` of the meridonal direction, to
+        # get values close to the equator
 
         # pick the nominal lon/lat values from the eastern
-        # and southern edge, and eliminate non unique values
-        # these occour e.g. in "MPI-ESM1-2-HR"
-        max_lat_idx = ds.lat.isel(y=-1).argmax("x").load().data
-        nominal_y = maybe_fix_non_unique(ds.isel(x=max_lat_idx).lat.load().data)
+        # and southern edge, and
         eq_idx = len(ds.y) // 2
-        nominal_x = maybe_fix_non_unique(ds.isel(y=eq_idx).lon.load().data)
+
+        nominal_x = ds.isel(y=eq_idx).lon.load()
+        nominal_y = ds.lat.max("x").load()
+
+        # interpolate nans
+        # Special treatment for gaps in longitude
+        nominal_x = _interp_nominal_lon(nominal_x.data)
+        nominal_y = nominal_y.interpolate_na("y").data
+
+        # eliminate non unique values
+        # these occour e.g. in "MPI-ESM1-2-HR"
+        nominal_y = maybe_fix_non_unique(nominal_y)
+        nominal_x = maybe_fix_non_unique(nominal_x)
 
         ds = ds.assign_coords(x=nominal_x, y=nominal_y)
         ds = ds.sortby("x")
@@ -230,8 +249,8 @@ def correct_lon(ds):
 
     # remove out of bounds values found in some
     # models as missing values
-    ds["lon"] = ds["lon"].where(abs(ds["lon"]) <= 1e35)
-    ds["lat"] = ds["lat"].where(abs(ds["lat"]) <= 1e35)
+    ds["lon"] = ds["lon"].where(abs(ds["lon"]) <= 1000)
+    ds["lat"] = ds["lat"].where(abs(ds["lat"]) <= 1000)
 
     # adjust lon convention
     lon = ds["lon"].where(ds["lon"] > 0, 360 + ds["lon"])

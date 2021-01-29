@@ -13,7 +13,7 @@ from cmip6_preprocessing.grids import combine_staggered_grid
 
 pytest.importorskip("gcsfs")
 
-# test_models = ["CESM2-FV", "GFDL-ESM4", "GFDL-CM4", "CanESM5"]
+# test_models = ["CESM2-FV2", "GFDL-CM4"]
 test_models = all_models()
 
 
@@ -47,7 +47,6 @@ def spec_check_dim_coord_values_wo_intake(request, gl, vi, ei):
         ("AWI-CM-1-1-MR", "thetao", "historical", "gn"),
         ("AWI-CM-1-1-MR", "thetao", "ssp585", "gn"),
         # TODO: would be nice to have a "*" matching...
-        ("CESM2-FV2", "thetao", "historical", "gn"),
         # (
         #     "GFDL-CM4",
         #     "thetao",
@@ -55,7 +54,6 @@ def spec_check_dim_coord_values_wo_intake(request, gl, vi, ei):
         #     "gn",
         # ),  # this should not fail and should trigger an xpass (I just use this for dev purposes to check
         #     # the strict option)
-        ("CESM2-FV2", "thetao", "ssp585", "gn"),
     ]
     spec = (request.param, vi, ei, gl)
     request.param = spec
@@ -96,7 +94,7 @@ def test_check_dim_coord_values_wo_intake(
             diagnose_doubles(ds[di].load().data)
             assert len(ds[di]) == len(np.unique(ds[di]))
             if di != "time":  # these tests do not make sense for decoded time
-                assert ~np.all(np.isnan(ds[di]))
+                assert np.all(~np.isnan(ds[di]))
                 assert np.all(ds[di].diff(di) >= 0)
 
     assert ds.lon.min().load() >= 0
@@ -108,6 +106,7 @@ def test_check_dim_coord_values_wo_intake(
     assert ds.lat.max().load() <= 90
     # make sure lon and lat are 2d
     assert len(ds.lon.shape) == 2
+    assert len(ds.lat.shape) == 2
 
 
 # this fixture has to be redifined every time to account for different fail cases for each test
@@ -119,8 +118,6 @@ def spec_check_dim_coord_values(request, gl, vi, ei):
         ("AWI-CM-1-1-MR", "thetao", "historical", "gn"),
         ("AWI-CM-1-1-MR", "thetao", "ssp585", "gn"),
         # TODO: would be nice to have a "*" matching...
-        ("CESM2-FV2", "thetao", "historical", "gn"),
-        ("CESM2-FV2", "thetao", "ssp585", "gn"),
         (
             "IPSL-CM6A-LR",
             "thetao",
@@ -167,7 +164,7 @@ def test_check_dim_coord_values(
             diagnose_doubles(ds[di].load().data)
             assert len(ds[di]) == len(np.unique(ds[di]))
             if di != "time":  # these tests do not make sense for decoded time
-                assert ~np.all(np.isnan(ds[di]))
+                assert np.all(~np.isnan(ds[di]))
                 assert np.all(ds[di].diff(di) >= 0)
 
     assert ds.lon.min().load() >= 0
@@ -194,7 +191,6 @@ def spec_check_bounds_verticies(request, gl, vi, ei):
         ("AWI-ESM-1-1-MR", "thetao", "ssp585", "gn"),
         ("AWI-CM-1-1-MR", "thetao", "historical", "gn"),
         ("AWI-CM-1-1-MR", "thetao", "ssp585", "gn"),
-        ("CESM2-FV2", "thetao", "historical", "gn"),
         ("FGOALS-f3-L", "thetao", "historical", "gn"),
         ("FGOALS-f3-L", "thetao", "ssp585", "gn"),
         ("FGOALS-g3", "thetao", "historical", "gn"),
@@ -284,7 +280,6 @@ def spec_check_grid(request, gl, vi, ei):
         ("AWI-ESM-1-1-MR", "thetao", "ssp585", "gn"),
         ("AWI-CM-1-1-MR", "thetao", "historical", "gn"),
         ("AWI-CM-1-1-MR", "thetao", "ssp585", "gn"),
-        ("CESM2-FV2", "thetao", "historical", "gn"),
         ("CMCC-CM2-SR5", "thetao", "historical", "gn"),
         ("CMCC-CM2-SR5", "thetao", "ssp585", "gn"),
         ("FGOALS-f3-L", "thetao", "historical", "gn"),
