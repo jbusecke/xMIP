@@ -90,8 +90,8 @@ def test_promote_empty_dims():
     assert set(["x", "y", "z"]).issubset(set(ds_promoted.coords))
 
 
-@pytest.mark.parametrize("dask", [True, False])
 @pytest.mark.parametrize("nans", [True, False])
+@pytest.mark.parametrize("dask", [True, False])
 def test_replace_x_y_nominal_lat_lon(dask, nans):
     x = np.linspace(0, 720, 10)
     y = np.linspace(-200, 140, 5)
@@ -114,6 +114,12 @@ def test_replace_x_y_nominal_lat_lon(dask, nans):
         lon[15:23, 23:26] = np.nan
         ds["lon"].data = lon
 
+        # for lats put only some nans in the middle.
+        # I currently have no way to interpolate lats at the edge.
+        lat = ds["lat"].load().data
+        lat[15:23, 23:26] = np.nan
+        ds["lat"].data = lat
+
     if dask:
         ds = ds.chunk({"x": -1, "y": -1})
         ds.coords["lon"] = ds.coords["lon"].chunk({"x": -1, "y": -1})
@@ -121,8 +127,9 @@ def test_replace_x_y_nominal_lat_lon(dask, nans):
 
     replaced_ds = replace_x_y_nominal_lat_lon(ds)
 
-    np.testing.assert_allclose(replaced_ds.x, lon)
-    np.testing.assert_allclose(replaced_ds.y, lat)
+    assert all(~np.isnan(replaced_ds.x))
+    assert all(~np.isnan(replaced_ds.y))
+
     assert all(replaced_ds.x.diff("x") > 0)
     assert all(replaced_ds.y.diff("y") > 0)
     assert len(replaced_ds.lon.shape) == 2
@@ -154,6 +161,8 @@ def test_replace_x_y_nominal_lat_lon(dask, nans):
         ds.coords["lat"] = ds.coords["lat"].chunk({"x": -1, "y": -1})
 
     replaced_ds = replace_x_y_nominal_lat_lon(ds)
+    assert all(~np.isnan(replaced_ds.x))
+    assert all(~np.isnan(replaced_ds.y))
     assert len(replaced_ds.y) == len(np.unique(replaced_ds.y))
     assert len(replaced_ds.x) == len(np.unique(replaced_ds.x))
     # make sure values are sorted in ascending order
