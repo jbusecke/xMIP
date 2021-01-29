@@ -12,7 +12,7 @@ pytest.importorskip("gcsfs")
 
 def col():
     return intake.open_esm_datastore(
-        "https://raw.githubusercontent.com/NCAR/intake-esm-datastore/master/catalogs/pangeo-cmip6.json"
+        "https://cmip6.storage.googleapis.com/pangeo-cmip6.json"
     )
 
 
