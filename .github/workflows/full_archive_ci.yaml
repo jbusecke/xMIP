@@ -46,4 +46,4 @@ jobs:
       run: |
         pwd
         echo $PYTHONPATH
-        pytest --maxfail 5 cmip6_preprocessing/tests/test_preprocessing_cloud.py --gl ${{ matrix.grid_label }} --ei ${{ matrix.experiment_id }} --vi ${{ matrix.variable_id }}
+        pytest --maxfail 5 tests/test_preprocessing_cloud.py --gl ${{ matrix.grid_label }} --ei ${{ matrix.experiment_id }} --vi ${{ matrix.variable_id }}

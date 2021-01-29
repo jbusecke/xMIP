@@ -45,7 +45,7 @@ jobs:
       - name: Run Tests
         shell: bash -l {0}
         run: |
-          pytest --cov=./ --cov-report=xml --ignore=cmip6_preprocessing/tests/test_preprocessing_cloud.py
+          pytest --cov=./ --cov-report=xml --ignore=tests/test_preprocessing_cloud.py
       - name: Upload code coverage to Codecov
         uses: codecov/codecov-action@v1
         with:
@@ -85,7 +85,7 @@ jobs:
     - name: Run Tests
       shell: bash -l {0}
       run: |
-        pytest --ignore=cmip6_preprocessing/tests/test_preprocessing_cloud.py
+        pytest --ignore=tests/test_preprocessing_cloud.py
         
   cloud-tests:
     name: Build (cloud-data-tests | ${{ matrix.variable_id }} | ${{ matrix.experiment_id }} | ${{ matrix.grid_label }})
@@ -125,4 +125,4 @@ jobs:
       run: |
         pwd
         echo $PYTHONPATH
-        pytest --maxfail 5 --reruns 1 --reruns-delay 10 cmip6_preprocessing/tests/test_preprocessing_cloud.py --gl ${{ matrix.grid_label }} --ei ${{ matrix.experiment_id }} --vi ${{ matrix.variable_id }}
+        pytest --maxfail 5 --reruns 1 --reruns-delay 10 tests/test_preprocessing_cloud.py --gl ${{ matrix.grid_label }} --ei ${{ matrix.experiment_id }} --vi ${{ matrix.variable_id }}

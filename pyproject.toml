@@ -1,3 +1,30 @@
+[build-system]
+requires = ["setuptools>=42", "wheel", "setuptools_scm[toml]>=3.4"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+
+[tool.interrogate]
+ignore-init-method = true
+ignore-init-module = false
+ignore-magic = false
+ignore-semiprivate = true
+ignore-private = true
+ignore-property-decorators = true
+ignore-module = false
+fail-under = 95
+exclude = ["setup.py", "docs", "tests"]
+verbose = 1
+quiet = false
+color = true
+
+[tool.isort]
+known_third_party = ["numpy", "pytest", "setuptools"]
+
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "-v -n auto"
+addopts = "-v"
+# only test the root level, otherwise it picks up the tests of the project template
+testpaths = [
+    "tests",
+]

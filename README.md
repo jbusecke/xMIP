@@ -26,12 +26,12 @@ Developed during the [cmip6-hackathon](https://cmip6hack.github.io/#/) this pack
 
 We currently support the following functions
 
-1. Preprocessing CMIP6 data (Please check out the [tutorial](doc/tutorial.ipynb) for some examples using the [pangeo cloud](ocean.pangeo.io)). The preprocessig includes:
+1. Preprocessing CMIP6 data (Please check out the [tutorial](docs/tutorial.ipynb) for some examples using the [pangeo cloud](ocean.pangeo.io)). The preprocessig includes:
     a. Fix inconsistent naming of dimensions and coordinates
     b. Fix inconsistent values,shape and dataset location of coordinates
     c. Homogenize longitude conventions
     d. Fix inconsistent units
-2. [Creating large scale ocean basin masks for arbitrary model output](doc/regionmask.ipynb)
+2. [Creating large scale ocean basin masks for arbitrary model output](docs/regionmask.ipynb)
 
 The following issues are under development:
 1. Reconstruct/find grid metrics
