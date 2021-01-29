@@ -13,8 +13,8 @@ from cmip6_preprocessing.grids import combine_staggered_grid
 
 pytest.importorskip("gcsfs")
 
-test_models = ["CESM2-FV2", "GFDL-CM4"]
-# test_models = all_models()
+# test_models = ["CESM2-FV2", "GFDL-CM4"]
+test_models = all_models()
 
 
 def pytest_generate_tests(metafunc):
@@ -191,7 +191,6 @@ def spec_check_bounds_verticies(request, gl, vi, ei):
         ("AWI-ESM-1-1-MR", "thetao", "ssp585", "gn"),
         ("AWI-CM-1-1-MR", "thetao", "historical", "gn"),
         ("AWI-CM-1-1-MR", "thetao", "ssp585", "gn"),
-        ("CESM2-FV2", "thetao", "historical", "gn"),
         ("FGOALS-f3-L", "thetao", "historical", "gn"),
         ("FGOALS-f3-L", "thetao", "ssp585", "gn"),
         ("FGOALS-g3", "thetao", "historical", "gn"),
@@ -281,7 +280,6 @@ def spec_check_grid(request, gl, vi, ei):
         ("AWI-ESM-1-1-MR", "thetao", "ssp585", "gn"),
         ("AWI-CM-1-1-MR", "thetao", "historical", "gn"),
         ("AWI-CM-1-1-MR", "thetao", "ssp585", "gn"),
-        ("CESM2-FV2", "thetao", "historical", "gn"),
         ("CMCC-CM2-SR5", "thetao", "historical", "gn"),
         ("CMCC-CM2-SR5", "thetao", "ssp585", "gn"),
         ("FGOALS-f3-L", "thetao", "historical", "gn"),

@@ -141,22 +141,25 @@ def replace_x_y_nominal_lat_lon(ds):
             return data
 
     if "x" in ds.dims and "y" in ds.dims:
+        # define 'nominal' longitude/latitude values
+        # latitude is defined as the max value of `lat` in the zonal direction
+        # longitude is taken from the `middle` of the meridonal direction, to
+        # get values close to the equator
 
         # pick the nominal lon/lat values from the eastern
-        # and southern edge, and eliminate non unique values
-        # these occour e.g. in "MPI-ESM1-2-HR"
-        max_lat_idx = ds.lat.isel(y=-1).argmax("x").load().data
+        # and southern edge, and
         eq_idx = len(ds.y) // 2
 
         nominal_x = ds.isel(y=eq_idx).lon.load()
-        nominal_y = ds.isel(x=max_lat_idx).lat.load()
+        nominal_y = ds.lat.max("x").load()
 
         # interpolate nans
         # Special treatment for gaps in longitude
         nominal_x = _interp_nominal_lon(nominal_x.data)
         nominal_y = nominal_y.interpolate_na("y").data
 
-        # remove dupes
+        # eliminate non unique values
+        # these occour e.g. in "MPI-ESM1-2-HR"
         nominal_y = maybe_fix_non_unique(nominal_y)
         nominal_x = maybe_fix_non_unique(nominal_x)
 
