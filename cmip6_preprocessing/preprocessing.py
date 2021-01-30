@@ -165,8 +165,9 @@ def replace_x_y_nominal_lat_lon(ds):
         nominal_x = maybe_fix_non_unique(nominal_x)
 
         ds = ds.assign_coords(x=nominal_x, y=nominal_y)
-        # ds = ds.sortby("x")
-        # ds = ds.sortby("y")
+
+        ds = ds.sortby("x")
+        ds = ds.sortby("y")
 
         # do one more interpolation for the x values, in case the boundary values were
         # affected
