@@ -168,14 +168,14 @@ def replace_x_y_nominal_lat_lon(ds):
 
         # define the x index where to slice and reorder the longitudes
         # slice_idx = ds.x.argmin().load().data
-        # print(slice_idx)
-        # ds = xr.concat(
-        #     [ds.isel(x=slice(slice_idx, None)), ds.isel(x=slice(None, slice_idx))],
-        #     dim="x",
-        # )
+        print(slice_idx)
+        ds = xr.concat(
+            [ds.isel(x=slice(slice_idx, None)), ds.isel(x=slice(None, slice_idx))],
+            dim="x",
+        )
 
-        ds = ds.sortby("x")
-        ds = ds.sortby("y")
+        # ds = ds.sortby("x")
+        # ds = ds.sortby("y")
 
     else:
         warnings.warn(
