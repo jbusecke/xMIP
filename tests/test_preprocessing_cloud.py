@@ -220,14 +220,6 @@ def spec_check_dim_coord_values(request, gl, vi, ei):
 
 
 @pytest.mark.parametrize("spec_check_dim_coord_values", test_models, indirect=True)
-@pytest.mark.parametrize(
-    "chunks",
-    [
-        {
-            "x": 100,
-        }
-    ],
-)
 def test_check_dim_coord_values(spec_check_dim_coord_values):
     # ! I dont like that this is mostly duplicated from the first test function. I wonder how I can generalize this
     # ! The reason I set up two functions is that certain models fail via intake but not when loaded raw?
