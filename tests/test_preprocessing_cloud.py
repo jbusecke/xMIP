@@ -15,11 +15,6 @@ from cmip6_preprocessing.utils import google_cmip_col
 
 pytest.importorskip("gcsfs")
 
-# ? I am not sure if I should set this for all tests?
-dask.config.set(
-    **{"array.slicing.split_large_chunks": True, "array.chunk-size": "1024 MiB"}
-)
-
 
 def diagnose_doubles(data):
     """displays non-unique entries in data"""
@@ -98,7 +93,7 @@ def _maybe_make_list(item):
         return list(item)
 
 
-test_models = ["CESM2-FV2", "GFDL-CM4"]
+test_models = ["CanESM5"]
 # test_models = all_models()
 
 
@@ -174,6 +169,7 @@ def test_check_dim_coord_values_wo_intake(
     # for di in ds.dims:
     # for now only test a subset of the dims. TODO: Add the bounds once they
     # are cleaned up.
+
     for di in ["x", "y", "lev", "time"]:
         if di in ds.dims:
             diagnose_doubles(ds[di].load().data)
@@ -235,9 +231,14 @@ def test_check_dim_coord_values(spec_check_dim_coord_values):
     ) = spec_check_dim_coord_values.param
     # there must be a better way to build this at the class level and then tear it down again
     # I can probably get this done with fixtures, but I dont know how atm
-    ds, cat, ds_raw = data(
-        source_id, variable_id, experiment_id, grid_label, True, intake_raw=True
-    )
+
+    # ? I am not sure if I should set this for all tests?
+    with dask.config.set(
+        **{"array.slicing.split_large_chunks": True, "array.chunk-size": "1024 MiB"}
+    ):
+        ds, cat, ds_raw = data(
+            source_id, variable_id, experiment_id, grid_label, True, intake_raw=True
+        )
 
     if ds is None:
         pytest.skip(
@@ -249,13 +250,14 @@ def test_check_dim_coord_values(spec_check_dim_coord_values):
     # for di in ds.dims:
     # for now only test a subset of the dims. TODO: Add the bounds once they
     # are cleaned up.
+
     for di in ["x", "y", "lev", "time"]:
         if di in ds.dims:
             diagnose_doubles(ds[di].load().data)
             assert len(ds[di]) == len(np.unique(ds[di]))
             if di != "time":  # these tests do not make sense for decoded time
                 assert np.all(~np.isnan(ds[di]))
-                assert np.all(ds[di].diff(di) >= 0)
+                assert np.all(ds[di].diff(di) >= 0)  # deactivated temporary
 
     assert ds.lon.min().load() >= 0
     assert ds.lon.max().load() <= 360
@@ -269,10 +271,7 @@ def test_check_dim_coord_values(spec_check_dim_coord_values):
     assert len(ds.lat.shape) == 2
 
     # Make sure the total amount of chunks is not increased beyond an (arbitrary) multiplier
-    print(ds)
-    print("\n\n\n")
-    print(ds_raw)
-    assert ds[variable_id].data.npartitions < (1 * ds_raw[variable_id].data.npartitions)
+    assert ds[variable_id].data.npartitions == ds_raw[variable_id].data.npartitions
 
 
 ############################### Specific Bound Coords Test ###############################
