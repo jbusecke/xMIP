@@ -65,5 +65,5 @@ target/
 
 **/dask-worker-space/
 
-
 .vscode
+.mypy_cache

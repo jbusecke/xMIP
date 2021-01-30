@@ -14,10 +14,9 @@ coverage:
         informational: true
     patch: off
     changes: off
-    
+
 ignore:
   - "setup.py"
-  - "versioneer.py"
   - "cmip6_preprocessing/test/*"
   - "cmip6_preprocessing/__init__.py"
   - "cmip6_preprocessing/_version.py"

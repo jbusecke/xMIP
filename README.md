@@ -8,7 +8,7 @@
 
 ![BLM](BLM.png)
 
-Science is not immune to racism. Academia is an elitist system with numerous gatekeepers that has mostly allowed a very limited spectrum of people to pursue a career. I believe we need to change that. 
+Science is not immune to racism. Academia is an elitist system with numerous gatekeepers that has mostly allowed a very limited spectrum of people to pursue a career. I believe we need to change that.
 
 Open source development and reproducible science are a great way to democratize the means for scientific analysis. **But you can't git clone software if you are being murdered by the police for being Black!**
 
@@ -26,12 +26,12 @@ Developed during the [cmip6-hackathon](https://cmip6hack.github.io/#/) this pack
 
 We currently support the following functions
 
-1. Preprocessing CMIP6 data (Please check out the [tutorial](doc/tutorial.ipynb) for some examples using the [pangeo cloud](ocean.pangeo.io)). The preprocessig includes:
+1. Preprocessing CMIP6 data (Please check out the [tutorial](docs/tutorial.ipynb) for some examples using the [pangeo cloud](ocean.pangeo.io)). The preprocessig includes:
     a. Fix inconsistent naming of dimensions and coordinates
     b. Fix inconsistent values,shape and dataset location of coordinates
     c. Homogenize longitude conventions
     d. Fix inconsistent units
-2. [Creating large scale ocean basin masks for arbitrary model output](doc/regionmask.ipynb)
+2. [Creating large scale ocean basin masks for arbitrary model output](docs/regionmask.ipynb)
 
 The following issues are under development:
 1. Reconstruct/find grid metrics
@@ -53,4 +53,3 @@ or conda:
 To install the newest master from github you can use pip aswell:
 
 `pip install git+pip install git+https://github.com/jbusecke/cmip6_preprocessing.git`
-

@@ -1,8 +1,9 @@
 # Preprocessing for CMIP6 models
-import xarray as xr
-import pandas as pd
-import numpy as np
 import warnings
+
+import numpy as np
+import pandas as pd
+import xarray as xr
 
 
 def cmip6_renaming_dict():

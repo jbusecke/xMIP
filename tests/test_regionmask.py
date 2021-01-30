@@ -1,8 +1,10 @@
-import pytest
 import numpy as np
+import pytest
 import xarray as xr
+
 from cmip6_preprocessing.preprocessing import combined_preprocessing
-from cmip6_preprocessing.regionmask import merged_mask, _default_merge_dict
+from cmip6_preprocessing.regionmask import _default_merge_dict, merged_mask
+
 
 regionmask = pytest.importorskip(
     "regionmask", minversion="0.5.0+dev"

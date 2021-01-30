@@ -1,10 +1,13 @@
-from xgcm.autogenerate import generate_grid_ds
-from xgcm import Grid
 import warnings
+
 import numpy as np
+import pkg_resources
 import xarray as xr
 import yaml
-import pkg_resources
+
+from xgcm import Grid
+from xgcm.autogenerate import generate_grid_ds
+
 
 path = "specs/staggered_grid_config.yaml"  # always use slash
 grid_spec = pkg_resources.resource_filename(__name__, path)

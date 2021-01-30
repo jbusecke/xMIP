@@ -1,17 +1,19 @@
 import numpy as np
 import pytest
 import xarray as xr
+
 from xgcm import Grid
 from xgcm.autogenerate import generate_grid_ds
+
 from cmip6_preprocessing.grids import (
-    distance,
-    distance_deg,
     _interp_vertex_to_bounds,
     _parse_bounds_vertex,
-    recreate_metrics,
-    detect_shift,
-    create_full_grid,
     combine_staggered_grid,
+    create_full_grid,
+    detect_shift,
+    distance,
+    distance_deg,
+    recreate_metrics,
 )
 
 
