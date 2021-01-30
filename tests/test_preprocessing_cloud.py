@@ -2,6 +2,7 @@
 # Tests are meant to be more high level and also serve to document known problems (see skip statements).
 import contextlib
 
+import dask
 import fsspec
 import numpy as np
 import pytest
@@ -14,6 +15,11 @@ from cmip6_preprocessing.utils import google_cmip_col
 
 pytest.importorskip("gcsfs")
 
+# ? I am not sure if I should set this for all tests?
+dask.config.set(
+    **{"array.slicing.split_large_chunks": True, "array.chunk-size": "1024 MiB"}
+)
+
 
 def diagnose_doubles(data):
     """displays non-unique entries in data"""
@@ -24,7 +30,9 @@ def diagnose_doubles(data):
         print(f"Missing values Indicies[{missing}]/ Values[{missing_values}]")
 
 
-def data(source_id, variable_id, experiment_id, grid_label, use_intake_esm):
+def data(
+    source_id, variable_id, experiment_id, grid_label, use_intake_esm, intake_raw=False
+):
     zarr_kwargs = {
         "consolidated": True,
         "decode_times": False,
@@ -49,6 +57,15 @@ def data(source_id, variable_id, experiment_id, grid_label, use_intake_esm):
                 storage_options={"token": "anon"},
             )
             _, ds = ddict.popitem()
+            if intake_raw:
+                ddict_raw = cat.to_dataset_dict(
+                    zarr_kwargs=zarr_kwargs,
+                    preprocess=None,
+                    storage_options={"token": "anon"},
+                )
+                _, ds_raw = ddict_raw.popitem()
+            else:
+                ds_raw = None
         else:
             ##### debugging options
             # @charlesbluca suggested this to make this work in GHA
@@ -57,12 +74,12 @@ def data(source_id, variable_id, experiment_id, grid_label, use_intake_esm):
                 cat.df["zstore"][0]
             )  # think you can pass in storage options here as well?
             ds_raw = xr.open_zarr(mm, **zarr_kwargs)
-            print(ds_raw)
             ds = combined_preprocessing(ds_raw)
     else:
         ds = None
+        ds_raw = None
 
-    return ds, cat
+    return ds, cat, ds_raw
 
 
 def all_models():
@@ -81,8 +98,8 @@ def _maybe_make_list(item):
         return list(item)
 
 
-# test_models = ["CESM2-FV2", "GFDL-CM4"]
-test_models = all_models()
+test_models = ["CESM2-FV2", "GFDL-CM4"]
+# test_models = all_models()
 
 
 def pytest_generate_tests(metafunc):
@@ -145,7 +162,7 @@ def test_check_dim_coord_values_wo_intake(
 
     # there must be a better way to build this at the class level and then tear it down again
     # I can probably get this done with fixtures, but I dont know how atm
-    ds, _ = data(source_id, variable_id, experiment_id, grid_label, False)
+    ds, _, _ = data(source_id, variable_id, experiment_id, grid_label, False)
 
     if ds is None:
         pytest.skip(
@@ -162,7 +179,9 @@ def test_check_dim_coord_values_wo_intake(
             diagnose_doubles(ds[di].load().data)
             assert len(ds[di]) == len(np.unique(ds[di]))
             if di != "time":  # these tests do not make sense for decoded time
+                # Check that all the dimensions dont have missing values
                 assert np.all(~np.isnan(ds[di]))
+                # Check that they are monotonically increasing
                 assert np.all(ds[di].diff(di) >= 0)
 
     assert ds.lon.min().load() >= 0
@@ -172,6 +191,7 @@ def test_check_dim_coord_values_wo_intake(
         assert ds.lon_bounds.max().load() <= 360
     assert ds.lat.min().load() >= -90
     assert ds.lat.max().load() <= 90
+
     # make sure lon and lat are 2d
     assert len(ds.lon.shape) == 2
     assert len(ds.lat.shape) == 2
@@ -204,9 +224,9 @@ def spec_check_dim_coord_values(request, gl, vi, ei):
 
 
 @pytest.mark.parametrize("spec_check_dim_coord_values", test_models, indirect=True)
-def test_check_dim_coord_values(
-    spec_check_dim_coord_values,
-):
+def test_check_dim_coord_values(spec_check_dim_coord_values):
+    # ! I dont like that this is mostly duplicated from the first test function. I wonder how I can generalize this
+    # ! The reason I set up two functions is that certain models fail via intake but not when loaded raw?
     (
         source_id,
         variable_id,
@@ -215,7 +235,9 @@ def test_check_dim_coord_values(
     ) = spec_check_dim_coord_values.param
     # there must be a better way to build this at the class level and then tear it down again
     # I can probably get this done with fixtures, but I dont know how atm
-    ds, cat = data(source_id, variable_id, experiment_id, grid_label, True)
+    ds, cat, ds_raw = data(
+        source_id, variable_id, experiment_id, grid_label, True, intake_raw=True
+    )
 
     if ds is None:
         pytest.skip(
@@ -245,6 +267,12 @@ def test_check_dim_coord_values(
     # make sure lon and lat are 2d
     assert len(ds.lon.shape) == 2
     assert len(ds.lat.shape) == 2
+
+    # Make sure the total amount of chunks is not increased beyond an (arbitrary) multiplier
+    print(ds)
+    print("\n\n\n")
+    print(ds_raw)
+    assert ds[variable_id].data.npartitions < (1 * ds_raw[variable_id].data.npartitions)
 
 
 ############################### Specific Bound Coords Test ###############################
@@ -285,7 +313,7 @@ def test_check_bounds_verticies(
         experiment_id,
         grid_label,
     ) = spec_check_bounds_verticies.param
-    ds, cat = data(source_id, variable_id, experiment_id, grid_label, True)
+    ds, cat, _ = data(source_id, variable_id, experiment_id, grid_label, True)
 
     if ds is None:
         pytest.skip(
@@ -374,7 +402,7 @@ def test_check_grid(
 ):
     source_id, variable_id, experiment_id, grid_label = spec_check_grid.param
 
-    ds, cat = data(source_id, variable_id, experiment_id, grid_label, True)
+    ds, cat, _ = data(source_id, variable_id, experiment_id, grid_label, True)
 
     if ds is None:
         pytest.skip(

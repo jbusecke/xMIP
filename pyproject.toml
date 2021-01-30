@@ -20,7 +20,7 @@ quiet = false
 color = true
 
 [tool.isort]
-known_third_party = ["fsspec", "matplotlib", "numpy", "pandas", "pkg_resources", "pyproj", "pytest", "setuptools", "xarray", "xgcm", "yaml"]
+known_third_party = ["dask", "fsspec", "matplotlib", "numpy", "pandas", "pkg_resources", "pyproj", "pytest", "setuptools", "xarray", "xgcm", "yaml"]
 
 [tool.pytest.ini_options]
 minversion = "6.0"
