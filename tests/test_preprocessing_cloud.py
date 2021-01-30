@@ -220,6 +220,14 @@ def spec_check_dim_coord_values(request, gl, vi, ei):
 
 
 @pytest.mark.parametrize("spec_check_dim_coord_values", test_models, indirect=True)
+@pytest.mark.parametrize(
+    "chunks",
+    [
+        {
+            "x": 100,
+        }
+    ],
+)
 def test_check_dim_coord_values(spec_check_dim_coord_values):
     # ! I dont like that this is mostly duplicated from the first test function. I wonder how I can generalize this
     # ! The reason I set up two functions is that certain models fail via intake but not when loaded raw?
@@ -234,7 +242,10 @@ def test_check_dim_coord_values(spec_check_dim_coord_values):
 
     # ? I am not sure if I should set this for all tests?
     with dask.config.set(
-        **{"array.slicing.split_large_chunks": True, "array.chunk-size": "1024 MiB"}
+        **{
+            "array.slicing.split_large_chunks": True,
+            # "array.chunk-size": "1024 MiB"
+        }
     ):
         ds, cat, ds_raw = data(
             source_id, variable_id, experiment_id, grid_label, True, intake_raw=True
@@ -271,7 +282,10 @@ def test_check_dim_coord_values(spec_check_dim_coord_values):
     assert len(ds.lat.shape) == 2
 
     # Make sure the total amount of chunks is not increased beyond an (arbitrary) multiplier
-    assert ds[variable_id].data.npartitions == ds_raw[variable_id].data.npartitions
+    # A factor of 2 is unavoidable, since we are rearranging the array
+    assert (
+        ds[variable_id].data.npartitions / ds_raw[variable_id].data.npartitions
+    ) <= 2
 
 
 ############################### Specific Bound Coords Test ###############################

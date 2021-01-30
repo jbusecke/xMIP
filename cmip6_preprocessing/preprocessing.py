@@ -166,15 +166,16 @@ def replace_x_y_nominal_lat_lon(ds):
 
         ds = ds.assign_coords(x=nominal_x, y=nominal_y)
 
+        # define the x index where to slice and reorder the longitudes
+        # slice_idx = ds.x.argmin().load().data
+        # print(slice_idx)
+        # ds = xr.concat(
+        #     [ds.isel(x=slice(slice_idx, None)), ds.isel(x=slice(None, slice_idx))],
+        #     dim="x",
+        # )
+
         ds = ds.sortby("x")
         ds = ds.sortby("y")
-
-        # do one more interpolation for the x values, in case the boundary values were
-        # affected
-        ds = ds.assign_coords(
-            x=maybe_fix_non_unique(ds.x.load().data),
-            y=maybe_fix_non_unique(ds.y.load().data, pad=True),
-        )
 
     else:
         warnings.warn(
