@@ -110,11 +110,8 @@ print(f"\n\n\n\n$$$$$$$ All available models: {all_models()}$$$$$$$\n\n\n\n")
 @pytest.fixture
 def spec_check_dim_coord_values_wo_intake(request, gl, vi, ei):
     expected_failures = [
-        ("AWI-ESM-1-1-LR", "thetao", "historical", "gn"),
-        ("AWI-ESM-1-1-LR", "thetao", "ssp585", "gn"),
-        ("AWI-CM-1-1-MR", "thetao", "historical", "gn"),
-        ("AWI-CM-1-1-MR", "thetao", "ssp585", "gn"),
-        # TODO: would be nice to have a "*" matching...
+        ("AWI-ESM-1-1-LR", "*", "*", "gn"),
+        ("AWI-CM-1-1-MR", "*", "*", "gn"),
         # (
         #     "GFDL-CM4",
         #     "thetao",
@@ -181,11 +178,8 @@ def test_check_dim_coord_values_wo_intake(
 @pytest.fixture
 def spec_check_dim_coord_values(request, gl, vi, ei):
     expected_failures = [
-        ("AWI-ESM-1-1-LR", "thetao", "historical", "gn"),
-        ("AWI-ESM-1-1-LR", "thetao", "ssp585", "gn"),
-        ("AWI-CM-1-1-MR", "thetao", "historical", "gn"),
-        ("AWI-CM-1-1-MR", "thetao", "ssp585", "gn"),
-        # TODO: would be nice to have a "*" matching...
+        ("AWI-ESM-1-1-LR", "*", "*", "gn"),
+        ("AWI-CM-1-1-MR", "*", "*", "gn"),
         (
             "IPSL-CM6A-LR",
             "thetao",
@@ -254,15 +248,10 @@ def test_check_dim_coord_values(
 @pytest.fixture
 def spec_check_bounds_verticies(request, gl, vi, ei):
     expected_failures = [
-        ("AWI-ESM-1-1-LR", "thetao", "historical", "gn"),
-        ("AWI-ESM-1-1-MR", "thetao", "historical", "gn"),
-        ("AWI-ESM-1-1-MR", "thetao", "ssp585", "gn"),
-        ("AWI-CM-1-1-MR", "thetao", "historical", "gn"),
-        ("AWI-CM-1-1-MR", "thetao", "ssp585", "gn"),
-        ("FGOALS-f3-L", "thetao", "historical", "gn"),
-        ("FGOALS-f3-L", "thetao", "ssp585", "gn"),
-        ("FGOALS-g3", "thetao", "historical", "gn"),
-        ("FGOALS-g3", "thetao", "ssp585", "gn"),
+        ("AWI-ESM-1-1-LR", "*", "*", "gn"),
+        ("AWI-CM-1-1-MR", "*", "*", "gn"),
+        ("FGOALS-f3-L", "thetao", "*", "gn"),
+        ("FGOALS-g3", "thetao", "*", "gn"),
         ("NorESM2-MM", "thetao", "historical", "gn"),
         ("NorESM2-MM", "thetao", "historical", "gr"),
         ("IPSL-CM6A-LR", "thetao", "historical", "gn"),
@@ -343,19 +332,12 @@ def test_check_bounds_verticies(
 @pytest.fixture
 def spec_check_grid(request, gl, vi, ei):
     expected_failures = [
-        ("AWI-ESM-1-1-LR", "thetao", "historical", "gn"),
-        ("AWI-ESM-1-1-MR", "thetao", "historical", "gn"),
-        ("AWI-ESM-1-1-MR", "thetao", "ssp585", "gn"),
-        ("AWI-CM-1-1-MR", "thetao", "historical", "gn"),
-        ("AWI-CM-1-1-MR", "thetao", "ssp585", "gn"),
-        ("CMCC-CM2-SR5", "thetao", "historical", "gn"),
-        ("CMCC-CM2-SR5", "thetao", "ssp585", "gn"),
-        ("FGOALS-f3-L", "thetao", "historical", "gn"),
-        ("FGOALS-f3-L", "thetao", "ssp585", "gn"),
-        ("FGOALS-g3", "thetao", "historical", "gn"),
-        ("FGOALS-g3", "thetao", "ssp585", "gn"),
-        ("MPI-ESM-1-2-HAM", "thetao", "historical", "gn"),
-        ("MPI-ESM-1-2-HAM", "o2", "historical", "gn"),
+        ("AWI-ESM-1-1-LR", "*", "*", "gn"),
+        ("AWI-CM-1-1-MR", "*", "*", "gn"),
+        ("CMCC-CM2-SR5", "thetao", "*", "gn"),
+        ("FGOALS-f3-L", "thetao", "*", "gn"),
+        ("FGOALS-g3", "thetao", "*", "gn"),
+        ("MPI-ESM-1-2-HAM", "*", "*", "gn"),
         ("NorESM2-MM", "thetao", "historical", "gn"),
         ("NorESM2-MM", "thetao", "historical", "gr"),
         ("IPSL-CM6A-LR", "thetao", "historical", "gn"),
