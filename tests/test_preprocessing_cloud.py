@@ -106,12 +106,48 @@ print(f"\n\n\n\n$$$$$$$ All available models: {all_models()}$$$$$$$\n\n\n\n")
 
 ########################### Most basic test #########################
 
+# Try to combine some of the failures
+
+## We dont support these at all
+not_supported_failures = [
+    ("AWI-ESM-1-1-LR", "*", "*", "gn"),
+    ("AWI-CM-1-1-MR", "*", "*", "gn"),
+]
+
+## basic problems when trying to concat with intake-esm
+intake_concat_failures = [
+    ("E3SM-1-0", "*", "*", "gr"),  # issues with time concatenation
+    ("CNRM-ESM2-1", "o2", "historical", "gn"),
+    (
+        "IPSL-CM6A-LR",
+        ["thetao", "o2"],
+        "historical",
+        "gn",
+    ),  # IPSL has an issue with `lev` dims concatting]
+    (
+        "MIROC6",
+        "*",
+        "*",
+        "gn",
+    ),  # The bounds are slightly larger than 360. Should be easy to fix
+    (
+        "MIROC-ES2L",
+        "*",
+        "*",
+        "gn",
+    ),  # The bounds are slightly larger than 360. Should be easy to fix
+    (
+        "GISS-E2-1-G",
+        "*",
+        "*",
+        "gn",
+    ),  # The bounds are slightly larger than 360. Should be easy to fix
+]
+
 # this fixture has to be redifined every time to account for different fail cases for each test
 @pytest.fixture
 def spec_check_dim_coord_values_wo_intake(request, gl, vi, ei):
-    expected_failures = [
-        ("AWI-ESM-1-1-LR", "*", "*", "gn"),
-        ("AWI-CM-1-1-MR", "*", "*", "gn"),
+    expected_failures = not_supported_failures + [
         # (
         #     "GFDL-CM4",
         #     "thetao",
@@ -177,19 +213,20 @@ def test_check_dim_coord_values_wo_intake(
 # this fixture has to be redifined every time to account for different fail cases for each test
 @pytest.fixture
 def spec_check_dim_coord_values(request, gl, vi, ei):
-    expected_failures = [
-        ("AWI-ESM-1-1-LR", "*", "*", "gn"),
-        ("AWI-CM-1-1-MR", "*", "*", "gn"),
-        (
-            "IPSL-CM6A-LR",
-            "thetao",
-            "historical",
-            "gn",
-        ),  # IPSL has an issue with `lev` dims concatting
-        ("IPSL-CM6A-LR", "o2", "historical", "gn"),
-        ("NorESM2-MM", "thetao", "historical", "gn"),
-        ("NorESM2-MM", "thetao", "historical", "gr"),
-    ]
+    expected_failures = (
+        not_supported_failures
+        + intake_concat_failures
+        + [
+            ("NorESM2-MM", "thetao", "historical", "gn"),
+            ("NorESM2-MM", "thetao", "historical", "gr"),
+            (
+                "MIROC6",
+                "*",
+                "*",
+                "gn",
+            ),  # The bounds are slightly larger than 360. Should be easy to fix
+        ]
+    )
     spec = (request.param, vi, ei, gl)
     request.param = spec
     if model_id_match(expected_failures, request.param):
@@ -247,16 +284,18 @@ def test_check_dim_coord_values(
 # this fixture has to be redifined every time to account for different fail cases for each test
 @pytest.fixture
 def spec_check_bounds_verticies(request, gl, vi, ei):
-    expected_failures = [
-        ("AWI-ESM-1-1-LR", "*", "*", "gn"),
-        ("AWI-CM-1-1-MR", "*", "*", "gn"),
-        ("FGOALS-f3-L", "thetao", "*", "gn"),
-        ("FGOALS-g3", "thetao", "*", "gn"),
-        ("NorESM2-MM", "thetao", "historical", "gn"),
-        ("NorESM2-MM", "thetao", "historical", "gr"),
-        ("IPSL-CM6A-LR", "thetao", "historical", "gn"),
-        ("IPSL-CM6A-LR", "o2", "historical", "gn"),
-    ]
+    expected_failures = (
+        not_supported_failures
+        + intake_concat_failures
+        + [
+            ("FGOALS-f3-L", "thetao", "*", "gn"),
+            ("FGOALS-g3", "thetao", "*", "gn"),
+            ("NorESM2-MM", "thetao", "historical", "gn"),
+            ("NorESM2-MM", "thetao", "historical", "gr"),
+            ("IPSL-CM6A-LR", "thetao", "historical", "gn"),
+            ("IPSL-CM6A-LR", "o2", "historical", "gn"),
+        ]
+    )
     spec = (request.param, vi, ei, gl)
     request.param = spec
     if model_id_match(expected_failures, request.param):
@@ -331,18 +370,22 @@ def test_check_bounds_verticies(
 # this fixture has to be redifined every time to account for different fail cases for each test
 @pytest.fixture
 def spec_check_grid(request, gl, vi, ei):
-    expected_failures = [
-        ("AWI-ESM-1-1-LR", "*", "*", "gn"),
-        ("AWI-CM-1-1-MR", "*", "*", "gn"),
-        ("CMCC-CM2-SR5", "*", "*", "gn"),
-        ("FGOALS-f3-L", "*", "*", "gn"),
-        ("FGOALS-g3", "*", "*", "gn"),
-        ("MPI-ESM-1-2-HAM", "*", "*", "gn"),
-        ("NorESM2-MM", "*", "historical", "gn"),
-        ("NorESM2-MM", ["thetao", "so"], "historical", "gr"),
-        ("IITM-ESM", "*", "*", "gn"),
-        ("IPSL-CM6A-LR", ["thetao", "o2"], "historical", "gn"),
-    ]
+    expected_failures = (
+        not_supported_failures
+        + intake_concat_failures
+        + [
+            ("CMCC-CM2-SR5", "*", "*", "gn"),
+            ("FGOALS-f3-L", "*", "*", "gn"),
+            ("FGOALS-f3-L", "*", "*", "gn"),
+            ("E3SM-1-0", "*", "*", "gn"),
+            ("EC-Earth3-Veg", "*", "*", "gn"),
+            ("MPI-ESM-1-2-HAM", "*", "*", "gn"),
+            ("NorESM2-MM", "*", "historical", "gn"),
+            ("NorESM2-MM", "*", "historical", "gr"),
+            ("IITM-ESM", "*", "*", "gn"),
+            ("IPSL-CM6A-LR", ["thetao", "o2"], "historical", "gn"),
+        ]
+    )
     spec = (request.param, vi, ei, gl)
     request.param = spec
     if model_id_match(expected_failures, request.param):
