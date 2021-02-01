@@ -27,7 +27,7 @@ jobs:
        'faf-heat', 'faf-passiveheat', 'faf-stress', 'faf-water',
        'faf-heat-NA0pct', 'faf-heat-NA50pct', 'omip1', 'lgm',
        'midHolocene', 'past1000'] # these are **all** experiments available for Omon output
-        grid_label: ['gn', 'gr1', 'gr', 'gm', 'gnz', 'gr2z', 'grz']
+        grid_label: ['gn', 'gr']
         # catalog: []
     runs-on: ubuntu-latest
     steps:
