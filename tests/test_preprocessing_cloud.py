@@ -116,7 +116,7 @@ not_supported_failures = [
 
 ## basic problems when trying to concat with intake-esm
 intake_concat_failures = [
-    ("E3SM-1-0", "*", "*", "gr"),  # issues with time concatenation
+    ("E3SM-1-0", ["so", "o2", "uo"], "*", "gr"),  # issues with time concatenation
     ("CNRM-ESM2-1", "o2", "historical", "gn"),
     (
         "IPSL-CM6A-LR",
@@ -376,7 +376,7 @@ def spec_check_grid(request, gl, vi, ei):
         + [
             ("CMCC-CM2-SR5", "*", "*", "gn"),
             ("FGOALS-f3-L", "*", "*", "gn"),
-            ("FGOALS-f3-L", "*", "*", "gn"),
+            ("FGOALS-g3", "*", "*", "gn"),
             ("E3SM-1-0", "*", "*", "gn"),
             ("EC-Earth3-Veg", "*", "*", "gn"),
             ("MPI-ESM-1-2-HAM", "*", "*", "gn"),
