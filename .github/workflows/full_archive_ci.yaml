@@ -13,9 +13,57 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        variable_id: ["thetao", "o2", "so"]
-        experiment_id: ["historical", "piControl", "ssp585"]
-        grid_label: ["gn", "gr"]
+        variable_id: ['umo', 'vmo', 'wmo', 'zos', 'evs', 'prsn', 'so', 'thetao', 'tos',
+       'uo', 'vo', 'fsitherm', 'soga', 'sos', 'tauuo', 'tauvo',
+       'thetaoga', 'volo', 'wfo', 'hfds', 'mlotst', 'wo', 'pbo', 'rsdo',
+       'sosga', 'tosga', 'fgco2', 'masscello', 'masso', 'thkcello',
+       'zostoga', 'msftbarot', 'rlntds', 'rsntds', 'msftmz', 'chl',
+       'dissic', 'epc100', 'epcalc100', 'epn100', 'fgo2', 'o2', 'o2min',
+       'o2sat', 'phos', 'prra', 'spco2', 'zo2min', 'agessc', 'calc',
+       'chldiat', 'chldiatos', 'chlmisc', 'chlmiscos', 'chlos', 'co3',
+       'co3satarag', 'detoc', 'dfe', 'dfeos', 'dpco2', 'graz', 'intdic',
+       'intpoc', 'intpp', 'intppdiat', 'intppmisc', 'nh4', 'nh4os', 'no3',
+       'no3os', 'obvfsq', 'ph', 'phyc', 'phycos', 'phydiat', 'phydiatos',
+       'phyfe', 'phymisc', 'phymiscos', 'phyn', 'pon', 'talk', 'zmeso',
+       'zmicro', 'zooc', 'zoocos', 'zsatarag', 'dissicabio', 'dissicnat',
+       'fgco2abio', 'fgco2nat', 'limirrmisc', 'msftmzmpa', 'spco2abio',
+       'spco2nat', 'dissicnatos', 'cfc11', 'phnatos', 'sf6', 'bigthetao',
+       'bigthetaoga', 'hfy', 'mfo', 'hfx', 'dpo2', 'epfe100', 'epsi100',
+       'fric', 'fsfe', 'fsn', 'icfriver', 'ocfriver', 'pbsi', 'bfe',
+       'bsi', 'dissoc', 'dmso', 'intdoc', 'limirrdiat', 'physi', 'po4',
+       'pp', 'si', 'sios', 'co3satcalc', 'msftmrho', 'msftyrho',
+       'volcello', 'eparag100', 'po4os', 'vsf', 'fbddtalk', 'fbddtdic',
+       'fbddtdife', 'fbddtdin', 'fbddtdip', 'fbddtdisi', 'fddtalk',
+       'fddtdic', 'fddtdife', 'fddtdin', 'fddtdip', 'fddtdisi', 'frfe',
+       'frn', 'froc', 'chldiaz', 'dissocos', 'intppdiaz', 'phydiaz',
+       'ppos', 'expc', 'phyp', 'pop', 'epp100', 'msftyzmpa', 'chldiazos',
+       'co3nat', 'msftmrhompa', 'msftyrhompa', 'bacc', 'chlcalc',
+       'chlcalcos', 'chlpico', 'limirrdiaz', 'phycalc', 'phydiazos',
+       'msftmyz', 'dpco2abio', 'dpco2nat', 'phabioos', 'intpppico',
+       'limirrpico', 'msftmzsmpa', 'phypico', 'talknat', 'intpbfe',
+       'intpbp', 'intpcalcite', 'cfc12', 'friver', 'mlotstmax',
+       'mlotstmin', 'msftyz', 'msftyzsmpa', 'pso', 'sob', 'tob', 'zossq',
+       'aragos', 'baccos', 'bfeos', 'bsios', 'calcos', 'chlpicoos',
+       'co3os', 'co3sataragos', 'co3satcalcos', 'detocos', 'dissicos',
+       'intparag', 'intpbn', 'intpbsi', 'intpn2', 'intppnitrate',
+       'limfediat', 'limfediaz', 'limfemisc', 'limfepico', 'limndiat',
+       'limnmisc', 'limnpico', 'o2os', 'o2satos', 'phyfeos', 'phynos',
+       'phypicoos', 'phypos', 'physios', 'ponos', 'talkos', 'zmesoos',
+       'zmicroos', 'hfcorr', 'wfcorr', 'mlotstsq']
+        experiment_id: ['1pctCO2-bgc', '1pctCO2', 'abrupt-4xCO2', 'historical',
+       'piControl', 'esm-hist', 'esm-piControl', 'esm-piControl-spinup',
+       'piControl-spinup', 'amip', 'hist-GHG', 'hist-aer', 'hist-nat',
+       'hist-CO2', 'hist-GHG-cmip5', 'hist-aer-cmip5', 'hist-nat-cmip5',
+       'hist-sol', 'hist-stratO3', 'hist-totalO3', 'ssp245-aer',
+       'ssp245-stratO3', 'hist-volc', 'ssp245-GHG', 'ssp245-nat',
+       'dcppA-hindcast', 'dcppA-assim', 'ssp126', 'ssp245', 'ssp370',
+       'ssp585', 'ssp119', 'ssp434', 'ssp460', 'ssp534-over',
+       'esm-ssp585', 'hist-bgc', '1pctCO2-rad', '1pctCO2-cdr',
+       'esm-pi-CO2pulse', 'esm-pi-cdr-pulse', 'abrupt-2xCO2', 'faf-all',
+       'faf-heat', 'faf-passiveheat', 'faf-stress', 'faf-water',
+       'faf-heat-NA0pct', 'faf-heat-NA50pct', 'omip1', 'lgm',
+       'midHolocene', 'past1000'] # these are **all** experiments available for Omon output
+        grid_label: ['gn', 'gr1', 'gr', 'gm', 'gnz', 'gr2z', 'grz']
         # catalog: []
     runs-on: ubuntu-latest
     steps:

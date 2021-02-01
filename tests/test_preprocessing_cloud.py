@@ -334,12 +334,12 @@ def spec_check_grid(request, gl, vi, ei):
     expected_failures = [
         ("AWI-ESM-1-1-LR", "*", "*", "gn"),
         ("AWI-CM-1-1-MR", "*", "*", "gn"),
-        ("CMCC-CM2-SR5", "thetao", "*", "gn"),
-        ("FGOALS-f3-L", "thetao", "*", "gn"),
-        ("FGOALS-g3", "thetao", "*", "gn"),
+        ("CMCC-CM2-SR5", "*", "*", "gn"),
+        ("FGOALS-f3-L", "*", "*", "gn"),
+        ("FGOALS-g3", "*", "*", "gn"),
         ("MPI-ESM-1-2-HAM", "*", "*", "gn"),
-        ("NorESM2-MM", "thetao", "historical", "gn"),
-        ("NorESM2-MM", "thetao", "historical", "gr"),
+        ("NorESM2-MM", "*", "historical", "*"),
+        ("IITM-ESM", "*", "*", "gn"),
         ("IPSL-CM6A-LR", "thetao", "historical", "gn"),
         ("IPSL-CM6A-LR", "o2", "historical", "gn"),
     ]
