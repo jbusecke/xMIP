@@ -9,7 +9,7 @@ import xarray as xr
 
 from cmip6_preprocessing.grids import combine_staggered_grid
 from cmip6_preprocessing.preprocessing import combined_preprocessing
-from cmip6_preprocessing.utils import google_cmip_col
+from cmip6_preprocessing.utils import google_cmip_col, model_id_match
 
 
 pytest.importorskip("gcsfs")
