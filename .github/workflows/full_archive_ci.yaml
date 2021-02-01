@@ -13,20 +13,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        variable_id: ['zos','so', 'thetao', 'tos', 'uo', 'vo', 'o2']
-        experiment_id: ['1pctCO2-bgc', '1pctCO2', 'abrupt-4xCO2', 'historical',
-       'piControl', 'esm-hist', 'esm-piControl', 'esm-piControl-spinup',
-       'piControl-spinup', 'amip', 'hist-GHG', 'hist-aer', 'hist-nat',
-       'hist-CO2', 'hist-GHG-cmip5', 'hist-aer-cmip5', 'hist-nat-cmip5',
-       'hist-sol', 'hist-stratO3', 'hist-totalO3', 'ssp245-aer',
-       'ssp245-stratO3', 'hist-volc', 'ssp245-GHG', 'ssp245-nat',
-       'dcppA-hindcast', 'dcppA-assim', 'ssp126', 'ssp245', 'ssp370',
-       'ssp585', 'ssp119', 'ssp434', 'ssp460', 'ssp534-over',
-       'esm-ssp585', 'hist-bgc', '1pctCO2-rad', '1pctCO2-cdr',
-       'esm-pi-CO2pulse', 'esm-pi-cdr-pulse', 'abrupt-2xCO2', 'faf-all',
-       'faf-heat', 'faf-passiveheat', 'faf-stress', 'faf-water',
-       'faf-heat-NA0pct', 'faf-heat-NA50pct', 'omip1', 'lgm',
-       'midHolocene', 'past1000'] # these are **all** experiments available for Omon output
+        variable_id: ['zos','so', 'thetao', 'tos', 'uo','o2']
+        experiment_id: ['historical','piControl', 'esm-hist', 'esm-piControl',
+        'ssp126', 'ssp245', 'ssp370','ssp585', 'ssp119', 'ssp434', 'ssp460'] # these are **all** experiments available for Omon output
         grid_label: ['gn', 'gr']
         # catalog: []
     runs-on: ubuntu-latest
