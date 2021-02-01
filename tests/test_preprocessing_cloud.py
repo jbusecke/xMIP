@@ -125,7 +125,7 @@ def spec_check_dim_coord_values_wo_intake(request, gl, vi, ei):
     ]
     spec = (request.param, vi, ei, gl)
     request.param = spec
-    if request.param in expected_failures:
+    if model_id_match(expected_failures, request.param):
         request.node.add_marker(pytest.mark.xfail(strict=True))
     return request
 
@@ -198,7 +198,7 @@ def spec_check_dim_coord_values(request, gl, vi, ei):
     ]
     spec = (request.param, vi, ei, gl)
     request.param = spec
-    if request.param in expected_failures:
+    if model_id_match(expected_failures, request.param):
         request.node.add_marker(pytest.mark.xfail(strict=True))
     return request
 
@@ -270,7 +270,7 @@ def spec_check_bounds_verticies(request, gl, vi, ei):
     ]
     spec = (request.param, vi, ei, gl)
     request.param = spec
-    if request.param in expected_failures:
+    if model_id_match(expected_failures, request.param):
         request.node.add_marker(pytest.mark.xfail(strict=True))
     return request
 
@@ -363,7 +363,7 @@ def spec_check_grid(request, gl, vi, ei):
     ]
     spec = (request.param, vi, ei, gl)
     request.param = spec
-    if request.param in expected_failures:
+    if model_id_match(expected_failures, request.param):
         request.node.add_marker(pytest.mark.xfail(strict=True))
     return request
 
