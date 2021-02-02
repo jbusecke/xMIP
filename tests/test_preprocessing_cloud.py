@@ -389,7 +389,7 @@ def spec_check_grid(request, gl, vi, ei):
     spec = (request.param, vi, ei, gl)
     request.param = spec
     if model_id_match(expected_failures, request.param):
-        request.node.add_marker(pytest.mark.xfail(strict=True))
+        request.node.add_marker(pytest.mark.xfail(strict=True, reason=""))
     return request
 
 

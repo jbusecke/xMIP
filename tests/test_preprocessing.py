@@ -42,24 +42,6 @@ def create_test_ds(xname, yname, zname, xlen, ylen, zlen):
     return ds
 
 
-@pytest.mark.xfail(strict=True)
-def test_dummy():
-    assert 1 == 1
-
-
-def test_dummy2():
-    assert 1 == 0
-
-
-def test_xfail():
-    pytest.xfail("xfailing this test")
-
-
-@pytest.mark.xfail(reason="always xfail")
-def test_xpass():
-    pass
-
-
 @pytest.mark.parametrize("xname", ["i", "x", "lon"])
 @pytest.mark.parametrize("yname", ["j", "y", "lat"])
 @pytest.mark.parametrize("zname", ["lev", "olev", "olevel"])
