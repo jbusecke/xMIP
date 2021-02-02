@@ -24,7 +24,7 @@ known_third_party = ["fsspec", "matplotlib", "numpy", "pandas", "pkg_resources",
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = " -v -rXfE -n auto"
+addopts = " -v -rXfE -n auto --tb=line"
 # only test the root level, otherwise it picks up the tests of the project template
 testpaths = [
     "tests",

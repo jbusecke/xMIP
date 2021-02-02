@@ -125,20 +125,38 @@ intake_concat_failures = [
         "gn",
     ),  # IPSL has an issue with `lev` dims concatting]
     (
-        "MIROC6",
-        "*",
-        "*",
-        "gn",
-    ),  # The bounds are slightly larger than 360. Should be easy to fix
+        "NorESM2-MM",
+        ["uo"],
+        "historical",
+        "gr",
+    ),  # time concatting
     (
-        "MIROC-ES2L",
-        "*",
+        "MIROC6",
+        ["o2", "uo"],
         "*",
         "gn",
     ),  # The bounds are slightly larger than 360. Should be easy to fix
     (
         "GISS-E2-1-G",
+        ["uo"],
         "*",
+        "gn",
+    ),  # The bounds are slightly larger than 360. Should be easy to fix
+    (
+        "MIROC-ES2L",
+        ["uo"],
+        "*",
+        "gn",
+    ),  # The bounds are slightly larger than 360. Should be easy to fix
+    (
+        "GISS-E2-1-G",
+        ["o2", "uo"],
+        "*",
+        "gn",
+    ),  # The bounds are slightly larger than 360. Should be easy to fix
+    (
+        "GISS-E2-1-G-CC",
+        ["o2", "uo"],
         "*",
         "gn",
     ),  # The bounds are slightly larger than 360. Should be easy to fix
@@ -288,10 +306,10 @@ def spec_check_bounds_verticies(request, gl, vi, ei):
         not_supported_failures
         + intake_concat_failures
         + [
-            ("FGOALS-f3-L", "thetao", "*", "gn"),
-            ("FGOALS-g3", "thetao", "*", "gn"),
+            ("FGOALS-f3-L", ["thetao", "so"], "*", "gn"),
+            ("FGOALS-g3", ["thetao", "so"], "*", "gn"),
             ("NorESM2-MM", "thetao", "historical", "gn"),
-            ("NorESM2-MM", "thetao", "historical", "gr"),
+            ("NorESM2-MM", ["thetao", "so"], "historical", "gr"),
             ("IPSL-CM6A-LR", "thetao", "historical", "gn"),
             ("IPSL-CM6A-LR", "o2", "historical", "gn"),
         ]
@@ -377,13 +395,14 @@ def spec_check_grid(request, gl, vi, ei):
             ("CMCC-CM2-SR5", "*", "*", "gn"),
             ("FGOALS-f3-L", "*", "*", "gn"),
             ("FGOALS-g3", "*", "*", "gn"),
-            ("E3SM-1-0", "*", "*", "gn"),
+            ("E3SM-1-0", ["so", "thetao", "o2"], "*", "gn"),
             ("EC-Earth3-Veg", "*", "*", "gn"),
             ("MPI-ESM-1-2-HAM", "*", "*", "gn"),
             ("NorESM2-MM", "*", "historical", "gn"),
-            ("NorESM2-MM", "*", "historical", "gr"),
+            ("NorESM2-MM", ["thetao", "so", "uo"], "historical", "gr"),
             ("IITM-ESM", "*", "*", "gn"),
             ("IPSL-CM6A-LR", ["thetao", "o2"], "historical", "gn"),
+            ("GFDL-CM4", ["uo"], ["ssp585"], "gn"),
         ]
     )
     spec = (request.param, vi, ei, gl)
