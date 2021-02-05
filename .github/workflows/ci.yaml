@@ -143,4 +143,4 @@ jobs:
       run: |
         pwd
         echo $PYTHONPATH
-        pytest --reruns 1 reruns_delay=5 tests/test_preprocessing_cloud.py --gl ${{ matrix.grid_label }} --ei ${{ matrix.experiment_id }} --vi ${{ matrix.variable_id }}
+        pytest --reruns 1 --reruns-delay 5 tests/test_preprocessing_cloud.py --gl ${{ matrix.grid_label }} --ei ${{ matrix.experiment_id }} --vi ${{ matrix.variable_id }}
