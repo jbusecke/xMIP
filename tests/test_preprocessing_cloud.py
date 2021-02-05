@@ -218,10 +218,8 @@ def spec_check_dim_coord_values(request, gl, vi, ei):
             ("MIROC-ES2L", "uo", "historical", "gn"),
             ("MIROC6", "uo", "historical", "gn"),
             ("NorESM2-MM", "uo", "historical", "gn"),
-            # ("NorESM2-MM", "thetao", "historical", "gn"),
-            # ("NorESM2-MM", "thetao", "historical", "gr"),
-            # ("NorESM2-MM", "thetao", "historical", "gn"),
-            # ("NorESM2-MM", "thetao", "historical", "gr"),
+            ("NorESM2-MM", "thetao", "historical", "gn"),
+            ("NorESM2-MM", "thetao", "historical", "gr"),
         ]
     )
     spec = (request.param, vi, ei, gl)

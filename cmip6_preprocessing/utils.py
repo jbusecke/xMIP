@@ -36,10 +36,10 @@ def model_id_match(match_list, id_tuple):
     for ml in match_list:
         ml_processed = []
         for i in range(len(ml)):
-            content = id_tuple[i]
-            if isinstance(content, str) and content != "*":
-                content = [content]
-            if id_tuple[i] == ml[i] or id_tuple[i] in ml[i] or ml[i] == "*":
+            match_element = ml[i]
+            if isinstance(match_element, str) and match_element != "*":
+                match_element = [match_element]
+            if id_tuple[i] in match_element or match_element == "*":
                 ml_processed.append(True)
             else:
                 ml_processed.append(False)

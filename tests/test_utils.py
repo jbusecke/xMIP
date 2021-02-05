@@ -22,7 +22,12 @@ def test_model_id_match():
         model_id_match([("A", "a", "aa"), ("B", "a", "aa")], ("A", "a", "aa", "aaa"))
 
     assert model_id_match([("A", "a", "aa"), ("B", "a", "aa")], ("A", "a", "aa"))
-    assert ~model_id_match([("A", "a", "aa"), ("B", "a", "aa")], ("C", "a", "aa"))
+    assert ~model_id_match([("A", ["b", "c"], "aa")], ("A", "a", "aa"))
+    assert ~model_id_match([("A", ["b", "c"], "aa")], ("A", "a", "aa"))
+    assert ~model_id_match(
+        [("EC-Earth3-AerChem", ["so"], "historical", "gn")],
+        ("EC-Earth3", ["so"], "historical", "gn"),
+    )
     assert ~model_id_match([("A", "a", "aa"), ("B", "a", "aa")], ("AA", "a", "aa"))
     assert ~model_id_match([("AA", "a", "aa"), ("B", "a", "aa")], ("A", "a", "aa"))
     assert ~model_id_match([(["AA"], "a", "aa"), ("B", "a", "aa")], ("A", "a", "aa"))
