@@ -138,7 +138,7 @@ intake_concat_failures = [
     ),
     (
         "MIROC6",
-        ["o2"],
+        "o2",
         "*",
         "gn",
     ),  # The bounds are slightly larger than 360. Should be easy to fix
@@ -150,7 +150,7 @@ intake_concat_failures = [
     # ),  # The bounds are slightly larger than 360. Should be easy to fix
     (
         "GISS-E2-1-G-CC",
-        ["o2", "uo"],
+        "o2",
         "*",
         "gn",
     ),  # The bounds are slightly larger than 360. Should be easy to fix
@@ -162,9 +162,7 @@ intake_concat_failures = [
     ),  # The bounds are slightly larger than 360. Should be easy to fix
     (
         "GISS-E2-1-G",
-        [
-            "o2",
-        ],
+        "o2",
         "*",
         "gn",
     ),  # The bounds are slightly larger than 360. Should be easy to fix
@@ -174,6 +172,10 @@ intake_concat_failures = [
 @pytest.fixture
 def spec_check_dim_coord_values_wo_intake(request, gl, vi, ei):
     expected_failures = not_supported_failures + [
+        ("GISS-E2-1-G", "uo", "historical", "gn"),
+        ("GISS-E2-1-G-CC", "uo", "historical", "gn"),
+        ("MIROC6", "uo", "historical", "gn"),
+        ("MIROC-ES2L", "uo", "historical", "gn"),
         # (
         #     "GFDL-CM4",
         #     "thetao",
@@ -243,8 +245,13 @@ def spec_check_dim_coord_values(request, gl, vi, ei):
         not_supported_failures
         + intake_concat_failures
         + [
-            ("NorESM2-MM", "thetao", "historical", "gn"),
-            ("NorESM2-MM", "thetao", "historical", "gr"),
+            ("MIROC-ES2L", "uo", "historical", "gn"),
+            ("MIROC6", "uo", "historical", "gn"),
+            ("NorESM2-MM", "uo", "historical", "gn"),
+            # ("NorESM2-MM", "thetao", "historical", "gn"),
+            # ("NorESM2-MM", "thetao", "historical", "gr"),
+            # ("NorESM2-MM", "thetao", "historical", "gn"),
+            # ("NorESM2-MM", "thetao", "historical", "gr"),
         ]
     )
     spec = (request.param, vi, ei, gl)
@@ -316,13 +323,13 @@ def spec_check_bounds_verticies(request, gl, vi, ei):
                 ["historical"],
                 "gn",
             ),
-            ("NorESM2-MM", "thetao", "historical", "gn"),
+            ("NorESM2-MM", ["thetao", "uo"], "historical", "gn"),
             ("NorESM2-MM", ["thetao", "so"], "historical", "gr"),
             ("IPSL-CM6A-LR", ["thetao", "o2"], "historical", "gn"),
-            ("NESM3", "uo", "ssp585", "gn"),
+            ("NESM3", "uo", "*", "gn"),
             ("GFDL-CM4", "uo", "*", "gn"),
-            ("EC-Earth3", "uo", "ssp585", "gn"),
-            ("EC-Earth3-Veg", "uo", "ssp585", "gn"),
+            ("EC-Earth3", "uo", "*", "gn"),
+            ("EC-Earth3-Veg", "uo", "*", "gn"),
         ]
     )
     spec = (request.param, vi, ei, gl)
@@ -409,6 +416,7 @@ def spec_check_grid(request, gl, vi, ei):
             ("FGOALS-g3", "*", "*", "gn"),
             ("E3SM-1-0", ["so", "thetao", "o2"], "*", "gn"),
             ("EC-Earth3-AerChem", ["so"], "historical", "gn"),
+            ("EC-Earth3", ["so"], "historical", "gn"),
             # ("EC-Earth3-Veg", ["uo"], "*", "gn"),
             ("MPI-ESM-1-2-HAM", "*", "*", "gn"),
             ("NorESM2-MM", "*", "historical", "gn"),
