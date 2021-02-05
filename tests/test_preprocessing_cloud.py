@@ -148,7 +148,7 @@ intake_concat_failures = [
     #     "*",
     #     "gn",
     # ),  # The bounds are slightly larger than 360. Should be easy to fix
-    [uo - gn - ssp585 - GISS - E2 - 1 - G](
+    (
         "GISS-E2-1-G-CC",
         ["o2", "uo"],
         "*",
