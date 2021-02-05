@@ -69,6 +69,7 @@ def all_models():
     df = google_cmip_col().df
     all_models = df["source_id"].unique()
     all_models = tuple(np.sort(all_models))
+    # all_models = tuple(["EC-Earth3"])
     return all_models
 
 
