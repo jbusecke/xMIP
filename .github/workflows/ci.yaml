@@ -144,5 +144,3 @@ jobs:
         pwd
         echo $PYTHONPATH
         pytest --reruns 1 --reruns-delay 5 tests/test_preprocessing_cloud.py --gl ${{ matrix.grid_label }} --ei ${{ matrix.experiment_id }} --vi ${{ matrix.variable_id }}
-    - name: Debugging with ssh
-      uses: lhotari/action-upterm@v1

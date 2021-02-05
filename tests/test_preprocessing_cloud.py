@@ -216,8 +216,9 @@ def spec_check_dim_coord_values(request, gl, vi, ei):
         + intake_concat_failures
         + [
             ("GISS-E2-1-G-CC", "uo", "*", "gn"),
-            ("MIROC-ES2L", "uo", "historical", "gn"),
-            ("MIROC6", "uo", "historical", "gn"),
+            ("GISS-E2-1-G", "uo", "*", "gn"),
+            ("MIROC-ES2L", "uo", "*", "gn"),
+            ("MIROC6", "uo", "*", "gn"),
             ("NorESM2-MM", "uo", "historical", "gn"),
             ("NorESM2-MM", "thetao", "historical", "gn"),
             ("NorESM2-MM", "thetao", "historical", "gr"),
