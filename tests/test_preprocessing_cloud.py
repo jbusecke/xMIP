@@ -120,7 +120,7 @@ intake_concat_failures = [
     # ("CNRM-ESM2-1", "o2", "historical", "gn"),
     (
         "IPSL-CM6A-LR",
-        ["thetao", "o2"],
+        ["thetao", "o2", "so"],
         "historical",
         "gn",
     ),  # IPSL has an issue with `lev` dims concatting]
@@ -130,6 +130,12 @@ intake_concat_failures = [
         "historical",
         "gr",
     ),  # time concatting
+    (
+        "NorESM2-MM",
+        ["so"],
+        "historical",
+        "gn",
+    ),
     (
         "MIROC6",
         ["o2"],
@@ -142,12 +148,12 @@ intake_concat_failures = [
         ["historical"],
         "gn",
     ),
-    (
-        "MIROC-ES2L",
-        ["uo"],
-        "*",
-        "gn",
-    ),  # The bounds are slightly larger than 360. Should be easy to fix
+    # (
+    #     "MIROC-ES2L",
+    #     ["uo"],
+    #     "*",
+    #     "gn",
+    # ),  # The bounds are slightly larger than 360. Should be easy to fix
     (
         "GISS-E2-1-G-CC",
         ["o2", "uo"],
@@ -156,7 +162,7 @@ intake_concat_failures = [
     ),  # The bounds are slightly larger than 360. Should be easy to fix
     (
         "GISS-E2-1-G",
-        ["uo"],
+        "uo",
         "historical",
         "gn",
     ),  # The bounds are slightly larger than 360. Should be easy to fix
@@ -398,16 +404,16 @@ def spec_check_grid(request, gl, vi, ei):
         + intake_concat_failures
         + [
             ("CMCC-CM2-SR5", "*", "*", "gn"),
+            ("CMCC-CM2-HR4", "*", "*", "gn"),
             ("FGOALS-f3-L", "*", "*", "gn"),
             ("FGOALS-g3", "*", "*", "gn"),
             ("E3SM-1-0", ["so", "thetao", "o2"], "*", "gn"),
-            ("EC-Earth3", ["so", "uo", "so"], "*", "gn"),
-            ("EC-Earth3-Veg", ["so", "uo", "so"], "*", "gn"),
+            # ("EC-Earth3", ["uo"], "*", "gn"),
+            # ("EC-Earth3-Veg", ["uo"], "*", "gn"),
             ("MPI-ESM-1-2-HAM", "*", "*", "gn"),
             ("NorESM2-MM", "*", "historical", "gn"),
             ("NorESM2-MM", ["thetao", "so", "uo"], "historical", "gr"),
             ("IITM-ESM", "*", "*", "gn"),
-            ("IPSL-CM6A-LR", ["thetao", "o2"], "historical", "gn"),
             ("GFDL-CM4", ["uo"], ["ssp585"], "gn"),
         ]
     )
