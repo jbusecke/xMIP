@@ -132,16 +132,16 @@ intake_concat_failures = [
     ),  # time concatting
     (
         "MIROC6",
-        ["o2", "uo"],
+        ["o2"],
         "*",
         "gn",
     ),  # The bounds are slightly larger than 360. Should be easy to fix
     (
-        "GISS-E2-1-G",
+        "MIROC6",
         ["uo"],
-        "*",
+        ["historical"],
         "gn",
-    ),  # The bounds are slightly larger than 360. Should be easy to fix
+    ),
     (
         "MIROC-ES2L",
         ["uo"],
@@ -149,14 +149,22 @@ intake_concat_failures = [
         "gn",
     ),  # The bounds are slightly larger than 360. Should be easy to fix
     (
-        "GISS-E2-1-G",
+        "GISS-E2-1-G-CC",
         ["o2", "uo"],
         "*",
         "gn",
     ),  # The bounds are slightly larger than 360. Should be easy to fix
     (
-        "GISS-E2-1-G-CC",
-        ["o2", "uo"],
+        "GISS-E2-1-G",
+        ["uo"],
+        "historical",
+        "gn",
+    ),  # The bounds are slightly larger than 360. Should be easy to fix
+    (
+        "GISS-E2-1-G",
+        [
+            "o2",
+        ],
         "*",
         "gn",
     ),  # The bounds are slightly larger than 360. Should be easy to fix
@@ -300,12 +308,15 @@ def spec_check_bounds_verticies(request, gl, vi, ei):
         not_supported_failures
         + intake_concat_failures
         + [
-            ("FGOALS-f3-L", ["thetao", "so"], "*", "gn"),
-            ("FGOALS-g3", ["thetao", "so"], "*", "gn"),
+            ("FGOALS-f3-L", ["thetao", "so", "uo"], "*", "gn"),
+            ("FGOALS-g3", ["thetao", "so", "uo"], "*", "gn"),
             ("NorESM2-MM", "thetao", "historical", "gn"),
             ("NorESM2-MM", ["thetao", "so"], "historical", "gr"),
-            ("IPSL-CM6A-LR", "thetao", "historical", "gn"),
-            ("IPSL-CM6A-LR", "o2", "historical", "gn"),
+            ("IPSL-CM6A-LR", ["thetao", "o2"], "historical", "gn"),
+            ("NESM3", "uo", "ssp585", "gn"),
+            ("GFDL-CM4", "uo", "ssp585", "gn"),
+            ("EC-Earth3", "uo", "ssp585", "gn"),
+            ("EC-Earth3-Veg", "uo", "ssp585", "gn"),
         ]
     )
     spec = (request.param, vi, ei, gl)
