@@ -23,6 +23,8 @@ def test_model_id_match():
 
     assert model_id_match([("A", "a", "aa"), ("B", "a", "aa")], ("A", "a", "aa"))
     assert ~model_id_match([("A", "a", "aa"), ("B", "a", "aa")], ("C", "a", "aa"))
+    assert ~model_id_match([("A", "a", "aa"), ("B", "a", "aa")], ("AA", "a", "aa"))
+    assert ~model_id_match([("AA", "a", "aa"), ("B", "a", "aa")], ("A", "a", "aa"))
     assert model_id_match([("*", "a", "aa")], ("whatever", "a", "aa"))
     assert model_id_match([(["bb", "b"], "a", "aa")], ("b", "a", "aa"))
     assert model_id_match(

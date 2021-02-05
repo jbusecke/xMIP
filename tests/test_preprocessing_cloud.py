@@ -116,8 +116,8 @@ not_supported_failures = [
 
 ## basic problems when trying to concat with intake-esm
 intake_concat_failures = [
-    ("E3SM-1-0", ["so", "o2", "uo"], "*", "gr"),  # issues with time concatenation
-    ("CNRM-ESM2-1", "o2", "historical", "gn"),
+    ("E3SM-1-0", ["so", "o2"], "*", "gr"),  # issues with time concatenation
+    # ("CNRM-ESM2-1", "o2", "historical", "gn"),
     (
         "IPSL-CM6A-LR",
         ["thetao", "o2"],
@@ -126,7 +126,7 @@ intake_concat_failures = [
     ),  # IPSL has an issue with `lev` dims concatting]
     (
         "NorESM2-MM",
-        ["uo"],
+        ["uo", "so"],
         "historical",
         "gr",
     ),  # time concatting
@@ -237,12 +237,6 @@ def spec_check_dim_coord_values(request, gl, vi, ei):
         + [
             ("NorESM2-MM", "thetao", "historical", "gn"),
             ("NorESM2-MM", "thetao", "historical", "gr"),
-            (
-                "MIROC6",
-                "*",
-                "*",
-                "gn",
-            ),  # The bounds are slightly larger than 360. Should be easy to fix
         ]
     )
     spec = (request.param, vi, ei, gl)
@@ -396,7 +390,8 @@ def spec_check_grid(request, gl, vi, ei):
             ("FGOALS-f3-L", "*", "*", "gn"),
             ("FGOALS-g3", "*", "*", "gn"),
             ("E3SM-1-0", ["so", "thetao", "o2"], "*", "gn"),
-            ("EC-Earth3-Veg", "*", "*", "gn"),
+            ("EC-Earth3", ["so", "uo", "so"], "*", "gn"),
+            ("EC-Earth3-Veg", ["so", "uo", "so"], "*", "gn"),
             ("MPI-ESM-1-2-HAM", "*", "*", "gn"),
             ("NorESM2-MM", "*", "historical", "gn"),
             ("NorESM2-MM", ["thetao", "so", "uo"], "historical", "gr"),
