@@ -42,10 +42,6 @@ def create_test_ds(xname, yname, zname, xlen, ylen, zlen):
     return ds
 
 
-def test_dummy_fail():
-    assert 1 == 0
-
-
 @pytest.mark.parametrize("xname", ["i", "x", "lon"])
 @pytest.mark.parametrize("yname", ["j", "y", "lat"])
 @pytest.mark.parametrize("zname", ["lev", "olev", "olevel"])
