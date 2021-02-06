@@ -24,7 +24,9 @@ def diagnose_doubles(data):
         print(f"Missing values Indicies[{missing}]/ Values[{missing_values}]")
 
 
-def data(source_id, variable_id, experiment_id, grid_label, use_intake_esm):
+def data(
+    source_id, variable_id, experiment_id, grid_label, use_intake_esm, catalog="main"
+):
     zarr_kwargs = {
         "consolidated": True,
         "decode_times": False,
@@ -32,7 +34,7 @@ def data(source_id, variable_id, experiment_id, grid_label, use_intake_esm):
         # "use_cftime": True,
     }
 
-    cat = google_cmip_col().search(
+    cat = google_cmip_col(catalog=catalog).search(
         source_id=source_id,
         experiment_id=experiment_id,
         variable_id=variable_id,
@@ -90,7 +92,7 @@ def pytest_generate_tests(metafunc):
     # This is called for every test. Only get/set command line arguments
     # if the argument is specified in the list of test "fixturenames".
 
-    for name in ["vi", "gl", "ei"]:
+    for name in ["vi", "gl", "ei", "catalog"]:
 
         option_value = getattr(metafunc.config.option, name)
 
@@ -138,7 +140,7 @@ intake_concat_failures = [
     ),
     (
         "E3SM-1-0",
-        ["so", "o2"],
+        ["so", "o2", "zos"],
         ["historical", "ssp585"],
         "gr",
     ),  # issues with time concatenation
@@ -164,7 +166,7 @@ intake_concat_failures = [
 
 # this fixture has to be redifined every time to account for different fail cases for each test
 @pytest.fixture
-def spec_check_dim_coord_values_wo_intake(request, gl, vi, ei):
+def spec_check_dim_coord_values_wo_intake(request, gl, vi, ei, catalog):
     expected_failures = not_supported_failures + [
         ("GISS-E2-2-G", "uo", "piControl", "gn"),
         ("GISS-E2-1-G", "uo", "*", "gn"),
@@ -180,9 +182,9 @@ def spec_check_dim_coord_values_wo_intake(request, gl, vi, ei):
         # ),  # this should not fail and should trigger an xpass (I just use this for dev purposes to check
         #     # the strict option)
     ]
-    spec = (request.param, vi, ei, gl)
+    spec = (request.param, vi, ei, gl, catalog)
     request.param = spec
-    if model_id_match(expected_failures, request.param):
+    if model_id_match(expected_failures, request.param[0:-1]):
         request.node.add_marker(pytest.mark.xfail(strict=True))
     return request
 
@@ -198,11 +200,14 @@ def test_check_dim_coord_values_wo_intake(
         variable_id,
         experiment_id,
         grid_label,
+        catalog,
     ) = spec_check_dim_coord_values_wo_intake.param
 
     # there must be a better way to build this at the class level and then tear it down again
     # I can probably get this done with fixtures, but I dont know how atm
-    ds, _ = data(source_id, variable_id, experiment_id, grid_label, False)
+    ds, _ = data(
+        source_id, variable_id, experiment_id, grid_label, False, catalog=catalog
+    )
 
     if ds is None:
         pytest.skip(
@@ -236,7 +241,7 @@ def test_check_dim_coord_values_wo_intake(
 
 # this fixture has to be redifined every time to account for different fail cases for each test
 @pytest.fixture
-def spec_check_dim_coord_values(request, gl, vi, ei):
+def spec_check_dim_coord_values(request, gl, vi, ei, catalog):
     expected_failures = (
         not_supported_failures
         + intake_concat_failures
@@ -252,9 +257,9 @@ def spec_check_dim_coord_values(request, gl, vi, ei):
             ("FGOALS-f3-L", ["thetao"], "piControl", "gn"),
         ]
     )
-    spec = (request.param, vi, ei, gl)
+    spec = (request.param, vi, ei, gl, catalog)
     request.param = spec
-    if model_id_match(expected_failures, request.param):
+    if model_id_match(expected_failures, request.param[0:-1]):
         request.node.add_marker(pytest.mark.xfail(strict=True))
     return request
 
@@ -268,10 +273,13 @@ def test_check_dim_coord_values(
         variable_id,
         experiment_id,
         grid_label,
+        catalog,
     ) = spec_check_dim_coord_values.param
     # there must be a better way to build this at the class level and then tear it down again
     # I can probably get this done with fixtures, but I dont know how atm
-    ds, cat = data(source_id, variable_id, experiment_id, grid_label, True)
+    ds, cat = data(
+        source_id, variable_id, experiment_id, grid_label, True, catalog=catalog
+    )
 
     if ds is None:
         pytest.skip(
@@ -308,7 +316,7 @@ def test_check_dim_coord_values(
 
 # this fixture has to be redifined every time to account for different fail cases for each test
 @pytest.fixture
-def spec_check_bounds_verticies(request, gl, vi, ei):
+def spec_check_bounds_verticies(request, gl, vi, ei, catalog):
     expected_failures = (
         not_supported_failures
         + intake_concat_failures
@@ -326,24 +334,25 @@ def spec_check_bounds_verticies(request, gl, vi, ei):
             ("EC-Earth3-Veg", "uo", "*", "gn"),
         ]
     )
-    spec = (request.param, vi, ei, gl)
+    spec = (request.param, vi, ei, gl, catalog)
     request.param = spec
-    if model_id_match(expected_failures, request.param):
+    if model_id_match(expected_failures, request.param[0:-1]):
         request.node.add_marker(pytest.mark.xfail(strict=True))
     return request
 
 
 @pytest.mark.parametrize("spec_check_bounds_verticies", test_models, indirect=True)
-def test_check_bounds_verticies(
-    spec_check_bounds_verticies,
-):
+def test_check_bounds_verticies(spec_check_bounds_verticies):
     (
         source_id,
         variable_id,
         experiment_id,
         grid_label,
+        catalog,
     ) = spec_check_bounds_verticies.param
-    ds, cat = data(source_id, variable_id, experiment_id, grid_label, True)
+    ds, cat = data(
+        source_id, variable_id, experiment_id, grid_label, True, catalog=catalog
+    )
 
     if ds is None:
         pytest.skip(
@@ -399,12 +408,12 @@ def test_check_bounds_verticies(
 
 # this fixture has to be redifined every time to account for different fail cases for each test
 @pytest.fixture
-def spec_check_grid(request, gl, vi, ei):
+def spec_check_grid(request, gl, vi, ei, catalog):
     expected_failures = (
         not_supported_failures
         + intake_concat_failures
         + [
-            ("CMCC-ESM2", "zos", "histocial", "gn"),
+            ("CMCC-ESM2", "zos", "historical", "gn"),
             ("CMCC-CM2-SR5", "*", "*", "gn"),
             ("CMCC-CM2-HR4", "*", "*", "gn"),
             ("FGOALS-f3-L", "*", "*", "gn"),
@@ -424,9 +433,9 @@ def spec_check_grid(request, gl, vi, ei):
             ("GFDL-CM4", ["uo"], "*", "gn"),
         ]
     )
-    spec = (request.param, vi, ei, gl)
+    spec = (request.param, vi, ei, gl, catalog)
     request.param = spec
-    if model_id_match(expected_failures, request.param):
+    if model_id_match(expected_failures, request.param[0:-1]):
         request.node.add_marker(pytest.mark.xfail(strict=True, reason=""))
     return request
 
@@ -435,9 +444,11 @@ def spec_check_grid(request, gl, vi, ei):
 def test_check_grid(
     spec_check_grid,
 ):
-    source_id, variable_id, experiment_id, grid_label = spec_check_grid.param
+    source_id, variable_id, experiment_id, grid_label, catalog = spec_check_grid.param
 
-    ds, cat = data(source_id, variable_id, experiment_id, grid_label, True)
+    ds, cat = data(
+        source_id, variable_id, experiment_id, grid_label, True, catalog=catalog
+    )
 
     if ds is None:
         pytest.skip(

@@ -8,7 +8,14 @@ pytest.importorskip("intake")
 
 def test_google_cmip_col():
     col = google_cmip_col()
-    assert col.catalog_file == "https://storage.googleapis.com/cmip6/pangeo-cmip6.csv"
+    assert col.catalog_file == "https://storage.googleapis.com/cmip6/pangeo-cmip6.json"
+    col = google_cmip_col(catalog="main")
+    assert col.catalog_file == "https://storage.googleapis.com/cmip6/pangeo-cmip6.json"
+    col = google_cmip_col(catalog="testing")
+    assert (
+        col.catalog_file
+        == "https://storage.googleapis.com/cmip6/pangeo-cmip6-testing.json"
+    )
 
 
 def test_model_id_match():
