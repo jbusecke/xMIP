@@ -6,7 +6,7 @@ from cmip6_preprocessing.utils import google_cmip_col, model_id_match
 pytest.importorskip("intake")
 
 
-def test_google_cmip_col(catalog):
+def test_google_cmip_col():
     col = google_cmip_col(catalog="main")
     assert col.catalog_file == "https://storage.googleapis.com/cmip6/pangeo-cmip6.csv"
     col = google_cmip_col(catalog="testing")
