@@ -9,7 +9,7 @@ on:
 
 jobs:
   cloud-tests:
-    name: Build (cloud-data-tests | ${{ matrix.variable_id }} | ${{ matrix.experiment_id }} | ${{ matrix.grid_label }})
+    name: Build (cloud-data-tests | ${{ matrix.variable_id }} | ${{ matrix.experiment_id }} | ${{ matrix.grid_label }} | ${{ matrix.catalog}})
     strategy:
       fail-fast: false
       matrix:
@@ -53,4 +53,4 @@ jobs:
       run: |
         pwd
         echo $PYTHONPATH
-        pytest --maxfail 20 tests/test_preprocessing_cloud.py --gl ${{ matrix.grid_label }} --ei ${{ matrix.experiment_id }} --vi ${{ matrix.variable_id }}
+        pytest --maxfail 20 tests/test_preprocessing_cloud.py --gl ${{ matrix.grid_label }} --ei ${{ matrix.experiment_id }} --vi ${{ matrix.variable_id }} --cat ${{ matrix.catalog }}
