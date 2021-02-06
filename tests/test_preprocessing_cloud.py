@@ -92,7 +92,7 @@ def pytest_generate_tests(metafunc):
     # This is called for every test. Only get/set command line arguments
     # if the argument is specified in the list of test "fixturenames".
 
-    for name in ["vi", "gl", "ei", "catalog"]:
+    for name in ["vi", "gl", "ei", "cat"]:
 
         option_value = getattr(metafunc.config.option, name)
 
@@ -166,7 +166,7 @@ intake_concat_failures = [
 
 # this fixture has to be redifined every time to account for different fail cases for each test
 @pytest.fixture
-def spec_check_dim_coord_values_wo_intake(request, gl, vi, ei, catalog):
+def spec_check_dim_coord_values_wo_intake(request, gl, vi, ei, cat):
     expected_failures = not_supported_failures + [
         ("GISS-E2-2-G", "uo", "piControl", "gn"),
         ("GISS-E2-1-G", "uo", "*", "gn"),
@@ -182,7 +182,7 @@ def spec_check_dim_coord_values_wo_intake(request, gl, vi, ei, catalog):
         # ),  # this should not fail and should trigger an xpass (I just use this for dev purposes to check
         #     # the strict option)
     ]
-    spec = (request.param, vi, ei, gl, catalog)
+    spec = (request.param, vi, ei, gl, cat)
     request.param = spec
     if model_id_match(expected_failures, request.param[0:-1]):
         request.node.add_marker(pytest.mark.xfail(strict=True))
@@ -241,7 +241,7 @@ def test_check_dim_coord_values_wo_intake(
 
 # this fixture has to be redifined every time to account for different fail cases for each test
 @pytest.fixture
-def spec_check_dim_coord_values(request, gl, vi, ei, catalog):
+def spec_check_dim_coord_values(request, gl, vi, ei, cat):
     expected_failures = (
         not_supported_failures
         + intake_concat_failures
@@ -257,7 +257,7 @@ def spec_check_dim_coord_values(request, gl, vi, ei, catalog):
             ("FGOALS-f3-L", ["thetao"], "piControl", "gn"),
         ]
     )
-    spec = (request.param, vi, ei, gl, catalog)
+    spec = (request.param, vi, ei, gl, cat)
     request.param = spec
     if model_id_match(expected_failures, request.param[0:-1]):
         request.node.add_marker(pytest.mark.xfail(strict=True))
@@ -316,7 +316,7 @@ def test_check_dim_coord_values(
 
 # this fixture has to be redifined every time to account for different fail cases for each test
 @pytest.fixture
-def spec_check_bounds_verticies(request, gl, vi, ei, catalog):
+def spec_check_bounds_verticies(request, gl, vi, ei, cat):
     expected_failures = (
         not_supported_failures
         + intake_concat_failures
@@ -334,7 +334,7 @@ def spec_check_bounds_verticies(request, gl, vi, ei, catalog):
             ("EC-Earth3-Veg", "uo", "*", "gn"),
         ]
     )
-    spec = (request.param, vi, ei, gl, catalog)
+    spec = (request.param, vi, ei, gl, cat)
     request.param = spec
     if model_id_match(expected_failures, request.param[0:-1]):
         request.node.add_marker(pytest.mark.xfail(strict=True))
@@ -408,7 +408,7 @@ def test_check_bounds_verticies(spec_check_bounds_verticies):
 
 # this fixture has to be redifined every time to account for different fail cases for each test
 @pytest.fixture
-def spec_check_grid(request, gl, vi, ei, catalog):
+def spec_check_grid(request, gl, vi, ei, cat):
     expected_failures = (
         not_supported_failures
         + intake_concat_failures
@@ -419,13 +419,19 @@ def spec_check_grid(request, gl, vi, ei, catalog):
             ("FGOALS-f3-L", "*", "*", "gn"),
             ("FGOALS-g3", "*", "*", "gn"),
             ("E3SM-1-0", ["so", "thetao", "o2"], "*", "gn"),
-            ("E3SM-1-0", ["zos"], "*", "gr"),
+            (
+                "E3SM-1-0",
+                ["zos"],
+                ["historical", "ssp585", "ssp245", "ssp370", "esm-hist"],
+                "gr",
+            ),
             (
                 "EC-Earth3-AerChem",
                 ["so", "thetao", "zos"],
                 ["historical", "piControl", "ssp370"],
                 "gn",
             ),
+            ("EC-Earth3-Veg", "zos", "historical", "gr"),
             ("MPI-ESM-1-2-HAM", "*", "*", "gn"),
             ("NorESM2-MM", "*", "historical", "gn"),
             ("NorESM2-MM", ["thetao", "so", "uo"], "historical", "gr"),
@@ -433,7 +439,7 @@ def spec_check_grid(request, gl, vi, ei, catalog):
             ("GFDL-CM4", ["uo"], "*", "gn"),
         ]
     )
-    spec = (request.param, vi, ei, gl, catalog)
+    spec = (request.param, vi, ei, gl, cat)
     request.param = spec
     if model_id_match(expected_failures, request.param[0:-1]):
         request.node.add_marker(pytest.mark.xfail(strict=True, reason=""))
