@@ -117,7 +117,9 @@ not_supported_failures = [
 
 ## basic problems when trying to concat with intake-esm
 intake_concat_failures = [
-    ("E3SM-1-0", ["so", "o2"], "*", "gr"),  # issues with time concatenation
+    ("CanESM5", ['uo',"so", 'thetao',], 'ssp245', "gn"),
+    ("CanESM5", ['zos'], ['ssp245', 'ssp585',], "gn"),
+    ("E3SM-1-0", ["so", "o2"], ['historical', 'ssp585'], "gr"),  # issues with time concatenation
     (
         "IPSL-CM6A-LR",
         ["thetao", "o2", "so"],
@@ -142,10 +144,12 @@ intake_concat_failures = [
 @pytest.fixture
 def spec_check_dim_coord_values_wo_intake(request, gl, vi, ei):
     expected_failures = not_supported_failures + [
+        ("GISS-E2-2-G", 'uo', "piControl", "gn"),
         ("GISS-E2-1-G", "uo", "*", "gn"),
         ("GISS-E2-1-G-CC", "uo", "*", "gn"),
         ("MIROC6", "uo", "*", "gn"),
         ("MIROC-ES2L", "uo", "*", "gn"),
+        ("FGOALS-f3-L", ["thetao"], "piControl", "gn"),
         # (
         #     "GFDL-CM4",
         #     "thetao",
@@ -215,13 +219,15 @@ def spec_check_dim_coord_values(request, gl, vi, ei):
         not_supported_failures
         + intake_concat_failures
         + [
+            ("GISS-E2-2-G", 'uo', "piControl", "gn"),
             ("GISS-E2-1-G-CC", "uo", "*", "gn"),
             ("GISS-E2-1-G", "uo", "*", "gn"),
             ("MIROC-ES2L", "uo", "*", "gn"),
             ("MIROC6", "uo", "*", "gn"),
-            ("NorESM2-MM", "uo", "historical", "gn"),
+            ("NorESM2-MM", ["uo", 'zos'], "historical", "gn"),
             ("NorESM2-MM", "thetao", "historical", "gn"),
             ("NorESM2-MM", "thetao", "historical", "gr"),
+            ("FGOALS-f3-L", ["thetao"], "piControl", "gn"),
         ]
     )
     spec = (request.param, vi, ei, gl)
@@ -285,14 +291,16 @@ def spec_check_bounds_verticies(request, gl, vi, ei):
         not_supported_failures
         + intake_concat_failures
         + [
-            ("FGOALS-f3-L", ["thetao", "so", "uo"], "*", "gn"),
-            ("FGOALS-g3", ["thetao", "so", "uo"], "*", "gn"),
-            ("NorESM2-MM", ["thetao", "uo"], "historical", "gn"),
+            ("FGOALS-f3-L", ["thetao", "so", "uo", 'zos'], "*", "gn"),
+            ("FGOALS-g3", ["thetao", "so", "uo", 'zos'], "*", "gn"),
+            ("NorESM2-MM", ["thetao", "uo", 'zos'], "historical", "gn"),
             ("NorESM2-MM", ["thetao", "so"], "historical", "gr"),
             ("IPSL-CM6A-LR", ["thetao", "o2"], "historical", "gn"),
             ("NESM3", "uo", "*", "gn"),
+            ("IITM-ESM", ["so", 'uo', 'thetao'], "piControl", "gn"),
             ("GFDL-CM4", "uo", "*", "gn"),
             ("EC-Earth3", "uo", "*", "gn"),
+            ("EC-Earth3-LR", "uo", "piControl", "gn"),
             ("EC-Earth3-Veg", "uo", "*", "gn"),
         ]
     )
@@ -374,14 +382,14 @@ def spec_check_grid(request, gl, vi, ei):
         not_supported_failures
         + intake_concat_failures
         + [
+            ("CMCC-ESM2", "zos", "histocial", "gn"),
             ("CMCC-CM2-SR5", "*", "*", "gn"),
             ("CMCC-CM2-HR4", "*", "*", "gn"),
             ("FGOALS-f3-L", "*", "*", "gn"),
             ("FGOALS-g3", "*", "*", "gn"),
             ("E3SM-1-0", ["so", "thetao", "o2"], "*", "gn"),
-            ("EC-Earth3-AerChem", ["so"], "historical", "gn"),
-            # ("EC-Earth3", ["so"], "historical", "gn"),
-            # ("EC-Earth3-Veg", ["uo"], "*", "gn"),
+            ("E3SM-1-0", ['zos'], "*", "gr"),
+            ("EC-Earth3-AerChem", ["so", 'thetao', 'zos'], ['historical', 'piControl','ssp370'], "gn"),
             ("MPI-ESM-1-2-HAM", "*", "*", "gn"),
             ("NorESM2-MM", "*", "historical", "gn"),
             ("NorESM2-MM", ["thetao", "so", "uo"], "historical", "gr"),
