@@ -9,7 +9,7 @@ on:
 
 jobs:
   cloud-tests:
-    name: Build (cloud-data-tests | ${{ matrix.variable_id }} | ${{ matrix.experiment_id }} | ${{ matrix.grid_label }} | ${{ matrix.catalog}})
+    name: cloud-tests (${{ matrix.catalog}}) catalog) | ${{ matrix.variable_id }} | ${{ matrix.experiment_id }} | ${{ matrix.grid_label }}
     strategy:
       fail-fast: false
       matrix:
