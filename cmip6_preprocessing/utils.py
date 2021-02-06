@@ -11,12 +11,15 @@ def google_cmip_col(catalog="main"):
             "This functionality requires intake-esm. Install with `conda install -c conda-forge intake-esm"
         )
     if catalog == "main":
-        url = "https://storage.googleapis.com/cmip6/pangeo-cmip6.json"
+        return intake.open_esm_datastore(
+            "https://storage.googleapis.com/cmip6/pangeo-cmip6.json"
+        )
     elif catalog == "testing":
-        url = "https://storage.googleapis.com/cmip6/pangeo-cmip6-testing.json"
+        return intake.open_esm_datastore(
+            "https://storage.googleapis.com/cmip6/pangeo-cmip6-testing.json"
+        )
     else:
         raise ValueError("Catalog not recognized. Should be `main` or `testing`")
-    return intake.open_esm_datastore(url)
 
 
 def model_id_match(match_list, id_tuple):
