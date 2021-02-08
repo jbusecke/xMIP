@@ -105,7 +105,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        variable_id: ["thetao", "o2"]
+        variable_id: ["thetao", "o2", "so", "uo"]
         experiment_id: ["historical", "ssp585"]
         grid_label: ["gn", "gr"]
     runs-on: ubuntu-latest
@@ -143,4 +143,4 @@ jobs:
       run: |
         pwd
         echo $PYTHONPATH
-        pytest --maxfail 5 --reruns 1 --reruns-delay 10 tests/test_preprocessing_cloud.py --gl ${{ matrix.grid_label }} --ei ${{ matrix.experiment_id }} --vi ${{ matrix.variable_id }}
+        pytest --reruns 1 --reruns-delay 5 tests/test_preprocessing_cloud.py --gl ${{ matrix.grid_label }} --ei ${{ matrix.experiment_id }} --vi ${{ matrix.variable_id }}

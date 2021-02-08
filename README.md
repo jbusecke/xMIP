@@ -2,6 +2,7 @@
 [![conda-forge](https://img.shields.io/conda/dn/conda-forge/cmip6_preprocessing?label=conda-forge)](https://anaconda.org/conda-forge/cmip6_preprocessing)
 [![Pypi](https://img.shields.io/pypi/v/cmip6_preprocessing.svg)](https://pypi.org/project/cmip6_preprocessing)
 [![Build Status](https://img.shields.io/github/workflow/status/jbusecke/cmip6_preprocessing/CI?logo=github)](https://github.com/jbusecke/cmip6_preprocessing/actions)
+![Full Archive CI](https://github.com/jbusecke/cmip6_preprocessing/workflows/Full%20Archive%20CI/badge.svg)
 [![codecov](https://codecov.io/gh/jbusecke/cmip6_preprocessing/branch/master/graph/badge.svg)](https://codecov.io/gh/jbusecke/cmip6_preprocessing)
 [![License:MIT](https://img.shields.io/badge/License-MIT-lightgray.svg?style=flt-square)](https://opensource.org/licenses/MIT)
 [![DOI](https://zenodo.org/badge/215606850.svg)](https://zenodo.org/badge/latestdoi/215606850)
