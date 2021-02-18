@@ -413,7 +413,7 @@ def spec_check_grid(request, gl, vi, ei, cat):
         not_supported_failures
         + intake_concat_failures
         + [
-            ("CMCC-ESM2", "zos", "historical", "gn"),
+            ("CMCC-ESM2", "*", "*", "gn"),
             ("CMCC-CM2-SR5", "*", "*", "gn"),
             ("CMCC-CM2-HR4", "*", "*", "gn"),
             ("FGOALS-f3-L", "*", "*", "gn"),

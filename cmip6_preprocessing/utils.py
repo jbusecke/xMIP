@@ -14,10 +14,11 @@ def google_cmip_col(catalog="main"):
         return intake.open_esm_datastore(
             "https://storage.googleapis.com/cmip6/pangeo-cmip6.json"
         )
-    elif catalog == "testing":
-        return intake.open_esm_datastore(
-            "https://storage.googleapis.com/cmip6/pangeo-cmip6-testing.json"
-        )
+    # this doesnt work anymore, but ill leave it here as an example for the future
+    #     elif catalog == "testing":
+    #         return intake.open_esm_datastore(
+    #             "https://storage.googleapis.com/cmip6/pangeo-cmip6-testing.json"
+    #         )
     else:
         raise ValueError("Catalog not recognized. Should be `main` or `testing`")
 
