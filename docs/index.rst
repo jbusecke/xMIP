@@ -4,12 +4,14 @@
    contain the root `toctree` directive.
 
 
-cmip6_preprocessing: Analysis ready CMIP6 data with pangeo.
+.. image:: images/logo.png
+
+cmip6_preprocessing: Analysis ready CMIP6 data with pangeo
 ===========================================================
 
-Modern climate science like e.g. the IPCC rely heavily on model inter comparison projects (MIPs). These projects essentially pool together model results from various climate modeling centers around the world, that were run according to specific protocols, in order to compare, for instance, the response of the coupled climate system to changes in forcing.
+Modern climate science like the IPCC rely heavily on model inter comparison projects (MIPs). These projects essentially pool together model results from various climate modeling centers around the world, that were run according to specific protocols, in order to compare, for instance, the response of the coupled climate system to changes in forcing.
 
-The vast amount of work that has been put into the standardization of these experiments enables climate scientists to use a wealth of data to answer their specific questions, thus refining future models and increasing our understanding of the complex system that our planet is.
+The vast amount of work that has been put into the standardization of these experiments enables climate scientists to use a wealth of data to answer their specific questions, thus refining future models and increasing our understanding of the complex system that is our home planet.
 
 However, from the viewpoint of analyzing these data, the output is still quite 'dirty' making the quintessential workflow of:
 
@@ -60,6 +62,7 @@ Contents
 
    tutorial
    regionmask
+   api
    whats-new
 
 .. toctree::
