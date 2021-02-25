@@ -36,6 +36,10 @@ jobs:
         os: ["ubuntu-latest"]
         python-version: ["3.6", "3.7", "3.8"]
     steps:
+      - name: Cancel previous runs
+        uses: styfle/cancel-workflow-action@0.8.0
+        with:
+          access_token: ${{ github.token }}
       - uses: actions/checkout@v2
       - name: Cache conda
         uses: actions/cache@v1
@@ -86,6 +90,10 @@ jobs:
     needs: detect-ci-trigger
     if: needs.detect-ci-trigger.outputs.triggered == 'false'
     steps:
+    - name: Cancel previous runs
+      uses: styfle/cancel-workflow-action@0.8.0
+      with:
+        access_token: ${{ github.token }}
     - uses: actions/checkout@v2
     - name: Cache conda
       uses: actions/cache@v1
@@ -131,6 +139,10 @@ jobs:
     needs: detect-ci-trigger
     if: needs.detect-ci-trigger.outputs.triggered == 'false'
     steps:
+    - name: Cancel previous runs
+      uses: styfle/cancel-workflow-action@0.8.0
+      with:
+        access_token: ${{ github.token }}
     - uses: actions/checkout@v2
     - name: Cache conda
       uses: actions/cache@v1
