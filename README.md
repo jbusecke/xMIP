@@ -1,3 +1,4 @@
+[![Documentation Status](https://readthedocs.org/projects/cmip6-preprocessing/badge/?version=latest)](https://cmip6-preprocessing.readthedocs.io/en/latest/?badge=latest)
 [![Anaconda Cloud](https://anaconda.org/conda-forge/cmip6_preprocessing/badges/version.svg)](https://anaconda.org/conda-forge/cmip6_preprocessing)
 [![conda-forge](https://img.shields.io/conda/dn/conda-forge/cmip6_preprocessing?label=conda-forge)](https://anaconda.org/conda-forge/cmip6_preprocessing)
 [![Pypi](https://img.shields.io/pypi/v/cmip6_preprocessing.svg)](https://pypi.org/project/cmip6_preprocessing)
