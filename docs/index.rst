@@ -6,8 +6,8 @@
 
 .. image:: images/logo.png
 
-cmip6_preprocessing: Analysis ready CMIP6 data with pangeo
-===========================================================
+Analysis ready CMIP6 data with Pangeo
+=====================================
 
 Modern climate science like the IPCC rely heavily on model inter comparison projects (MIPs). These projects essentially pool together model results from various climate modeling centers around the world, that were run according to specific protocols, in order to compare, for instance, the response of the coupled climate system to changes in forcing.
 
