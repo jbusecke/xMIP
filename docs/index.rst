@@ -15,8 +15,8 @@ The vast amount of work that has been put into the standardization of these expe
 
 However, from the viewpoint of analyzing these data, the output is still quite 'dirty' making the quintessential workflow of:
 
-1. Develop a metric/analysis to apply to one model
-2. Run that analysis across all the models  and interpret results
+1. Develop a metric/analysis to apply to one model.
+2. Run that analysis across all the models  and interpret results.
 
 inherently difficult.
 
