@@ -1,5 +1,6 @@
 name: cmip6_preprocessing_docs
-channels: conda-forge
+channels:
+  - conda-forge
 dependencies:
   - python
   # Insert your dependencies here
