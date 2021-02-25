@@ -4,14 +4,6 @@ channels:
 dependencies:
   - python
   # Insert your dependencies here
-  - regionmask
-  - xarray
-  - numpy
-  - pandas
-  - zarr
-  - xgcm
-  - pyproj
-  - matplotlib
   - numpydoc
   - sphinx
   - sphinx_rtd_theme
