@@ -28,8 +28,6 @@ jobs:
   build:
     name: Build (${{ matrix.python-version }} | ${{ matrix.os }})
     runs-on: ${{ matrix.os }}
-    needs: detect-ci-trigger
-    if: needs.detect-ci-trigger.outputs.triggered == 'false'
     strategy:
       fail-fast: false
       matrix:
