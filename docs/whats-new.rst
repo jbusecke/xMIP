@@ -28,10 +28,11 @@ Bug fixes
 
 Documentation
 ~~~~~~~~~~~~~
-
+- Sphinx/RTD documentation, including contributor guide and new logo 🤗. (:issue:`27`) (:pull:`99`).
 
 Internal Changes
 ~~~~~~~~~~~~~~~~
+- Adds options to skip extensive cloud ci by using [skip-ci] in commit message. Adds the ability to cancel previous GHA jobs to prevent long wait times for rapid pushes. (:pull:`99`) By `Julius Busecke <https://github.com/jbusecke>`_.
 -  Add `ni` and `nj` to the `rename_dict` dictionary in _preprocessing.py_ as dimensions to be corrected (:pull:`54`). By `Markus Ritschel <https://github.com/markusritschel>`_
 
 
