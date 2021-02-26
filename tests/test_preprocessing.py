@@ -68,6 +68,13 @@ def test_rename_cmip6(xname, yname, zname, missing_dim):
     if not missing_dim == "z":
         assert zlen == len(ds_renamed.lev)
 
+    # test exceptions and error handling
+    with pytest.warns():
+        ds_renamed = rename_cmip6(ds, {})
+
+    with pytest.raises(ValueError):
+        ds_renamed = rename_cmip6(ds, {"x": "x"})
+
 
 def test_broadcast_lonlat():
     x = np.arange(-180, 179, 5)
@@ -273,6 +280,12 @@ def test_correct_units():
     ds_test = correct_units(ds)
     assert ds_test.lev.attrs["units"] == "m"
     np.testing.assert_allclose(ds_test.lev.data, ds.lev.data / 100.0)
+    with pytest.warns():
+        ds_no_units = ds.copy()
+        ds_no_units.lev.attrs = {}
+    with pytest.warns():
+        ds_unknown_units = ds.copy()
+        ds_unknown_units.lev.attrs["units"] = "whatever"
 
 
 def test_maybe_convert_bounds_to_vertex():
