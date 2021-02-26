@@ -21,7 +21,6 @@ def diagnose_doubles(data):
     missing = np.array([i for i in np.arange(len(data)) if i not in idx])
     if len(missing) > 0:
         missing_values = data[missing]
-        print(f"Missing values Indicies[{missing}]/ Values[{missing_values}]")
 
 
 def data(
@@ -59,7 +58,6 @@ def data(
                 cat.df["zstore"][0]
             )  # think you can pass in storage options here as well?
             ds_raw = xr.open_zarr(mm, **zarr_kwargs)
-            print(ds_raw)
             ds = combined_preprocessing(ds_raw)
     else:
         ds = None
@@ -103,7 +101,7 @@ def pytest_generate_tests(metafunc):
             metafunc.parametrize(name, option_value)
 
 
-print(f"\n\n\n\n$$$$$$$ All available models: {all_models()}$$$$$$$\n\n\n\n")
+# print(f"\n\n\n\n$$$$$$$ All available models: {all_models()}$$$$$$$\n\n\n\n")
 
 ## Combine the input parameters according to command line input
 
@@ -169,10 +167,6 @@ intake_concat_failures = [
 def spec_check_dim_coord_values_wo_intake(request, gl, vi, ei, cat):
     expected_failures = not_supported_failures + [
         ("GISS-E2-2-G", "uo", "piControl", "gn"),
-        ("GISS-E2-1-G", "uo", "*", "gn"),
-        ("GISS-E2-1-G-CC", "uo", "*", "gn"),
-        ("MIROC6", "uo", "*", "gn"),
-        ("MIROC-ES2L", "uo", "*", "gn"),
         ("FGOALS-f3-L", ["thetao"], "piControl", "gn"),
         # (
         #     "GFDL-CM4",
@@ -231,7 +225,7 @@ def test_check_dim_coord_values_wo_intake(
     assert ds.lon.max().load() <= 360
     if "lon_bounds" in ds.variables:
         assert ds.lon_bounds.min().load() >= 0
-        assert ds.lon_bounds.max().load() <= 360
+        assert ds.lon_bounds.max().load() <= 361
     assert ds.lat.min().load() >= -90
     assert ds.lat.max().load() <= 90
     # make sure lon and lat are 2d
@@ -247,10 +241,6 @@ def spec_check_dim_coord_values(request, gl, vi, ei, cat):
         + intake_concat_failures
         + [
             ("GISS-E2-2-G", "uo", "piControl", "gn"),
-            ("GISS-E2-1-G-CC", "uo", "*", "gn"),
-            ("GISS-E2-1-G", "uo", "*", "gn"),
-            ("MIROC-ES2L", "uo", "*", "gn"),
-            ("MIROC6", "uo", "*", "gn"),
             ("NorESM2-MM", ["uo", "zos"], "historical", "gn"),
             ("NorESM2-MM", "thetao", "historical", "gn"),
             ("NorESM2-MM", "thetao", "historical", "gr"),
@@ -303,7 +293,7 @@ def test_check_dim_coord_values(
     assert ds.lon.max().load() <= 360
     if "lon_bounds" in ds.variables:
         assert ds.lon_bounds.min().load() >= 0
-        assert ds.lon_bounds.max().load() <= 360
+        assert ds.lon_bounds.max().load() <= 361
     assert ds.lat.min().load() >= -90
     assert ds.lat.max().load() <= 90
     # make sure lon and lat are 2d
@@ -463,8 +453,6 @@ def test_check_grid(
 
     # This is just a rudimentary test to see if the creation works
     staggered_grid, ds_staggered = combine_staggered_grid(ds, recalculate_metrics=True)
-
-    print(ds_staggered)
 
     assert ds_staggered is not None
     #
