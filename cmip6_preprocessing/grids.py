@@ -408,7 +408,7 @@ def combine_staggered_grid(
         Single xgcm-compatible dataset, containing all variables on their respective staggered grid position.
     """
     ds_base = ds_base.copy()
-    if isinstance(other_ds, str):
+    if isinstance(other_ds, xr.Dataset):
         other_ds = [other_ds]
 
     ds_g = create_full_grid(ds_base, grid_dict=grid_dict)
