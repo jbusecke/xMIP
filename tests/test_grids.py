@@ -363,11 +363,14 @@ def test_detect_shift(xshift, yshift):
 @pytest.mark.parametrize("xshift", ["left", "right"])
 @pytest.mark.parametrize("yshift", ["left", "right"])
 @pytest.mark.parametrize("grid_label", ["gr", "gn"])
-def test_create_full_grid(xshift, yshift, grid_label):
+# @pytest.mark.parametrize(
+#     "grid_dict",
+#     [None, {"test_model": {grid_label: {"axis_shift": {"X": xshift, "Y": yshift}}}}],
+# )
+def test_create_full_grid(xshift, yshift, grid_label):  # , grid_dict
     ds_base = _test_data(grid_label=grid_label)
 
     # TODO: This should be specific to the grid_label: e.g grid_dict = {'model':{'gr':{'axis_shift':{'X':'left}}}}
-    grid_dict = {"test_model": {grid_label: {"axis_shift": {"X": xshift, "Y": yshift}}}}
 
     ds_full = create_full_grid(ds_base, grid_dict=grid_dict)
 
