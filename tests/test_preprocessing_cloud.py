@@ -167,10 +167,6 @@ intake_concat_failures = [
 def spec_check_dim_coord_values_wo_intake(request, gl, vi, ei, cat):
     expected_failures = not_supported_failures + [
         ("GISS-E2-2-G", "uo", "piControl", "gn"),
-        ("GISS-E2-1-G", "uo", "*", "gn"),
-        ("GISS-E2-1-G-CC", "uo", "*", "gn"),
-        ("MIROC6", "uo", "*", "gn"),
-        ("MIROC-ES2L", "uo", "*", "gn"),
         ("FGOALS-f3-L", ["thetao"], "piControl", "gn"),
         # (
         #     "GFDL-CM4",
@@ -245,10 +241,6 @@ def spec_check_dim_coord_values(request, gl, vi, ei, cat):
         + intake_concat_failures
         + [
             ("GISS-E2-2-G", "uo", "piControl", "gn"),
-            ("GISS-E2-1-G-CC", "uo", "*", "gn"),
-            ("GISS-E2-1-G", "uo", "*", "gn"),
-            ("MIROC-ES2L", "uo", "*", "gn"),
-            ("MIROC6", "uo", "*", "gn"),
             ("NorESM2-MM", ["uo", "zos"], "historical", "gn"),
             ("NorESM2-MM", "thetao", "historical", "gn"),
             ("NorESM2-MM", "thetao", "historical", "gr"),
