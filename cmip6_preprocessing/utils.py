@@ -7,7 +7,7 @@ except ImportError:
 def google_cmip_col(catalog="main"):
     """A tiny utility function to point to the 'official' pangeo cmip6 cloud files."""
     if intake is None:
-        raise ValueError(
+        raise ImportError(
             "This functionality requires intake-esm. Install with `conda install -c conda-forge intake-esm"
         )
     if catalog == "main":
