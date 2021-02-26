@@ -17,7 +17,6 @@ coverage:
 
 ignore:
   - "setup.py"
-  - "cmip6_preprocessing/test/*"
+  - "tests/*"
   - "cmip6_preprocessing/__init__.py"
   - "cmip6_preprocessing/_version.py"
-  - "cmip6_preprocessing/gridops.py"

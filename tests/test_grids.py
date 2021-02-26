@@ -365,9 +365,8 @@ def test_detect_shift(xshift, yshift):
 @pytest.mark.parametrize("grid_label", ["gr", "gn"])
 def test_create_full_grid(xshift, yshift, grid_label):
     ds_base = _test_data(grid_label=grid_label)
-
-    # TODO: This should be specific to the grid_label: e.g grid_dict = {'model':{'gr':{'axis_shift':{'X':'left}}}}
     grid_dict = {"test_model": {grid_label: {"axis_shift": {"X": xshift, "Y": yshift}}}}
+    # TODO: This should be specific to the grid_label: e.g grid_dict = {'model':{'gr':{'axis_shift':{'X':'left}}}}
 
     ds_full = create_full_grid(ds_base, grid_dict=grid_dict)
 
@@ -389,7 +388,12 @@ def test_create_full_grid(xshift, yshift, grid_label):
     assert "x_" + xshift in ds_full.dims
     assert "y_" + yshift in ds_full.dims
 
-    print(ds_full)
+    # test error handling
+    with pytest.warns(UserWarning):
+        ds_none = create_full_grid(
+            ds_base, grid_dict=None
+        )  # the synthetic dataset is not in the default dict.
+    assert ds_none is None
 
 
 @pytest.mark.parametrize("recalculate_metrics", [True, False])
@@ -414,23 +418,38 @@ def test_combine_staggered_grid(recalculate_metrics, xshift, yshift, grid_label)
         ds["lat"] = ds["lat"] + 0.5
     grid_dict = {"test_model": {grid_label: {"axis_shift": {"X": xshift, "Y": yshift}}}}
 
-    grid, ds_combined = combine_staggered_grid(
-        ds_base, [ds], grid_dict=grid_dict, recalculate_metrics=recalculate_metrics
-    )
-
-    for axis, shift in zip(["X", "Y"], [xshift, yshift]):
-        # make sure the correct dim is in the added dataset
-        assert grid.axes[axis].coords[shift] in ds_combined["other"].dims
-        # and also that none of the other are in there
-        assert all(
-            [
-                di not in ds_combined["other"].dims
-                for dd, di in grid.axes[axis].coords.items()
-                if dd != shift
-            ]
+    for other_ds in [ds, [ds]]:
+        grid, ds_combined = combine_staggered_grid(
+            ds_base,
+            other_ds,
+            grid_dict=grid_dict,
+            recalculate_metrics=recalculate_metrics,
         )
-    # check if metrics are correctly parsed
-    if recalculate_metrics:
-        for axis in ["X", "Y"]:
-            for metric in ["_t", "_gx", "_gy", "_gxgy"]:
-                assert f"d{axis.lower()}{metric}" in list(ds_combined.coords)
+
+        for axis, shift in zip(["X", "Y"], [xshift, yshift]):
+            # make sure the correct dim is in the added dataset
+            assert grid.axes[axis].coords[shift] in ds_combined["other"].dims
+            # and also that none of the other are in there
+            assert all(
+                [
+                    di not in ds_combined["other"].dims
+                    for dd, di in grid.axes[axis].coords.items()
+                    if dd != shift
+                ]
+            )
+        # check if metrics are correctly parsed
+        if recalculate_metrics:
+            for axis in ["X", "Y"]:
+                for metric in ["_t", "_gx", "_gy", "_gxgy"]:
+                    assert f"d{axis.lower()}{metric}" in list(ds_combined.coords)
+
+    # Test error handling
+    with pytest.warns(UserWarning):
+        grid_none, ds_combined_none = combine_staggered_grid(
+            ds_base,
+            ds,
+            grid_dict=None,
+            recalculate_metrics=recalculate_metrics,
+        )
+    assert ds_combined_none is None
+    assert grid_none is None

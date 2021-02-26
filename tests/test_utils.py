@@ -3,12 +3,22 @@ import pytest
 from cmip6_preprocessing.utils import google_cmip_col, model_id_match
 
 
-pytest.importorskip("intake")
-
-
 def test_google_cmip_col():
-    col = google_cmip_col(catalog="main")
-    assert col.catalog_file == "https://storage.googleapis.com/cmip6/pangeo-cmip6.csv"
+    try:
+        import intake
+    except ImportError:
+        intake = None
+    if intake is None:
+        with pytest.raises(ImportError):
+            col = google_cmip_col(catalog="main")
+    else:
+        col = google_cmip_col(catalog="main")
+        assert (
+            col.catalog_file == "https://storage.googleapis.com/cmip6/pangeo-cmip6.csv"
+        )
+
+        with pytest.raises(ValueError):
+            col = google_cmip_col(catalog="wrong")
 
 
 def test_model_id_match():

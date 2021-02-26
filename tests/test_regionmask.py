@@ -11,7 +11,8 @@ regionmask = pytest.importorskip(
 )  # All tests get skipped if the version of regionmask is not > 0.5.0
 
 
-def test_merge_mask():
+@pytest.mark.parametrize("verbose", [True, False])
+def test_merge_mask(verbose):
     x = np.linspace(0, 360, 720)
     y = np.linspace(-90, 90, 360)
     data = np.random.rand(len(x), len(y))
@@ -21,7 +22,7 @@ def test_merge_mask():
 
     basins = regionmask.defined_regions.natural_earth.ocean_basins_50
 
-    mask = merged_mask(basins, ds)
+    mask = merged_mask(basins, ds, verbose=verbose)
 
     # check if number of regions is correct
     mask_regions = np.unique(mask.data.flat)

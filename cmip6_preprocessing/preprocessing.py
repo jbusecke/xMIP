@@ -64,8 +64,10 @@ def rename_cmip6(ds, rename_dict=None):
         for di in rename_dict.keys():
 
             # make sure the input is a list
-            if isinstance(rename_dict[di], str):
-                rename_dict[di] = [rename_dict[di]]
+            if not isinstance(rename_dict[di], list):
+                raise ValueError(
+                    f"Input dict must have a list as value. Got {rename_dict[di]} for key {di}"
+                )
 
             if di not in ds.variables:
 
@@ -199,23 +201,14 @@ def correct_units(ds, verbose=False, stric=False):
             if "units" in ds.coords[co].attrs.keys():
                 unit = ds.coords[co].attrs["units"]
                 if unit != expected_unit:
-                    print(
-                        "%s: Unexpected unit (%s) for coordinate `%s` detected."
-                        % (ds.attrs["source_id"], unit, co)
-                    )
                     if unit in unit_dict[expected_unit].keys():
                         factor = unit_dict[expected_unit][unit]
                         ds.coords[co] = ds.coords[co] * factor
                         ds.coords[co].attrs["units"] = expected_unit
-                        print("\t Converted to `m`")
                     else:
-                        print("No conversion found in unit_dict")
+                        warnings.warn("No conversion found in unit_dict")
             else:
-                print("%s: No units found" % ds.attrs["source_id"])
-
-        else:
-            if verbose:
-                print("`%s` not found as coordinate" % co)
+                warnings.warn(f'{ds.attrs["source_id"]}: No units found for {co}')
     return ds
 
 
