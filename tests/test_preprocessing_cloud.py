@@ -21,7 +21,6 @@ def diagnose_doubles(data):
     missing = np.array([i for i in np.arange(len(data)) if i not in idx])
     if len(missing) > 0:
         missing_values = data[missing]
-        print(f"Missing values Indicies[{missing}]/ Values[{missing_values}]")
 
 
 def data(
@@ -59,7 +58,6 @@ def data(
                 cat.df["zstore"][0]
             )  # think you can pass in storage options here as well?
             ds_raw = xr.open_zarr(mm, **zarr_kwargs)
-            print(ds_raw)
             ds = combined_preprocessing(ds_raw)
     else:
         ds = None
@@ -103,7 +101,7 @@ def pytest_generate_tests(metafunc):
             metafunc.parametrize(name, option_value)
 
 
-print(f"\n\n\n\n$$$$$$$ All available models: {all_models()}$$$$$$$\n\n\n\n")
+#print(f"\n\n\n\n$$$$$$$ All available models: {all_models()}$$$$$$$\n\n\n\n")
 
 ## Combine the input parameters according to command line input
 
@@ -463,8 +461,6 @@ def test_check_grid(
 
     # This is just a rudimentary test to see if the creation works
     staggered_grid, ds_staggered = combine_staggered_grid(ds, recalculate_metrics=True)
-
-    print(ds_staggered)
 
     assert ds_staggered is not None
     #
