@@ -10,37 +10,31 @@ v0.2.0 (unreleased)
 
 Breaking changes
 ~~~~~~~~~~~~~~~~
-- Further refactor of `replace_x_y_nominal_lat_lon`, which avoids missing values in the dimension coordinates (:issue:`66`) (:pull:`79`)
-By `Julius Busecke <https://github.com/jbusecke>`_
+- Further refactor of `replace_x_y_nominal_lat_lon`, which avoids missing values in the dimension coordinates (:issue:`66`) (:pull:`79`). By `Julius Busecke <https://github.com/jbusecke>`_
 
-- Consistent treatment of cf-style bounds. The combination of `parse_lon_lat_bounds`,
-`maybe_convert_bounds_to_vertex`, `maybe_convert_vertex_to_bounds`, and `sort_vertex_order` applied on the dataset, assures
-that all datasets have both conventions available and the vertex order is the same.
-By `Julius Busecke <https://github.com/jbusecke>`_
+- Consistent treatment of cf-style bounds. The combination of `parse_lon_lat_bounds`,`maybe_convert_bounds_to_vertex`, `maybe_convert_vertex_to_bounds`, and `sort_vertex_order` applied on the dataset, assures that all datasets have both conventions available and the vertex order is the same. By `Julius Busecke <https://github.com/jbusecke>`_
 
-- New implementation of `replace_x_y_nominal_lat_lon`, which avoids duplicate values in the derived dimensions (:issue:`34`) (:pull:`35`)
-By `Julius Busecke <https://github.com/jbusecke>`_
+- New implementation of `replace_x_y_nominal_lat_lon`, which avoids duplicate values in the derived dimensions (:issue:`34`) (:pull:`35`). By `Julius Busecke <https://github.com/jbusecke>`_
 
 New Features
 ~~~~~~~~~~~~
-- Create merged region masks with :py:func:`merged_mask` (:pull:`18`)
-  By `Julius Busecke <https://github.com/jbusecke>`_
+- Create merged region masks with :py:func:`merged_mask` (:pull:`18`). By `Julius Busecke <https://github.com/jbusecke>`_
 
 
 Bug fixes
 ~~~~~~~~~
-- Updated cmip6 catalog location for the pangeo gc archive (:issue:`80`) (:pull:`81`)
-By `Julius Busecke <https://github.com/jbusecke>`_
+- Updated cmip6 catalog location for the pangeo gc archive (:issue:`80`) (:pull:`81`). By `Julius Busecke <https://github.com/jbusecke>`_
 
 
 Documentation
 ~~~~~~~~~~~~~
-
+- Sphinx/RTD documentation, including contributor guide and new logo 🤗. (:issue:`27`) (:pull:`99`).
 
 Internal Changes
 ~~~~~~~~~~~~~~~~
--  Add `ni` and `nj` to the `rename_dict` dictionary in _preprocessing.py_ as dimensions to be corrected (:pull:`54`)
-   By `Markus Ritschel <https://github.com/markusritschel>`_
+- Adds options to skip extensive cloud ci by using [skip-ci] in commit message. Adds the ability to cancel previous GHA jobs to prevent long wait times for rapid pushes. (:pull:`99`) By `Julius Busecke <https://github.com/jbusecke>`_.
+
+-  Add `ni` and `nj` to the `rename_dict` dictionary in _preprocessing.py_ as dimensions to be corrected (:pull:`54`). By `Markus Ritschel <https://github.com/markusritschel>`_
 
 
 .. _whats-new.0.1.2:
@@ -51,8 +45,7 @@ v0.1.2
 
 New Features
 ~~~~~~~~~~~~
-- Added more models, now supporting both ocean and atmospheric output for :py:func:`combined_preprocessing` (:pull:`14`)
-  By `Julius Busecke <https://github.com/jbusecke>`_
+- Added more models, now supporting both ocean and atmospheric output for :py:func:`combined_preprocessing` (:pull:`14`). By `Julius Busecke <https://github.com/jbusecke>`_
 
 
 

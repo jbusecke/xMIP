@@ -1,0 +1,21 @@
+name: cmip6_preprocessing_docs
+channels:
+  - conda-forge
+dependencies:
+  - python
+  # Insert your dependencies here
+  - numpydoc
+  - sphinx
+  - sphinx_rtd_theme
+  - ipython
+  - ipykernel # not strictly necessary but this is nice to run notebooks in this env to test
+  - pandoc
+  - recommonmark
+  - pip
+  - pip:
+    - docrep<=0.2.7
+    - nbsphinx
+    - jupyter_client
+    - sphinx_pangeo_theme
+    - sphinx-copybutton
+    - sphinxcontrib-srclinks
