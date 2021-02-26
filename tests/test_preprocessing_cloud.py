@@ -101,7 +101,7 @@ def pytest_generate_tests(metafunc):
             metafunc.parametrize(name, option_value)
 
 
-#print(f"\n\n\n\n$$$$$$$ All available models: {all_models()}$$$$$$$\n\n\n\n")
+# print(f"\n\n\n\n$$$$$$$ All available models: {all_models()}$$$$$$$\n\n\n\n")
 
 ## Combine the input parameters according to command line input
 
