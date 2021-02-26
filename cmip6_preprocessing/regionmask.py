@@ -189,18 +189,6 @@ def merged_mask(
     """
     mask = basins.mask(ds, lon_name=lon_name, lat_name=lat_name)
 
-    def find_mask_index(name):
-        target_value = [
-            ri for ri in range(len(basins.regions)) if basins.regions[ri].name == name
-        ]
-        if len(target_value) > 1:
-            warnings.warn(f"Found more than one matching region for {name}")
-            return target_value[0]
-        elif len(target_value) == 1:
-            return target_value[0]
-        else:
-            return None
-
     if merge_dict is None:
         merge_dict = _default_merge_dict()
 
@@ -208,7 +196,6 @@ def merged_mask(
     number_dict = {k: None for k in dict_keys}
     merged_basins = []
     for ocean, small_basins in merge_dict.items():
-        #         ocean_idx = find_mask_index(ocean)
         try:
             ocean_idx = basins.map_keys(ocean)
         except (KeyError):
