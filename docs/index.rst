@@ -62,6 +62,7 @@ Contents
 
    tutorial
    regionmask
+   contributor-guide
    api
    whats-new
 
