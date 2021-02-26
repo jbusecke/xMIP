@@ -231,7 +231,7 @@ def test_check_dim_coord_values_wo_intake(
     assert ds.lon.max().load() <= 360
     if "lon_bounds" in ds.variables:
         assert ds.lon_bounds.min().load() >= 0
-        assert ds.lon_bounds.max().load() <= 360
+        assert ds.lon_bounds.max().load() <= 361
     assert ds.lat.min().load() >= -90
     assert ds.lat.max().load() <= 90
     # make sure lon and lat are 2d
@@ -303,7 +303,7 @@ def test_check_dim_coord_values(
     assert ds.lon.max().load() <= 360
     if "lon_bounds" in ds.variables:
         assert ds.lon_bounds.min().load() >= 0
-        assert ds.lon_bounds.max().load() <= 360
+        assert ds.lon_bounds.max().load() <= 361
     assert ds.lat.min().load() >= -90
     assert ds.lat.max().load() <= 90
     # make sure lon and lat are 2d
