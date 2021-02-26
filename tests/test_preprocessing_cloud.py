@@ -174,7 +174,6 @@ def spec_check_dim_coord_values_wo_intake(request, gl, vi, ei, cat):
         ("MIROC6", "uo", "*", "gn"),
         ("MIROC-ES2L", "uo", "*", "gn"),
         ("FGOALS-f3-L", ["thetao"], "piControl", "gn"),
-        ("IPSL-CM6A-LR", ["o2"], "historical", "gn"),
         # (
         #     "GFDL-CM4",
         #     "thetao",
