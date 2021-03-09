@@ -12,6 +12,9 @@ dependencies:
   - pandoc
   - recommonmark
   - pip
+# not installing these in RTD, because I am currently not actually executing the notebooks there
+#   - intake-esm
+#   - gcsfs
   - pip:
     - docrep<=0.2.7
     - nbsphinx

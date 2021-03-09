@@ -416,8 +416,6 @@ def combined_preprocessing(ds):
         ds = correct_lon(ds)
         # fix the units
         ds = correct_units(ds)
-        # replace x,y with nominal lon,lat
-        ds = replace_x_y_nominal_lat_lon(ds)
         # rename the `bounds` according to their style (bound or vertex)
         ds = parse_lon_lat_bounds(ds)
         # sort verticies in a consistent manner
@@ -425,9 +423,4 @@ def combined_preprocessing(ds):
         # convert vertex into bounds and vice versa, so both are available
         ds = maybe_convert_bounds_to_vertex(ds)
         ds = maybe_convert_vertex_to_bounds(ds)
-
-        # # sort dims
-        # for di in ds.dims:
-        #     ds = ds.sortby(di)
-
     return ds
