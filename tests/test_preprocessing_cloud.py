@@ -361,8 +361,7 @@ def test_check_bounds_verticies(spec_check_bounds_verticies):
     #### Check the order of the vertex
     # Ill only check these south of the Arctic for now. Up there
     # things are still weird.
-
-    test_ds = ds.sel(y=slice(-40, 40))
+    test_ds = ds.where(abs(ds.lat) <= 40, drop=True)
 
     vertex_lon_diff1 = test_ds.lon_verticies.isel(
         vertex=3
