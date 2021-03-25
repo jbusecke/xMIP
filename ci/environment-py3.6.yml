@@ -4,8 +4,6 @@ channels:
 dependencies:
   - python=3.6
   - xarray
-  - numpy
-  - pandas
   - xgcm
   - pyproj
   - matplotlib
@@ -15,4 +13,3 @@ dependencies:
     - codecov
     - pytest-cov
     - pytest-xdist
-    - black
