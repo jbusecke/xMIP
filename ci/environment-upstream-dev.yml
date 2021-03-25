@@ -7,6 +7,7 @@ dependencies:
   - matplotlib
   - cartopy
   - cftime
+  - dask
   - pip
   - pip:
     - codecov
