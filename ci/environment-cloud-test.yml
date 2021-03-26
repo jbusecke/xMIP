@@ -5,18 +5,17 @@ dependencies:
 
   - python=3.8
   - xarray
-  - numpy
-  - pandas
+  - xgcm
+  - cftime
+  - regionmask
+  - pyproj
+  - matplotlib
+  # Dependencies for the pangeo cloud data
   - intake-esm
   - gcsfs
   - zarr
-  - xgcm
-  - pyproj
-  - matplotlib
-  - regionmask # this will fail until the current version is released on conda
-  - black
+  # Dependencies for the testing suite
   - pytest-cov
   - pytest-xdist
   - pytest-rerunfailures
   - codecov
-  - cftime

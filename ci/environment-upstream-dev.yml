@@ -6,16 +6,13 @@ dependencies:
   - pyproj
   - matplotlib
   - cartopy
-  - codecov
-  - pytest-cov
-  - black
-  - numpy
   - cftime
   - dask
   - pip
   - pip:
+    - codecov
+    - pytest-cov
     - pytest-xdist
     - git+https://github.com/mathause/regionmask.git
     - git+https://github.com/pydata/xarray.git
-    - git+https://github.com/pandas-dev/pandas.git
     - git+https://github.com/xgcm/xgcm.git

@@ -4,15 +4,11 @@ channels:
 dependencies:
   - python=3.8
   - xarray
-  - numpy
-  - pandas
-  - zarr
   - xgcm
   - pyproj
+  - cftime
   - matplotlib
-  - regionmask # this will fail until the current version is released on conda
-  - black
+  - regionmask
   - pytest-cov
   - pytest-xdist
   - codecov
-  - cftime
