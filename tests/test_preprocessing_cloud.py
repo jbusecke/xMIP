@@ -316,12 +316,9 @@ def spec_check_bounds_verticies(request, gl, vi, ei, cat):
             ("NorESM2-MM", ["thetao", "uo", "zos"], "historical", "gn"),
             ("NorESM2-MM", ["thetao", "so"], "historical", "gr"),
             ("IPSL-CM6A-LR", ["thetao", "o2"], "historical", "gn"),
-            ("NESM3", "uo", "*", "gn"),
             ("IITM-ESM", ["so", "uo", "thetao"], "piControl", "gn"),
             ("GFDL-CM4", "uo", "*", "gn"),
-            ("EC-Earth3", "uo", "*", "gn"),
             ("EC-Earth3-LR", "uo", "piControl", "gn"),
-            ("EC-Earth3-Veg", "uo", "*", "gn"),
         ]
     )
     spec = (request.param, vi, ei, gl, cat)
@@ -361,8 +358,7 @@ def test_check_bounds_verticies(spec_check_bounds_verticies):
     #### Check the order of the vertex
     # Ill only check these south of the Arctic for now. Up there
     # things are still weird.
-
-    test_ds = ds.sel(y=slice(-40, 40))
+    test_ds = ds.where(abs(ds.lat) <= 40, drop=True)
 
     vertex_lon_diff1 = test_ds.lon_verticies.isel(
         vertex=3
