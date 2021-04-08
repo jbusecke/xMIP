@@ -316,12 +316,9 @@ def spec_check_bounds_verticies(request, gl, vi, ei, cat):
             ("NorESM2-MM", ["thetao", "uo", "zos"], "historical", "gn"),
             ("NorESM2-MM", ["thetao", "so"], "historical", "gr"),
             ("IPSL-CM6A-LR", ["thetao", "o2"], "historical", "gn"),
-            ("NESM3", "uo", "*", "gn"),
             ("IITM-ESM", ["so", "uo", "thetao"], "piControl", "gn"),
             ("GFDL-CM4", "uo", "*", "gn"),
-            ("EC-Earth3", "uo", "*", "gn"),
             ("EC-Earth3-LR", "uo", "piControl", "gn"),
-            ("EC-Earth3-Veg", "uo", "*", "gn"),
         ]
     )
     spec = (request.param, vi, ei, gl, cat)
