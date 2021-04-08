@@ -12,6 +12,7 @@ dependencies:
   - pandoc
   - recommonmark
   - pip
+  - nc-time-axis
   - pip:
     - docrep<=0.2.7
     - nbsphinx
