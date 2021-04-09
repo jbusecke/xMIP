@@ -47,7 +47,7 @@ Internal Changes
 .. _whats-new.0.1.2:
 
 v0.1.2
----------------------
+------
 
 
 New Features
