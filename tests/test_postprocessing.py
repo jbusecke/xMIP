@@ -209,3 +209,23 @@ def test_match_metrics():
     _assert_parsed_ds_dict(ds_dict_parsed, ds_metric_c[metricname], ["b"], strict=False)
     assert ds_dict_parsed["b"][metricname].attrs["original_key"] == "exact_c"
     assert ds_dict_parsed["b"]["other"].attrs["original_key"] == "other_a"
+
+
+def test_match_metrics_exceptions():
+    metricname = "metric"
+    # give a dataset that has member_id as dim (indicator that it was aggregated).
+
+    attrs = {
+        "source_id": "a",
+        "grid_label": "a",
+        "experiment_id": "a",
+        "table_id": "a",
+        "variant_label": "a",
+        "version": "a",
+    }
+    ds = random_ds().rename({"z": "member_id"})
+    ds.attrs = attrs
+    ds_metric = random_ds().rename({"data": metricname})
+    ds_metric.attrs = attrs
+    with pytest.raises(ValueError):
+        match_metrics({"a": ds}, {"aa": ds_metric}, [metricname])

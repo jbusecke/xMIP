@@ -19,12 +19,6 @@ def parse_metric(ds, metric):
     xr.Dataset
         `ds` with `metric` added as coordinate.
 
-    Raises
-    ------
-    ValueError
-        [description]
-    ValueError
-        [description]
     """
 
     # TODO: Show the 'id' in the failures and warnings.
@@ -76,6 +70,36 @@ def match_metrics(
     match_attrs=["source_id", "grid_label"],
     print_statistics=False,
 ):
+    """Given two dictionaries of datasets, this function matches metrics from `metric_dict` to
+    every datasets in `ds_dict` based on comparing the datasets attributes.
+
+    Parameters
+    ----------
+    ds_dict : dict
+        Dictionary of xarray datasets, that need matching metrics.
+    metric_dict : dict
+        Dictionary of xarray datasets, which contain metrics as data_variables.
+    match_variables : list
+        Data variables of datasets in `metric_dict` to match.
+    match_attrs : list, optional
+        Minimum dataset attributes that need to match, by default ["source_id", "grid_label"]
+    print_statistics : bool, optional
+        Option to print statistics about matching, by default False
+
+    Returns
+    -------
+    dict
+        All datasets from `ds_dict`, if match was not possible the input dataset is returned.
+
+    """
+    # Very rudimentary check if the data was aggregated with intake-esm
+    # (which leaves non-correct attributes behind see: https://github.com/intake/intake-esm/issues/264)
+    if any(["member_id" in ds.dims for ds in ds_dict.values()]):
+        raise ValueError(
+            "It seems like some of the input datasets in `ds_dict` have aggregated members.\
+            This is not currently supported. Please use `aggregate=False` when using intake-esm `to_dataset_dict()`."
+        )
+
     # define the attrs that are needed to get an 'exact' match
     exact_attrs = [
         "source_id",
