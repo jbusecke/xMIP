@@ -2,14 +2,21 @@
 
 What's New
 ===========
+.. _whats-new.0.2.1:
+
+
+v0.2.1 (unreleased)
+-------------------
+
 
 .. _whats-new.0.2.0:
 
-v0.2.0 (unreleased)
----------------------
+v0.2.0 (2021/4/9)
+-----------------
 
 Breaking changes
 ~~~~~~~~~~~~~~~~
+- Removed `replace_x_y_nominal_lat_lon` from `combined_preprocessing` due to ongoing performance issues with dask (:issue:`75`, :issue:`85`, :issue:`94`) (:pull:`104`). By `Julius Busecke <https://github.com/jbusecke>`_
 - Further refactor of `replace_x_y_nominal_lat_lon`, which avoids missing values in the dimension coordinates (:issue:`66`) (:pull:`79`). By `Julius Busecke <https://github.com/jbusecke>`_
 
 - Consistent treatment of cf-style bounds. The combination of `parse_lon_lat_bounds`,`maybe_convert_bounds_to_vertex`, `maybe_convert_vertex_to_bounds`, and `sort_vertex_order` applied on the dataset, assures that all datasets have both conventions available and the vertex order is the same. By `Julius Busecke <https://github.com/jbusecke>`_
@@ -40,7 +47,7 @@ Internal Changes
 .. _whats-new.0.1.2:
 
 v0.1.2
----------------------
+------
 
 
 New Features
