@@ -8,6 +8,10 @@ What's New
 v0.2.1 (unreleased)
 -------------------
 
+New Features
+~~~~~~~~~~~~
+- Added `postprocessing` module and added ability to parse metrics to multiple datasets in a dictionary (:pull:`110`). By `Julius Busecke <https://github.com/jbusecke>`_
+
 
 .. _whats-new.0.2.0:
 
