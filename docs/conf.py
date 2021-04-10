@@ -33,7 +33,7 @@ version = cmip6_preprocessing.__version__.split("+")[0]
 # The full version, including alpha/beta/rc tags.
 release = cmip6_preprocessing.__version__
 
-print("package version:",  version)
+print("package version:", version)
 
 
 # -- Project information -----------------------------------------------------
