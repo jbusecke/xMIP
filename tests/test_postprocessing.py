@@ -229,3 +229,30 @@ def test_match_metrics_exceptions():
     ds_metric.attrs = attrs
     with pytest.raises(ValueError):
         match_metrics({"a": ds}, {"aa": ds_metric}, [metricname])
+
+
+def test_match_metrics_print_statistics(capsys):
+    metricname = "metric"
+    # give a dataset that has member_id as dim (indicator that it was aggregated).
+
+    attrs = {
+        "source_id": "a",
+        "grid_label": "a",
+        "experiment_id": "a",
+        "table_id": "a",
+        "variant_label": "a",
+        "version": "a",
+    }
+    ds = random_ds()
+    ds.attrs = attrs
+    ds_metric = random_ds().rename({"data": metricname})
+    ds_metric.attrs = attrs
+
+    match_metrics({"a": ds}, {"aa": ds_metric}, [metricname], print_statistics=True)
+
+    captured = capsys.readouterr()
+
+    assert "Processed 1 datasets." in captured.out
+    assert "Exact matches:{'metric': 1}" in captured.out
+    assert "Other matches:{'metric': 0}" in captured.out
+    assert "No match found:{'metric': 0}" in captured.out
