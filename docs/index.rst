@@ -62,6 +62,7 @@ Contents
 
    tutorial
    regionmask
+   parsing_metrics
    contributor-guide
    api
    whats-new
