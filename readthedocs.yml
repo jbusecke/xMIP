@@ -1,4 +1,4 @@
-# Required (see https://docs.readthedocs.io/en/stable/config-file/v2.html#supported-settings)
+# Required (see here: https://docs.readthedocs.io/en/stable/config-file/v2.html#supported-settings)
 version: 2
 
 conda:
