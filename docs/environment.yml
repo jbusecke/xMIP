@@ -3,6 +3,15 @@ channels:
   - conda-forge
 dependencies:
   - python
+  - xarray
+  - xgcm
+  - pyproj
+  - cftime
+  - matplotlib
+  - regionmask
+  - pytest-cov
+  - pytest-xdist
+  - codecov
   # Insert your dependencies here
   - numpydoc
   - sphinx
