@@ -55,12 +55,18 @@ def parse_metric(ds, metric, dim_length_conflict="error"):
     for di in metric.dims:
         if len(ds[di]) != len(metric[di]):
             mismatch_dims.append(di)
+
     if len(mismatch_dims) > 0:
         metric_str = [str(di) + ":" + str(len(metric[di])) for di in mismatch_dims]
         ds_str = [str(di) + ":" + str(len(ds[di])) for di in mismatch_dims]
-        raise ValueError(
-            f"{dataset_id}:`metric` dimensions {metric_str} do not match `ds` {ds_str}",
+        msg = (
+            f"{dataset_id}:`metric` dimensions {metric_str} do not match `ds` {ds_str}."
         )
+        if dim_length_conflict == "error":
+            raise ValueError(msg)
+        elif dim_length_conflict == "align":
+            warnings.warn(msg + " Aligning the data on `inner`")
+            ds, metric = xr.align(ds, metric, join="inner")
 
     # strip all coordinates from metric
     metric_stripped = metric.reset_coords(drop=True)
@@ -88,6 +94,7 @@ def match_metrics(
     match_attrs=["source_id", "grid_label"],
     print_statistics=False,
     exact_attrs=exact_attrs,
+    dim_length_conflict="error",
 ):
     """Given two dictionaries of datasets, this function matches metrics from `metric_dict` to
     every datasets in `ds_dict` based on comparing the datasets attributes.
@@ -107,7 +114,9 @@ def match_metrics(
     exact_attrs : list
         List of attributes that define an `exact` match, by
         default ["source_id","grid_label","experiment_id","table_id", "variant_label"].
-
+    dim_length_conflict : str
+        Defines the behavior when parsing metrics with non-exact matches in dimension size.
+        See `parse_metric`.
     Returns
     -------
     dict
@@ -180,7 +189,9 @@ def match_metrics(
                 else:
 
                     ds_metric[mv].attrs["original_key"] = metric_name
-                    ds = parse_metric(ds, ds_metric[mv])
+                    ds = parse_metric(
+                        ds, ds_metric[mv], dim_length_conflict=dim_length_conflict
+                    )
                     if exact_match:
                         exact_datasets[mv] += 1
                     else:
