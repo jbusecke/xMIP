@@ -35,7 +35,7 @@ def test_parse_metric(metricname):
 
 
 @pytest.mark.parametrize("metricname", ["metric", "something"])
-def test_parse_metric_exceptions(metricname):
+def test_parse_metric_exceptions_input_dataset(metricname):
     # create a dataset
     ds = random_ds()
     # create a metric dataset
@@ -45,18 +45,71 @@ def test_parse_metric_exceptions(metricname):
     with pytest.raises(ValueError):
         ds_parsed = parse_metric(ds, ds_metric)
 
+
+def test_parse_metric_exceptions_input_name():
+    # create a dataset
+    ds = random_ds()
+    # create a metric dataset
+    ds_metric = random_ds().isel(z=0, time=0)
+    # set attributes
+    ds.attrs = {"activity_id": "a"}
+
     # provide dataarray without name
-    with pytest.warns(RuntimeWarning):
-        da_metric_nameless = ds_metric[metricname]
+    with pytest.warns(RuntimeWarning) as warninfo:
+        da_metric_nameless = ds_metric["data"]
         da_metric_nameless.name = None
 
         ds_parsed = parse_metric(ds, da_metric_nameless)
+    assert (
+        warninfo[0].message.args[0]
+        == "a.none.none.none.none.none.none:`metric` has no name. This might lead to problems down the line."
+    )
+
+
+def test_parse_metric_exception_dim_alignment():
+    metricname = "metric"
+    # create a dataset
+    ds = random_ds()
+    # create a metric dataset
+    ds_metric = random_ds().isel(z=0, time=0).rename({"data": metricname})
+    # set attributes
+    ds.attrs = {"activity_id": "a", "grid_label": "g"}
 
     # provide dataarray with non-matching dimensions
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError) as execinfo:
         ds_parsed = parse_metric(
             ds, ds_metric.isel(x=slice(0, -1), y=slice(1, None))[metricname]
         )
+    msg = "a.none.none.none.none.g.none:`metric` dimensions ['x:2', 'y:1'] do not match `ds` ['x:3', 'y:2']"
+    assert execinfo.value.args[0] == msg
+
+
+# @pytest.mark.parametrize("metricname", ["metric", "something"])
+# def test_parse_metric_exception_different_dim_length(metricname):
+#     # create a dataset
+#     ds = random_ds()
+#     # create a metric dataset that has one less time value than the dataset.
+#     ds_metric = random_ds().isel(z=0, time=slice(0,-1)).rename({"data": metricname})
+
+#     # parse exactly the same attrs
+#     attrs =
+
+#     # provide dataset instead of dataarray
+#     with pytest.raises(ValueError):
+#         ds_parsed = parse_metric(ds, ds_metric)
+
+#     # provide dataarray without name
+#     with pytest.warns(RuntimeWarning):
+#         da_metric_nameless = ds_metric[metricname]
+#         da_metric_nameless.name = None
+
+#         ds_parsed = parse_metric(ds, da_metric_nameless)
+
+#     # provide dataarray with non-matching dimensions
+#     with pytest.raises(ValueError):
+#         ds_parsed = parse_metric(
+#             ds, ds_metric.isel(x=slice(0, -1), y=slice(1, None))[metricname]
+#         )
 
 
 def test_match_metrics():
