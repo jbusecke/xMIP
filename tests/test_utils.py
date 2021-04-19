@@ -1,6 +1,7 @@
 import pytest
+import xarray as xr
 
-from cmip6_preprocessing.utils import google_cmip_col, model_id_match
+from cmip6_preprocessing.utils import cmip6_dataset_id, google_cmip_col, model_id_match
 
 
 def test_google_cmip_col():
@@ -46,4 +47,24 @@ def test_model_id_match():
     assert model_id_match([(["bb", "b"], "a", "aa")], ("b", "a", "aa"))
     assert model_id_match(
         [(["bb", "b"], "a", "aa"), (["bb", "b"], "c", "cc")], ("bb", "a", "aa")
+    )
+
+
+def test_cmip6_dataset_id():
+    ds = xr.Dataset({"data": 4})
+
+    ds.attrs = {
+        "activity_id": "ai",
+        "institution_id": "ii",
+        "source_id": "si",
+        "experiment_id": "ei",
+        "table_id": "ti",
+        "grid_label": "gl",
+    }
+
+    assert cmip6_dataset_id(ds) == "ai.ii.si.ei.ti.gl.none"
+    assert cmip6_dataset_id(ds, sep="_") == "ai_ii_si_ei_ti_gl_none"
+    assert (
+        cmip6_dataset_id(ds, id_attrs=["grid_label", "activity_id", "wrong_attrs"])
+        == "gl.ai.none"
     )

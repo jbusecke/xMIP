@@ -53,3 +53,33 @@ def model_id_match(match_list, id_tuple):
                 ml_processed.append(False)
         match_list_checked.append(all(ml_processed))
     return any(match_list_checked)
+
+
+def cmip6_dataset_id(
+    ds,
+    sep=".",
+    id_attrs=[
+        "activity_id",
+        "institution_id",
+        "source_id",
+        "experiment_id",
+        "table_id",
+        "grid_label",
+        "version",
+    ],
+):
+    """Creates a unique string id for e.g. saving files to disk from CMIP6 output
+
+    Parameters
+    ----------
+    ds : xr.Dataset
+        Input dataset
+    sep : str, optional
+        String/Symbol to seperate fields in resulting string, by default "."
+
+    Returns
+    -------
+    str
+        Concatenated
+    """
+    return sep.join([ds.attrs[i] if i in ds.attrs.keys() else "none" for i in id_attrs])
