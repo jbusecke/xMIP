@@ -5,7 +5,12 @@ import xarray as xr
 from cmip6_preprocessing.postprocessing import match_metrics, parse_metric
 
 
-def random_ds(time_coords=False):
+@pytest.fixture(params=["metric", "other"])
+def metricname(request):
+    return request.param
+
+
+def random_ds():
     """Create random dataset"""
     nx, ny, nz, nt = (3, 2, 4, 6)
     data = np.random.rand(nx, ny, nz, nt)
@@ -15,7 +20,6 @@ def random_ds(time_coords=False):
     return da.to_dataset(name="data")
 
 
-@pytest.mark.parametrize("metricname", ["metric", "something"])
 def test_parse_metric(metricname):
     # create a dataset
     ds = random_ds()
@@ -36,8 +40,7 @@ def test_parse_metric(metricname):
     assert ds_parsed[metricname].attrs["check"] == "carry"
 
 
-@pytest.mark.parametrize("metricname", ["metric", "something"])
-def test_parse_metric_exceptions_input_dataset(metricname):
+def test_parse_metric_exceptions(metricname):
     # create a dataset
     ds = random_ds()
     # create a metric dataset
@@ -111,7 +114,7 @@ def test_parse_metric_dim_alignment():
     assert warninfo[0].message.args[0] == msg
 
 
-def test_match_metrics():
+def test_match_metrics(metricname):
     # create a few different datasets
     ds_a = random_ds()
     ds_b = random_ds()
@@ -162,7 +165,6 @@ def test_match_metrics():
     }
 
     # now create a metric (which does not vary in time) which matches ds_a
-    metricname = "metric"
     ds_metric = random_ds().isel(time=0).rename({"data": metricname})
     ds_metric.attrs = ds_a.attrs
 
@@ -230,7 +232,6 @@ def test_match_metrics():
     _assert_parsed_ds_dict(ds_dict_parsed, ds_metric[metricname], ["a"])
 
 
-@pytest.mark.parametrize("metricname", ["metric", "other"])
 def test_match_metrics_closer(metricname):
     # Test to see if a metric dataset with more matching attrs is preferred.
 
@@ -281,8 +282,7 @@ def test_match_metrics_closer(metricname):
     assert ds_dict_parsed["c"][metricname].attrs["original_key"] == "exact_c"
 
 
-def test_match_metrics_exceptions():
-    metricname = "metric"
+def test_match_metrics_exceptions(metricname):
     # give a dataset that has member_id as dim (indicator that it was aggregated).
 
     attrs = {
@@ -331,8 +331,7 @@ def test_match_metrics_align_dims():
     xr.testing.assert_allclose(ddict_matched["a"].time, ds_metric.time)
 
 
-def test_match_metrics_print_statistics(capsys):
-    metricname = "metric"
+def test_match_metrics_print_statistics(capsys, metricname):
     # give a dataset that has member_id as dim (indicator that it was aggregated).
 
     attrs = {
@@ -353,6 +352,6 @@ def test_match_metrics_print_statistics(capsys):
     captured = capsys.readouterr()
 
     assert "Processed 1 datasets." in captured.out
-    assert "Exact matches:{'metric': 1}" in captured.out
-    assert "Other matches:{'metric': 0}" in captured.out
-    assert "No match found:{'metric': 0}" in captured.out
+    assert "Exact matches:" + str({metricname: 1}) in captured.out
+    assert "Other matches:" + str({metricname: 0}) in captured.out
+    assert "No match found:" + str({metricname: 0}) in captured.out
