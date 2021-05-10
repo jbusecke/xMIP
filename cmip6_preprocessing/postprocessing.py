@@ -1,6 +1,7 @@
 import inspect
 import warnings
 
+import numpy as np
 import xarray as xr
 
 from cmip6_preprocessing.utils import _key_from_attrs, cmip6_dataset_id
@@ -200,11 +201,8 @@ def match_metrics(
                     _match_attrs(ds, ds_match, exact_attrs)
                     for ds_match in matched_metric_vars
                 ]
-                sorted_by_match = [
-                    x for _, x in sorted(zip(nmatch, matched_metric_vars))
-                ]
-
-                ds_metric = sorted_by_match[-1]
+                closest_match = np.argmax(nmatch)
+                ds_metric = matched_metric_vars[closest_match]
 
                 # this is a hardcoded check for time variable metrics.
                 # These are very likely only valid for exact matches of runs.
@@ -239,8 +237,34 @@ def match_metrics(
 
 
 def combine_datasets(
-    ds_dict, combine_func, combine_func_kwargs={}, match_attrs=exact_attrs
+    ds_dict,
+    combine_func,
+    combine_func_args=(),
+    combine_func_kwargs={},
+    match_attrs=exact_attrs,
 ):
+    """General combination function to combine datasets within a dictionary according to their matching attributes.
+    This function provides maximum flexibility, but can be somewhat complex to set up. The postprocessing module provided several
+    convenience wrappers like `merge_variables`, `concat_members`, etc.
+
+    Parameters
+    ----------
+    ds_dict : [type]
+        [description]
+    combine_func : [type]
+        [description]
+    combine_func_args : tuple, optional
+        [description], by default ()
+    combine_func_kwargs : dict, optional
+        [description], by default {}
+    match_attrs : [type], optional
+        [description], by default exact_attrs
+
+    Returns
+    -------
+    [type]
+        [description]
+    """
     # make a copy of the input dict, so it is not modified outside of the function
     # ? Not sure this is always desired.
     ds_dict = {k: v for k, v in ds_dict.items()}
@@ -258,9 +282,55 @@ def combine_datasets(
         # for now Ill hardcode the merging. I have been thinking if I should just pass a general `func` to deal with a list of datasets. The user could pass custom stuff
         # And I think that way I can generalize all/most of the `member` level combine functions. Well for now, lets do it the manual way.
         try:
-            ds_combined = combine_func(matched_datasets, **combine_func_kwargs)
-            ds_dict_merged[new_k] = ds_combined
-        except:
-            warnings.warn(f"{cmip6_dataset_id(ds)} failed to merge")
+            ds_combined = combine_func(
+                matched_datasets, *combine_func_args, **combine_func_kwargs
+            )
+            ds_dict_combined[new_k] = ds_combined
+        except Exception as e:
+            warnings.warn(f"{cmip6_dataset_id(ds)} failed to combine with :{e}")
 
     return ds_dict_combined
+
+
+def merge_variables(
+    ds_dict,
+    merge_kwargs={},
+):
+    """Given a dictionary of datasets, this function merges all available data variables (given in seperate datasets) into a single dataset.
+    CAUTION: This assumes that all variables are on the same staggered grid position. If you are working with data on the cell edges,
+    this function will disregard that information. Use the grids module instead to get an accurate staggered grid representation.
+
+    Parameters
+    ----------
+    ds_dict : dict
+        Dictionary of xarray datasets, that need matching metrics.
+    merge_kwargs : dict
+        Optional arguments passed to xr.merge.
+
+    Returns
+    -------
+    dict
+        A new dict of xr.Datasets with all datasets from `ds_dict`, but with merged variables and adjusted keys.
+
+    """
+    # Very rudimentary check if the data was aggregated with intake-esm
+    # (which leaves non-correct attributes behind see: https://github.com/intake/intake-esm/issues/264)
+    # !!! Factor this out into seperate check
+
+    # This should be a decorator
+    if any(["member_id" in ds.dims for ds in ds_dict.values()]):
+        raise ValueError(
+            "It seems like some of the input datasets in `ds_dict` have aggregated members.\
+            This is not currently supported. Please use `aggregate=False` when using intake-esm `to_dataset_dict()`."
+        )
+
+    # set defaults
+    merge_kwargs.setdefault("compat", "override")
+    merge_kwargs.setdefault("join", "exact")  # if the size differs throw an error.
+    merge_kwargs.setdefault(
+        "combine_attrs", "drop_conflicts"
+    )  # if the size differs throw an error. Requires xarray >=0.17.0
+
+    return combine_datasets(
+        ds_dict, xr.merge, combine_func_kwargs=merge_kwargs, match_attrs=exact_attrs
+    )

@@ -1,8 +1,16 @@
+import random
+import string
+
 import numpy as np
 import pytest
 import xarray as xr
 
-from cmip6_preprocessing.postprocessing import match_metrics, parse_metric
+from cmip6_preprocessing.postprocessing import (
+    combine_datasets,
+    match_metrics,
+    merge_variables,
+    parse_metric,
+)
 
 
 @pytest.fixture(params=["metric", "other"])
@@ -10,14 +18,16 @@ def metricname(request):
     return request.param
 
 
-def random_ds(time_coords=False):
+def random_ds(time_coords=False, attrs={}):
     """Create random dataset"""
     nx, ny, nz, nt = (3, 2, 4, 6)
     data = np.random.rand(nx, ny, nz, nt)
     da = xr.DataArray(data, dims=["x", "y", "z", "time"])
     if time_coords:
         da = da.assign_coords(time=xr.cftime_range("2000", periods=nt))
-    return da.to_dataset(name="data")
+    ds = da.to_dataset(name="data")
+    ds.attrs = attrs
+    return ds
 
 
 def test_parse_metric(metricname):
@@ -355,3 +365,154 @@ def test_match_metrics_print_statistics(capsys, metricname):
     assert "Exact matches:" + str({metricname: 1}) in captured.out
     assert "Other matches:" + str({metricname: 0}) in captured.out
     assert "No match found:" + str({metricname: 0}) in captured.out
+
+
+@pytest.mark.parametrize("combine_func_kwargs", [{}, {"compat": "override"}])
+def test_combine_datasets_merge(combine_func_kwargs):
+    attrs_a = {
+        "source_id": "a",
+        "grid_label": "a",
+        "experiment_id": "a",
+        "table_id": "a",
+        "variant_label": "a",
+        "version": "a",
+    }
+
+    attrs_b = {
+        "source_id": "b",
+        "grid_label": "b",
+        "experiment_id": "b",
+        "table_id": "b",
+        "variant_label": "b",
+        "version": "b",
+    }
+
+    # Create some datasets with a/b attrs
+    ds_a_temp = random_ds(attrs=attrs_a).rename({"data": "temp"})
+    ds_a_salt = random_ds(attrs=attrs_a).rename({"data": "salt"})
+
+    ds_b_temp = random_ds(attrs=attrs_b).rename({"data": "temp"})
+    ds_b_salt = random_ds(attrs=attrs_b).rename({"data": "salt"})
+    ds_b_other = random_ds(attrs=attrs_b).rename({"data": "other"})
+
+    ds_dict = {
+        "".join(random.choices(string.ascii_letters, k=4)): ds
+        for ds in [ds_a_salt, ds_a_temp, ds_b_salt, ds_b_temp, ds_b_other]
+    }
+
+    # Group together the expected 'matches'
+    expected = {
+        "a.a.a.a.a": [ds_a_salt, ds_a_temp],
+        "b.b.b.b.b": [ds_b_other, ds_b_temp, ds_b_salt],
+    }
+
+    result = combine_datasets(
+        ds_dict,
+        xr.merge,
+        combine_func_kwargs=combine_func_kwargs,
+    )
+    for k in expected.keys():
+        assert k in list(result.keys())
+        xr.testing.assert_equal(result[k], xr.merge(expected[k], **combine_func_kwargs))
+
+
+def test_merge_variables():
+    attrs_a = {
+        "source_id": "a",
+        "grid_label": "a",
+        "experiment_id": "a",
+        "table_id": "a",
+        "variant_label": "a",
+        "version": "a",
+    }
+
+    attrs_b = {
+        "source_id": "b",
+        "grid_label": "b",
+        "experiment_id": "b",
+        "table_id": "b",
+        "variant_label": "b",
+        "version": "b",
+    }
+
+    # Create some datasets with a/b attrs
+    ds_a_temp = random_ds(attrs=attrs_a).rename({"data": "temp"})
+    ds_a_salt = random_ds(attrs=attrs_a).rename({"data": "salt"})
+
+    ds_b_temp = random_ds(attrs=attrs_b).rename({"data": "temp"})
+    ds_b_salt = random_ds(attrs=attrs_b).rename({"data": "salt"})
+    ds_b_other = random_ds(attrs=attrs_b).rename({"data": "other"})
+
+    ds_dict = {
+        "".join(random.choices(string.ascii_letters, k=4)): ds
+        for ds in [ds_a_salt, ds_a_temp, ds_b_salt, ds_b_temp, ds_b_other]
+    }
+
+    # Group together the expected 'matches'
+    expected = {
+        "a.a.a.a.a": [ds_a_salt, ds_a_temp],
+        "b.b.b.b.b": [ds_b_other, ds_b_temp, ds_b_salt],
+    }
+
+    result = merge_variables(ds_dict)
+
+    for k in expected.keys():
+        assert k in list(result.keys())
+        xr.testing.assert_equal(
+            result[k],
+            xr.merge(
+                expected[k],
+                **{
+                    "compat": "override",
+                    "join": "exact",
+                    "combine_attrs": "drop_conflicts",
+                },
+            ),
+        )
+
+
+def test_concat_members(combine_func_kwargs):
+    attrs_a = {
+        "source_id": "a",
+        "grid_label": "a",
+        "experiment_id": "a",
+        "table_id": "a",
+        "variant_label": "a",
+        "version": "a",
+    }
+
+    attrs_b = {k: v for k, v in attrs_a}
+
+    attrs_c = {k: v for k, v in attrs_b}
+    attrs_c["source_id"] = "c"
+
+    # Create some datasets with a/b attrs
+    ds_a_temp = random_ds(attrs=attrs_a).rename({"data": "temp"})
+    ds_b_temp = random_ds(attrs=attrs_b).rename({"data": "temp"})
+
+    ds_a_salt = random_ds(attrs=attrs_a).rename({"data": "salt"})
+    ds_b_salt = random_ds(attrs=attrs_b).rename({"data": "salt"})
+
+    ds_c_other = random_ds(attrs=attrs_c).rename({"data": "other"})
+
+    ds_dict = {
+        "".join(random.choices(string.ascii_letters, k=4)): ds
+        for ds in [ds_a_salt, ds_a_temp, ds_b_salt, ds_b_temp, ds_c_other]
+    }
+
+    # Group together the expected 'matches'
+    expected = {
+        "a.a.a.a.a": [ds_a_temp, ds_b_temp],
+        "b.b.b.b.b": [ds_a_salt, ds_b_salt],
+        "ccccc": [ds_c_other],
+    }
+
+    result = concat_members(
+        ds_dict,
+        concat_kwargs=combine_func_kwargs,
+    )
+    for k in expected.keys():
+        assert k in list(result.keys())
+        xr.testing.assert_equal(
+            result[k], xr.concat(expected[k], "member_id", **combine_func_kwargs)
+        )
