@@ -55,6 +55,10 @@ def model_id_match(match_list, id_tuple):
     return any(match_list_checked)
 
 
+def _key_from_attrs(ds, attrs, sep="."):
+    return sep.join([ds.attrs[i] if i in ds.attrs.keys() else "none" for i in attrs])
+
+
 def cmip6_dataset_id(
     ds,
     sep=".",
@@ -82,4 +86,4 @@ def cmip6_dataset_id(
     str
         Concatenated
     """
-    return sep.join([ds.attrs[i] if i in ds.attrs.keys() else "none" for i in id_attrs])
+    return _key_from_attrs(ds, id_attrs, sep=sep)

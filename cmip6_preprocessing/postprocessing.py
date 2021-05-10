@@ -3,7 +3,7 @@ import warnings
 
 import xarray as xr
 
-from cmip6_preprocessing.utils import cmip6_dataset_id
+from cmip6_preprocessing.utils import _key_from_attrs, cmip6_dataset_id
 
 
 # define the attrs that are needed to get an 'exact' match
@@ -16,6 +16,49 @@ exact_attrs = [
     # "member_id",
     "variant_label",
 ]
+
+
+def _match_attrs(ds_a, ds_b, match_attrs):
+    """returns the number of matched attrs between two datasets"""
+    return sum([ds_a.attrs[i] == ds_b.attrs[i] for i in match_attrs])
+
+
+def match_datasets(ds, ds_dict, match_attrs, pop=True):
+    """Find all datasets in a dictionary of datasets that match a set of attributes.
+
+    and return a list of datasets for merging/concatting.
+    Optionally remove the matching datasets from the input dict.
+
+    Parameters
+    ----------
+    ds : xr.Dataset
+        Input dataset. This is the reference to which matches will be searched.
+    ds_dict : dict
+        Dictionary of xr.Datasets, containing `candidates` for matching.
+    match_attrs : list
+        List of strings, correponding to the dataset attributes to match
+    pop : bool, optional
+        If true, removes matched datasets from `ds_dict`, by default True
+
+    Returns
+    -------
+    list
+        List of xr.Datasets. Each list will contain the input `ds` as first entry
+        and after that possible matching results. Each matched dataset
+        receives an additional attrs, containing the original key of the `ds_dict`.
+    """
+    datasets = [ds]
+    keys = list(ds_dict.keys())
+    for k in keys:
+        # if match is 'exact' (according to the match_attrs), pop the dataset from the dict
+        if _match_attrs(ds, ds_dict[k], match_attrs) == len(match_attrs):
+            if pop:
+                ds_matched = ds_dict.pop(k)
+            else:
+                ds_matched = ds_dict[k]
+            ds_matched.attrs["original_key"] = k
+            datasets.append(ds_matched)
+    return datasets
 
 
 def parse_metric(ds, metric, dim_length_conflict="error"):
@@ -38,6 +81,7 @@ def parse_metric(ds, metric, dim_length_conflict="error"):
     """
     dataset_id = cmip6_dataset_id(ds)
 
+    # TODO: Show the 'id' in the failures and warnings.
     if not isinstance(metric, xr.DataArray):
         raise ValueError(
             f"{dataset_id}:`metric` input must be xarray.DataArray. Got {type(metric)}"
@@ -80,11 +124,6 @@ def parse_metric(ds, metric, dim_length_conflict="error"):
     ds = ds.assign_coords({metric_stripped.name: metric_stripped})
 
     return ds
-
-
-def _match_attrs(ds_a, ds_b, match_attrs):
-    """returns the number of matched attrs between two datasets"""
-    return sum([ds_a.attrs[i] == ds_b.attrs[i] for i in match_attrs])
 
 
 def match_metrics(
@@ -144,36 +183,28 @@ def match_metrics(
     for k, ds in ds_dict.items():
         total_datasets += 1
         # Filter for the matching attrs
-        matched_metric_dict = {
-            kk: ds_metric
-            for kk, ds_metric in metric_dict.items()
-            if all([ds_metric.attrs[a] == ds.attrs[a] for a in match_attrs])
-        }
+        matched_metrics = match_datasets(ds, metric_dict, match_attrs, pop=False)
 
         # Filter for the variable
         for mv in match_variables:
-            matched_var_dict = {
-                kk: ds_metric
-                for kk, ds_metric in matched_metric_dict.items()
-                if mv in ds_metric.variables
-            }
+            matched_metric_vars = [ds for ds in matched_metrics if mv in ds.variables]
 
-            if len(matched_var_dict) == 0:
+            if len(matched_metric_vars) == 0:
                 warnings.warn(f"No matching metrics found for {mv}")
                 nomatch_datasets[mv] += 1
             else:
-                # Pick the metric that no only matches the input matches, but
-                # has the highers number of matching attrs. This ensures
-                # that the exact match is picked if available.
+                # Pick the metric with the most mathching attributes.
+                # This ensures that the exact match is picked if available.
 
-                keys = list(matched_var_dict.keys())
-                nmatch_keys = [
-                    _match_attrs(ds, matched_var_dict[k], exact_attrs) for k in keys
+                nmatch = [
+                    _match_attrs(ds, ds_match, exact_attrs)
+                    for ds_match in matched_metric_vars
                 ]
-                sorted_by_match = [x for _, x in sorted(zip(nmatch_keys, keys))]
+                sorted_by_match = [
+                    x for _, x in sorted(zip(nmatch, matched_metric_vars))
+                ]
 
-                metric_name = sorted_by_match[-1]
-                ds_metric = matched_var_dict.get(metric_name)
+                ds_metric = sorted_by_match[-1]
 
                 # this is a hardcoded check for time variable metrics.
                 # These are very likely only valid for exact matches of runs.
@@ -187,8 +218,10 @@ def match_metrics(
                         "This metric had a time dimension and did not perfectly match. Not parsing anything."
                     )
                 else:
-
-                    ds_metric[mv].attrs["original_key"] = metric_name
+                    # parse the original key attr to the dataarray
+                    ds_metric[mv].attrs["original_key"] = ds_metric.attrs[
+                        "original_key"
+                    ]
                     ds = parse_metric(
                         ds, ds_metric[mv], dim_length_conflict=dim_length_conflict
                     )
@@ -203,3 +236,31 @@ def match_metrics(
             f"Processed {total_datasets} datasets.\nExact matches:{exact_datasets}\nOther matches:{nonexact_datasets}\nNo match found:{nomatch_datasets}"
         )
     return ds_dict_parsed
+
+
+def combine_datasets(
+    ds_dict, combine_func, combine_func_kwargs={}, match_attrs=exact_attrs
+):
+    # make a copy of the input dict, so it is not modified outside of the function
+    # ? Not sure this is always desired.
+    ds_dict = {k: v for k, v in ds_dict.items()}
+    ds_dict_combined = {}
+
+    while len(ds_dict) > 0:
+        # The order does not matter here, so just choose the first key
+        k = list(ds_dict.keys())[0]
+        ds = ds_dict.pop(k)
+        matched_datasets = match_datasets(ds, ds_dict, match_attrs, pop=True)
+
+        # create new dict key
+        new_k = _key_from_attrs(ds, match_attrs, sep=".")
+
+        # for now Ill hardcode the merging. I have been thinking if I should just pass a general `func` to deal with a list of datasets. The user could pass custom stuff
+        # And I think that way I can generalize all/most of the `member` level combine functions. Well for now, lets do it the manual way.
+        try:
+            ds_combined = combine_func(matched_datasets, **combine_func_kwargs)
+            ds_dict_merged[new_k] = ds_combined
+        except:
+            warnings.warn(f"{cmip6_dataset_id(ds)} failed to merge")
+
+    return ds_dict_combined

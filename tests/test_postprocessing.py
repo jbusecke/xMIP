@@ -229,38 +229,56 @@ def test_match_metrics():
     ds_dict_parsed = match_metrics(ds_dict, metric_dict, match_variables=[metricname])
     _assert_parsed_ds_dict(ds_dict_parsed, ds_metric[metricname], ["a"])
 
-    # Complex example. Check two with similar attrs (both matching), to see if the exact match is always preferred.
+
+@pytest.mark.parametrize("metricname", ["metric", "other"])
+def test_match_metrics_closer(metricname):
+    # Test to see if a metric dataset with more matching attrs is preferred.
+
+    ds_a = random_ds()
+    ds_b = random_ds()
+    ds_c = random_ds()
+
+    # Give them cmip attrs
+    ds_a.attrs = {
+        "source_id": "a",
+        "grid_label": "a",
+        "experiment_id": "a",
+        "table_id": "a",
+        "variant_label": "a",
+        "version": "a",
+    }
+    ds_b.attrs = {
+        "source_id": "a",
+        "grid_label": "a",
+        "experiment_id": "a",
+        "table_id": "b",
+        "variant_label": "b",
+        "version": "b",
+    }
+    ds_c.attrs = {
+        "source_id": "a",
+        "grid_label": "a",
+        "experiment_id": "b",
+        "table_id": "b",
+        "variant_label": "a",
+        "version": "b",
+    }
+
     ds_metric_a = random_ds().isel(time=0).rename({"data": metricname})
     ds_metric_a.attrs = ds_a.attrs
     ds_metric_c = random_ds().isel(time=0).rename({"data": metricname})
     ds_metric_c.attrs = ds_c.attrs
 
-    # this one should be applied to all datasets
-    ds_metric_a_other = random_ds().isel(time=0).rename({"data": "other"})
-    ds_metric_a_other.attrs = ds_a.attrs
-
-    ds_dict = {"a": ds_a, "b": ds_b, "c": ds_c, "d": ds_d, "e": ds_e}
+    ds_dict = {"c": ds_c}
     metric_dict = {
         "exact_c": ds_metric_c,
         "exact_a": ds_metric_a,
-        "other_a": ds_metric_a_other,
     }
-    ds_dict_parsed = match_metrics(
-        ds_dict, metric_dict, match_variables=[metricname, "other"]
+    ds_dict_parsed = match_metrics(ds_dict, metric_dict, match_variables=[metricname])
+    xr.testing.assert_allclose(
+        ds_dict_parsed["c"][metricname].reset_coords(drop=True), ds_metric_c[metricname]
     )
-
-    _assert_parsed_ds_dict(ds_dict_parsed, ds_metric_a[metricname], ["a"], strict=False)
-    assert ds_dict_parsed["a"][metricname].attrs["original_key"] == "exact_a"
-    assert ds_dict_parsed["a"]["other"].attrs["original_key"] == "other_a"
-
-    _assert_parsed_ds_dict(ds_dict_parsed, ds_metric_c[metricname], ["c"], strict=False)
     assert ds_dict_parsed["c"][metricname].attrs["original_key"] == "exact_c"
-    assert ds_dict_parsed["c"]["other"].attrs["original_key"] == "other_a"
-
-    # b is a 'closer' match to c
-    _assert_parsed_ds_dict(ds_dict_parsed, ds_metric_c[metricname], ["b"], strict=False)
-    assert ds_dict_parsed["b"][metricname].attrs["original_key"] == "exact_c"
-    assert ds_dict_parsed["b"]["other"].attrs["original_key"] == "other_a"
 
 
 def test_match_metrics_exceptions():
