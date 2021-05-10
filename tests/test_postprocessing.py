@@ -10,7 +10,7 @@ def metricname(request):
     return request.param
 
 
-def random_ds():
+def random_ds(time_coords=False):
     """Create random dataset"""
     nx, ny, nz, nt = (3, 2, 4, 6)
     data = np.random.rand(nx, ny, nz, nt)
