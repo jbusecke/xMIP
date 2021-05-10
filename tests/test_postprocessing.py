@@ -5,11 +5,13 @@ import xarray as xr
 from cmip6_preprocessing.postprocessing import match_metrics, parse_metric
 
 
-def random_ds():
+def random_ds(time_coords=False):
     """Create random dataset"""
     nx, ny, nz, nt = (3, 2, 4, 6)
     data = np.random.rand(nx, ny, nz, nt)
     da = xr.DataArray(data, dims=["x", "y", "z", "time"])
+    if time_coords:
+        da = da.assign_coords(time=xr.cftime_range("2000", periods=nt))
     return da.to_dataset(name="data")
 
 
@@ -35,7 +37,7 @@ def test_parse_metric(metricname):
 
 
 @pytest.mark.parametrize("metricname", ["metric", "something"])
-def test_parse_metric_exceptions(metricname):
+def test_parse_metric_exceptions_input_dataset(metricname):
     # create a dataset
     ds = random_ds()
     # create a metric dataset
@@ -45,18 +47,68 @@ def test_parse_metric_exceptions(metricname):
     with pytest.raises(ValueError):
         ds_parsed = parse_metric(ds, ds_metric)
 
+
+def test_parse_metric_exceptions_input_name():
+    # create a dataset
+    ds = random_ds()
+    # create a metric dataset
+    ds_metric = random_ds().isel(z=0, time=0)
+    # set attributes
+    ds.attrs = {"activity_id": "a"}
+
     # provide dataarray without name
-    with pytest.warns(RuntimeWarning):
-        da_metric_nameless = ds_metric[metricname]
+    with pytest.warns(RuntimeWarning) as warninfo:
+        da_metric_nameless = ds_metric["data"]
         da_metric_nameless.name = None
 
         ds_parsed = parse_metric(ds, da_metric_nameless)
+    assert (
+        warninfo[0].message.args[0]
+        == "a.none.none.none.none.none.none:`metric` has no name. This might lead to problems down the line."
+    )
+
+
+def test_parse_metric_exception_dim_length():
+    metricname = "metric"
+    # create a dataset
+    ds = random_ds()
+    # create a metric dataset
+    ds_metric = random_ds().isel(z=0, time=0).rename({"data": metricname})
+    # set attributes
+    ds.attrs = {"activity_id": "a", "grid_label": "g"}
 
     # provide dataarray with non-matching dimensions
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError) as execinfo:
         ds_parsed = parse_metric(
             ds, ds_metric.isel(x=slice(0, -1), y=slice(1, None))[metricname]
         )
+    msg = "a.none.none.none.none.g.none:`metric` dimensions ['x:2', 'y:1'] do not match `ds` ['x:3', 'y:2']."
+    assert execinfo.value.args[0] == msg
+
+
+def test_parse_metric_dim_alignment():
+    metricname = "metric"
+    # create a dataset
+    ds = random_ds(time_coords=True)
+    # create a metric dataset
+    ds_metric = (
+        random_ds(time_coords=True)
+        .isel(z=0, time=slice(0, -1))
+        .rename({"data": metricname})
+    )
+    # set attributes
+    ds.attrs = {"activity_id": "a", "grid_label": "g"}
+
+    print(ds)
+
+    # Allow alignment
+    with pytest.warns(UserWarning) as warninfo:
+        ds_parsed = parse_metric(ds, ds_metric[metricname], dim_length_conflict="align")
+
+    xr.testing.assert_allclose(ds_parsed.time, ds_metric.time)
+
+    msg = "a.none.none.none.none.g.none:`metric` dimensions ['time:5'] do not match `ds` ['time:6']. Aligning the data on `inner`"
+    assert warninfo[0].message.args[0] == msg
 
 
 def test_match_metrics():
@@ -229,6 +281,36 @@ def test_match_metrics_exceptions():
     ds_metric.attrs = attrs
     with pytest.raises(ValueError):
         match_metrics({"a": ds}, {"aa": ds_metric}, [metricname])
+
+
+def test_match_metrics_align_dims():
+    metricname = "metric"
+    attrs = {
+        "source_id": "a",
+        "grid_label": "a",
+        "experiment_id": "a",
+        "table_id": "a",
+        "variant_label": "a",
+        "version": "a",
+    }
+    ds = random_ds(time_coords=True)
+    ds.attrs = attrs
+    ds_metric = (
+        random_ds(time_coords=True).isel(time=slice(0, -1)).rename({"data": metricname})
+    )
+    ds_metric.attrs = attrs
+    with pytest.warns(UserWarning) as warninfo:
+        ddict_matched = match_metrics(
+            {"a": ds},
+            {"aa": ds_metric},
+            [metricname],
+            print_statistics=True,
+            dim_length_conflict="align",
+        )
+    msg = "none.none.a.a.a.a.a:`metric` dimensions ['time:5'] do not match `ds` ['time:6']. Aligning the data on `inner`"
+    assert warninfo[0].message.args[0] == msg
+
+    xr.testing.assert_allclose(ddict_matched["a"].time, ds_metric.time)
 
 
 def test_match_metrics_print_statistics(capsys):

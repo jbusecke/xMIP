@@ -3,8 +3,22 @@ import warnings
 
 import xarray as xr
 
+from cmip6_preprocessing.utils import cmip6_dataset_id
 
-def parse_metric(ds, metric):
+
+# define the attrs that are needed to get an 'exact' match
+exact_attrs = [
+    "source_id",
+    "grid_label",
+    "experiment_id",
+    "table_id",
+    # "version", # for testing
+    # "member_id",
+    "variant_label",
+]
+
+
+def parse_metric(ds, metric, dim_length_conflict="error"):
     """Convenience function to parse a metric dataarry into an existing dataset.
 
     Parameters
@@ -13,6 +27,8 @@ def parse_metric(ds, metric):
         Input dataset
     metric : xr.Data
         Metric dataarray to add to `ds`
+    dim_length_conflict : str
+        Specifies how to handle dimensions that are not the same lenght.
 
     Returns
     -------
@@ -20,14 +36,16 @@ def parse_metric(ds, metric):
         `ds` with `metric` added as coordinate.
 
     """
+    dataset_id = cmip6_dataset_id(ds)
 
-    # TODO: Show the 'id' in the failures and warnings.
     if not isinstance(metric, xr.DataArray):
-        raise ValueError(f"`metric` input must be xarray.DataArray. Got {type(metric)}")
+        raise ValueError(
+            f"{dataset_id}:`metric` input must be xarray.DataArray. Got {type(metric)}"
+        )
 
     if metric.name is None:
         warnings.warn(
-            "`metric` has no name. This might lead to problems down the line.",
+            f"{dataset_id}:`metric` has no name. This might lead to problems down the line.",
             RuntimeWarning,
         )
 
@@ -37,12 +55,18 @@ def parse_metric(ds, metric):
     for di in metric.dims:
         if len(ds[di]) != len(metric[di]):
             mismatch_dims.append(di)
+
     if len(mismatch_dims) > 0:
         metric_str = [str(di) + ":" + str(len(metric[di])) for di in mismatch_dims]
         ds_str = [str(di) + ":" + str(len(ds[di])) for di in mismatch_dims]
-        raise ValueError(
-            f"`metric` dimensions {metric_str} do not match `ds` {ds_str}",
+        msg = (
+            f"{dataset_id}:`metric` dimensions {metric_str} do not match `ds` {ds_str}."
         )
+        if dim_length_conflict == "error":
+            raise ValueError(msg)
+        elif dim_length_conflict == "align":
+            warnings.warn(msg + " Aligning the data on `inner`")
+            ds, metric = xr.align(ds, metric, join="inner")
 
     # strip all coordinates from metric
     metric_stripped = metric.reset_coords(drop=True)
@@ -69,6 +93,8 @@ def match_metrics(
     match_variables,
     match_attrs=["source_id", "grid_label"],
     print_statistics=False,
+    exact_attrs=exact_attrs,
+    dim_length_conflict="error",
 ):
     """Given two dictionaries of datasets, this function matches metrics from `metric_dict` to
     every datasets in `ds_dict` based on comparing the datasets attributes.
@@ -85,7 +111,12 @@ def match_metrics(
         Minimum dataset attributes that need to match, by default ["source_id", "grid_label"]
     print_statistics : bool, optional
         Option to print statistics about matching, by default False
-
+    exact_attrs : list
+        List of attributes that define an `exact` match, by
+        default ["source_id","grid_label","experiment_id","table_id", "variant_label"].
+    dim_length_conflict : str
+        Defines the behavior when parsing metrics with non-exact matches in dimension size.
+        See `parse_metric`.
     Returns
     -------
     dict
@@ -99,17 +130,6 @@ def match_metrics(
             "It seems like some of the input datasets in `ds_dict` have aggregated members.\
             This is not currently supported. Please use `aggregate=False` when using intake-esm `to_dataset_dict()`."
         )
-
-    # define the attrs that are needed to get an 'exact' match
-    exact_attrs = [
-        "source_id",
-        "grid_label",
-        "experiment_id",
-        "table_id",
-        # "version", # for testing
-        # "member_id",
-        "variant_label",
-    ]
 
     # if match is set to exact check all these attributes
     if match_attrs == "exact":
@@ -169,7 +189,9 @@ def match_metrics(
                 else:
 
                     ds_metric[mv].attrs["original_key"] = metric_name
-                    ds = parse_metric(ds, ds_metric[mv])
+                    ds = parse_metric(
+                        ds, ds_metric[mv], dim_length_conflict=dim_length_conflict
+                    )
                     if exact_match:
                         exact_datasets[mv] += 1
                     else:
