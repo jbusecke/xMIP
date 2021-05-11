@@ -424,8 +424,8 @@ def spec_check_grid(request, gl, vi, ei, cat):
             ("NorESM2-MM", ["thetao", "so", "uo"], "historical", "gr"),
             ("IITM-ESM", "*", "*", "gn"),
             ("GFDL-CM4", ["uo"], "*", "gn"),
-            ("IPSL-CM5A2-INCA", "*","*", "gn"),
-            ("IPSL-CM6A-LR-INCA", "*","*", "gn"),
+            ("IPSL-CM5A2-INCA", "*", "*", "gn"),
+            ("IPSL-CM6A-LR-INCA", "*", "*", "gn"),
         ]
     )
     spec = (request.param, vi, ei, gl, cat)
