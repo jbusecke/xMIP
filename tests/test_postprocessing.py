@@ -40,7 +40,7 @@ def test_parse_metric(metricname):
     metric.attrs.update({"check": "carry"})
 
     # parse the metric
-    ds_parsed = parse_metric(ds, metric)
+    ds_parsed = _parse_metric(ds, metric)
     assert metricname in ds_parsed.coords
     xr.testing.assert_allclose(ds_parsed[metricname].reset_coords(drop=True), metric)
     assert (
@@ -75,7 +75,7 @@ def test_parse_metric_exceptions_input_name():
         da_metric_nameless = ds_metric["data"]
         da_metric_nameless.name = None
 
-        ds_parsed = parse_metric(ds, da_metric_nameless)
+        ds_parsed = _parse_metric(ds, da_metric_nameless)
     assert (
         warninfo[0].message.args[0]
         == "a.none.none.none.none.none.none:`metric` has no name. This might lead to problems down the line."
@@ -93,7 +93,7 @@ def test_parse_metric_exception_dim_length():
 
     # provide dataarray with non-matching dimensions
     with pytest.raises(ValueError) as execinfo:
-        ds_parsed = parse_metric(
+        ds_parsed = _parse_metric(
             ds, ds_metric.isel(x=slice(0, -1), y=slice(1, None))[metricname]
         )
     msg = "a.none.none.none.none.g.none:`metric` dimensions ['x:2', 'y:1'] do not match `ds` ['x:3', 'y:2']."
@@ -117,7 +117,9 @@ def test_parse_metric_dim_alignment():
 
     # Allow alignment
     with pytest.warns(UserWarning) as warninfo:
-        ds_parsed = parse_metric(ds, ds_metric[metricname], dim_length_conflict="align")
+        ds_parsed = _parse_metric(
+            ds, ds_metric[metricname], dim_length_conflict="align"
+        )
 
     xr.testing.assert_allclose(ds_parsed.time, ds_metric.time)
 
