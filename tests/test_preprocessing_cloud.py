@@ -418,11 +418,14 @@ def spec_check_grid(request, gl, vi, ei, cat):
                 "gn",
             ),
             ("EC-Earth3-Veg", "zos", "historical", "gr"),
+            ("EC-Earth3-CC", "thetao", "*", "gn"),
             ("MPI-ESM-1-2-HAM", "*", "*", "gn"),
             ("NorESM2-MM", "*", "historical", "gn"),
             ("NorESM2-MM", ["thetao", "so", "uo"], "historical", "gr"),
             ("IITM-ESM", "*", "*", "gn"),
             ("GFDL-CM4", ["uo"], "*", "gn"),
+            ("IPSL-CM5A2-INCA", "*","*", "gn"),
+            ("IPSL-CM6A-LR-INCA", "*","*", "gn"),
         ]
     )
     spec = (request.param, vi, ei, gl, cat)
