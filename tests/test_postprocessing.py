@@ -6,11 +6,11 @@ import pytest
 import xarray as xr
 
 from cmip6_preprocessing.postprocessing import (
+    _parse_metric,
     combine_datasets,
     concat_members,
     match_metrics,
     merge_variables,
-    parse_metric,
 )
 
 

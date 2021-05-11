@@ -353,7 +353,7 @@ def match_metrics(
                     ds_metric[mv].attrs["original_key"] = ds_metric.attrs[
                         "original_key"
                     ]
-                    ds = parse_metric(
+                    ds = _parse_metric(
                         ds, ds_metric[mv], dim_length_conflict=dim_length_conflict
                     )
                     if exact_match:
