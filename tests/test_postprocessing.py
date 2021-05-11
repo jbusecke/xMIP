@@ -7,6 +7,7 @@ import xarray as xr
 
 from cmip6_preprocessing.postprocessing import (
     combine_datasets,
+    concat_members,
     match_metrics,
     merge_variables,
     parse_metric,
@@ -471,7 +472,10 @@ def test_merge_variables():
         )
 
 
-def test_concat_members(combine_func_kwargs):
+@pytest.mark.parametrize("concat_kwargs", [{}, {"compat": "override"}])
+def test_concat_members(concat_kwargs):
+    concat_kwargs = {}
+
     attrs_a = {
         "source_id": "a",
         "grid_label": "a",
@@ -481,38 +485,44 @@ def test_concat_members(combine_func_kwargs):
         "version": "a",
     }
 
-    attrs_b = {k: v for k, v in attrs_a}
+    attrs_b = {k: v for k, v in attrs_a.items()}
+    attrs_b["variant_label"] = "b"
 
-    attrs_c = {k: v for k, v in attrs_b}
+    attrs_c = {k: v for k, v in attrs_b.items()}
     attrs_c["source_id"] = "c"
 
     # Create some datasets with a/b attrs
     ds_a_temp = random_ds(attrs=attrs_a).rename({"data": "temp"})
     ds_b_temp = random_ds(attrs=attrs_b).rename({"data": "temp"})
 
-    ds_a_salt = random_ds(attrs=attrs_a).rename({"data": "salt"})
-    ds_b_salt = random_ds(attrs=attrs_b).rename({"data": "salt"})
-
     ds_c_other = random_ds(attrs=attrs_c).rename({"data": "other"})
 
     ds_dict = {
         "".join(random.choices(string.ascii_letters, k=4)): ds
-        for ds in [ds_a_salt, ds_a_temp, ds_b_salt, ds_b_temp, ds_c_other]
+        for ds in [ds_a_temp, ds_b_temp, ds_c_other]
     }
 
     # Group together the expected 'matches'
     expected = {
-        "a.a.a.a.a": [ds_a_temp, ds_b_temp],
-        "b.b.b.b.b": [ds_a_salt, ds_b_salt],
-        "ccccc": [ds_c_other],
+        "a.a.a.a": [ds_a_temp, ds_b_temp],
+        "c.a.a.a": [ds_c_other],
     }
 
     result = concat_members(
         ds_dict,
-        concat_kwargs=combine_func_kwargs,
+        concat_kwargs=concat_kwargs,
     )
     for k in expected.keys():
         assert k in list(result.keys())
         xr.testing.assert_equal(
-            result[k], xr.concat(expected[k], "member_id", **combine_func_kwargs)
+            result[k], xr.concat(expected[k], "member_id", **concat_kwargs)
         )
+
+
+@pytest.mark.parametrize("func", [merge_variables, concat_members])
+def test_aggregate_error(func):
+    # check if an error is raised if a dataset with `member_id` dimension is passed.
+
+    ds = xr.concat([random_ds(), random_ds()], "member_id")
+    with pytest.raises(ValueError):
+        func({"test": ds})

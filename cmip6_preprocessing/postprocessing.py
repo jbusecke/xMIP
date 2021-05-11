@@ -1,3 +1,4 @@
+import functools
 import inspect
 import warnings
 
@@ -292,6 +293,29 @@ def combine_datasets(
     return ds_dict_combined
 
 
+### Convenience Wrappers for `combine_datasets`. Less flexible but easier to use and understand.
+
+
+def check_aggregated(func):
+    @functools.wraps(func)
+    def wrapper_check_aggregated(ds_dict, **kwargs):
+
+        # Do something before
+        # Very rudimentary check if the data was aggregated with intake-esm
+        # (which leaves non-correct attributes behind see: https://github.com/intake/intake-esm/issues/264)
+
+        if any(["member_id" in ds.dims for ds in ds_dict.values()]):
+            raise ValueError(
+                "It seems like some of the input datasets in `ds_dict` have aggregated members.\
+                This is not currently supported. Please use `aggregate=False` when using intake-esm `to_dataset_dict()`."
+            )
+
+        return func(ds_dict, **kwargs)
+
+    return wrapper_check_aggregated
+
+
+@check_aggregated
 def merge_variables(
     ds_dict,
     merge_kwargs={},
@@ -313,16 +337,6 @@ def merge_variables(
         A new dict of xr.Datasets with all datasets from `ds_dict`, but with merged variables and adjusted keys.
 
     """
-    # Very rudimentary check if the data was aggregated with intake-esm
-    # (which leaves non-correct attributes behind see: https://github.com/intake/intake-esm/issues/264)
-    # !!! Factor this out into seperate check
-
-    # This should be a decorator
-    if any(["member_id" in ds.dims for ds in ds_dict.values()]):
-        raise ValueError(
-            "It seems like some of the input datasets in `ds_dict` have aggregated members.\
-            This is not currently supported. Please use `aggregate=False` when using intake-esm `to_dataset_dict()`."
-        )
 
     # set defaults
     merge_kwargs.setdefault("compat", "override")
@@ -333,4 +347,46 @@ def merge_variables(
 
     return combine_datasets(
         ds_dict, xr.merge, combine_func_kwargs=merge_kwargs, match_attrs=exact_attrs
+    )
+
+
+@check_aggregated
+def concat_members(
+    ds_dict,
+    concat_kwargs={},
+):
+    """Given a dictionary of datasets, this function merges all available data variables (given in seperate datasets) into a single dataset.
+    CAUTION: This assumes that all variables are on the same staggered grid position. If you are working with data on the cell edges,
+    this function will disregard that information. Use the grids module instead to get an accurate staggered grid representation.
+
+    Parameters
+    ----------
+    ds_dict : dict
+        Dictionary of xarray datasets, that need matching metrics.
+    merge_kwargs : dict
+        Optional arguments passed to xr.concat.
+
+    Returns
+    -------
+    dict
+        A new dict of xr.Datasets with all datasets from `ds_dict`, but with merged variables and adjusted keys.
+
+    """
+    match_attrs = [ma for ma in exact_attrs if ma not in ["variant_label"]]
+
+    # set defaults
+    # concat_kwargs.setdefault("compat", "override")
+    # concat_kwargs.setdefault("join", "exact")  # if the size differs throw an error.
+    concat_kwargs.setdefault(
+        "combine_attrs", "drop_conflicts"
+    )  # if the size differs throw an error. Requires xarray >=0.17.0
+
+    return combine_datasets(
+        ds_dict,
+        xr.concat,
+        combine_func_args=(
+            ["member_id"]
+        ),  # I dont like this. Its confusing to have two different dimension names
+        combine_func_kwargs=concat_kwargs,
+        match_attrs=match_attrs,
     )
