@@ -59,7 +59,7 @@ def test_parse_metric_exceptions(metricname):
 
     # provide dataset instead of dataarray
     with pytest.raises(ValueError):
-        ds_parsed = parse_metric(ds, ds_metric)
+        ds_parsed = _parse_metric(ds, ds_metric)
 
 
 def test_parse_metric_exceptions_input_name():
