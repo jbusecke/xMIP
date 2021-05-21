@@ -45,7 +45,7 @@ def test_parse_metric(metricname):
     xr.testing.assert_allclose(ds_parsed[metricname].reset_coords(drop=True), metric)
     assert (
         ds_parsed[metricname].attrs["parsed_with"]
-        == "cmip6_preprocessing/postprocessing/parse_metric"
+        == "cmip6_preprocessing/postprocessing/_parse_metric"
     )
     # check that existing attrs are conserved
     assert ds_parsed[metricname].attrs["check"] == "carry"

@@ -8,6 +8,13 @@ preprocessing
    :undoc-members:
    :show-inheritance:
 
+postprocessing
+==============
+.. automodule:: cmip6_preprocessing.postprocessing
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 
 grids
 =====
