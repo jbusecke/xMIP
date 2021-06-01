@@ -20,4 +20,3 @@ dependencies:
     - sphinx_pangeo_theme
     - sphinx-copybutton
     - sphinxcontrib-srclinks
-
