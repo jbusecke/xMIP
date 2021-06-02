@@ -291,6 +291,26 @@ def test_remove_trend(chunk):
         remove_trend(data, slope, ref_date)
 
 
+@pytest.mark.parametrize("chunk", [False, {"time": 2}])
+def test_remove_trend_exceptions(chunk):
+
+    # normal testing
+    time = xr.cftime_range("1850-01-01", periods=5, freq="1AS")
+    data = xr.DataArray(
+        np.random.rand(3, 4, len(time)),
+        dims=["x", "y", "time"],
+        coords={"time": time},
+        attrs={"just_some": "test"},
+    )
+    slope = xr.DataArray(np.random.rand(3, 4), dims=["x", "y"])
+
+    ref_date = str(time[0])
+    dummy_time = xr.DataArray(np.arange(len(time)), dims=["time"])
+    with pytest.raises(ValueError) as einfo:
+        remove_trend(data.to_dataset(name="test"), slope, ref_date)
+    assert str(einfo.value) == "Input needs to be a dataarray"
+
+
 def test_calculate_drift_missing_attrs():
     # error if no attr are given
     ds_control = xr.DataArray([0]).to_dataset(name="test")
@@ -370,3 +390,92 @@ def test_calculate_drift(trend_years):
 
     xr.testing.assert_allclose(reg_expected, reg.test)
     assert reg.attrs == ds.attrs
+
+    # TODO: Assert the correct time limits in the coords
+
+
+def test_calculate_drift_exceptions():
+    # error if no attr are given
+    nx, ny = (10, 20)
+    nt_control = 30
+    nt = 24
+    time_control = xr.cftime_range("0100-01-01", periods=nt_control, freq="1MS")
+    time_ds = xr.cftime_range("2000-01-01", periods=nt, freq="1MS")
+
+    ds_control = xr.DataArray(
+        np.random.rand(nx, ny, nt_control),
+        dims=["x", "y", "time"],
+        coords={"time": time_control},
+    ).to_dataset(name="test")
+
+    ds = xr.DataArray(
+        np.random.rand(nx, ny, nt),
+        dims=["x", "y", "time"],
+        coords={"time": time_ds},
+    ).to_dataset(name="test")
+
+    ds.attrs = {
+        "source_id": "a",
+        "variant_label": "a",
+        "branch_time_in_parent": 0,
+        "parent_time_units": "days since 0605-01-01",
+        "parent_variant_label": "a",
+        "parent_source_id": "a",
+    }
+
+    ds_control.attrs = {
+        "source_id": "a",
+        "variant_label": "a",
+    }
+    with pytest.raises(RuntimeError) as einfo:
+        reg = calculate_drift(ds_control, ds, "test")
+    assert (
+        str(einfo.value)
+        == "Selecting from `reference` according to the branch time resulted in empty dataset. Check the metadata."
+    )
+
+
+def test_calculate_drift_exceptions_partial():
+    # error if no attr are given
+    nx, ny = (10, 20)
+    nt_control = 24
+    nt = 24
+    time_control = xr.cftime_range("0100-01-01", periods=nt_control, freq="1MS")
+    time_ds = xr.cftime_range("2000-01-01", periods=nt, freq="1MS")
+
+    ds_control = xr.DataArray(
+        np.random.rand(nx, ny, nt_control),
+        dims=["x", "y", "time"],
+        coords={"time": time_control},
+    ).to_dataset(name="test")
+
+    ds = xr.DataArray(
+        np.random.rand(nx, ny, nt),
+        dims=["x", "y", "time"],
+        coords={"time": time_ds},
+    ).to_dataset(name="test")
+
+    ds.attrs = {
+        "source_id": "a",
+        "variant_label": "a",
+        "branch_time_in_parent": 0,
+        "parent_time_units": "days since 0101-01-01",
+        "parent_variant_label": "a",
+        "parent_source_id": "a",
+    }
+
+    ds_control.attrs = {
+        "source_id": "a",
+        "variant_label": "a",
+    }
+    with pytest.raises(RuntimeError) as einfo:
+        reg = calculate_drift(ds_control, ds, "test")
+    assert (
+        "Set `calculate_short_trend=True` to compute from a shorter timeseries"
+        in str(einfo.value)
+    )
+    # TODO: Assert the correct time limits in the attrs
+
+    with pytest.warns(UserWarning) as winfo:
+        reg = calculate_drift(ds_control, ds, "test", compute_short_trends=True)
+    assert "years to calculate trend. Using 1 years only" in winfo[0].message.args[0]
