@@ -296,7 +296,7 @@ def test_calculate_drift_missing_attrs():
     ds_control = xr.DataArray([0]).to_dataset(name="test")
     ds = xr.DataArray([0]).to_dataset(name="test")
     with pytest.raises(ValueError) as einfo:
-        calculate_drift(ds_control, ds, trend_years=250)
+        calculate_drift(ds_control, ds, "test", trend_years=250)
     assert "in attributes of `ds`." in str(einfo.value)
 
     # error for attrs mismatch
