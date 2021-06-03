@@ -232,16 +232,14 @@ def calculate_drift(
         # # For now my implementation requires the slope to be in units .../month
         # # I might be able to change this later and accomodate other time frequencies?
         # get rid of all the additional coords, which resets the time to an integer index
-        reference_cut = reference_cut.reset_coords(drop=True)
 
-        # reg = xr_linregress(reference_cut["regress_idx"], reference_cut)
+        reference_cut = reference_cut[variable]
+
+        # Reset time dimension to integer index.
+        reference_cut = reference_cut.drop_vars("time")
+
         # linear regression slope is all we need here.
-        reg = (
-            reference_cut[variable]
-            .polyfit("time", 1)
-            .sel(degree=1)
-            .polyfit_coefficients
-        )
+        reg = reference_cut.polyfit("time", 1).sel(degree=1).polyfit_coefficients
 
         # again drop all the coordinates
         reg = reg.reset_coords(drop=True)

@@ -385,9 +385,9 @@ def test_calculate_drift(trend_years):
 
     # Need to replace the time with an index to ensure the units of the drift are in ../month.
     ds_control_expected_normed = ds_control.sel(time=slice(start, stop))
-    ds_control_expected_normed = ds_control_expected_normed.reset_coords(drop=True)
-
-    print(ds_control_expected_normed)
+    ds_control_expected_normed = ds_control_expected_normed.assign_coords(
+        time=np.arange(len(ds_control_expected_normed.time))
+    )
 
     reg_expected = (
         ds_control_expected_normed.test.polyfit("time", 1)
