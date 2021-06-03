@@ -228,14 +228,12 @@ def calculate_drift(
         # strings
         time_range = time_range.astype(str)
 
-        # get rid of all the additional coords.
+        # # The polyfit implementation actually respects the units.
+        # # For now my implementation requires the slope to be in units .../month
+        # # I might be able to change this later and accomodate other time frequencies?
+        # get rid of all the additional coords, which resets the time to an integer index
         reference_cut = reference_cut.reset_coords(drop=True)
 
-        # add a running integer index to regress on
-        reference_cut = reference_cut.assign_coords(
-            regress_idx=("time", np.arange(len(reference_cut.time)))
-        )
-        # TODO: Replace this with the new xarray implementation
         # reg = xr_linregress(reference_cut["regress_idx"], reference_cut)
         # linear regression slope is all we need here.
         reg = (

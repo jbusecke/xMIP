@@ -377,16 +377,23 @@ def test_calculate_drift(trend_years):
         "variant_label": "a",
     }
 
-    print(ds_control)
-    print(ds)
+    reg = calculate_drift(ds_control, ds, "test", trend_years=trend_years)
+
+    # use times from the output to cut control and manually calculate expected values
+    start = reg.trend_time_range.isel(bnds=0).data.tolist()
+    stop = reg.trend_time_range.isel(bnds=1).data.tolist()
+
+    # Need to replace the time with an index to ensure the units of the drift are in ../month.
+    ds_control_expected_normed = ds_control.sel(time=slice(start, stop))
+    ds_control_expected_normed = ds_control_expected_normed.reset_coords(drop=True)
+
+    print(ds_control_expected_normed)
 
     reg_expected = (
-        ds_control.isel(time=slice(5 * 12, 5 * 12 + trend_years * 12))
-        .test.polyfit("time", 1)
+        ds_control_expected_normed.test.polyfit("time", 1)
         .sel(degree=1)
         .polyfit_coefficients.reset_coords(drop=True)
     )
-    reg = calculate_drift(ds_control, ds, "test", trend_years=trend_years)
 
     xr.testing.assert_allclose(reg_expected, reg.test)
     assert reg.attrs == ds.attrs
