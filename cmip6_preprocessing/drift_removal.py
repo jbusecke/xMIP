@@ -121,7 +121,6 @@ def unify_time(parent, child, adjust_to="child"):
             child.time.encoding.get("units"),
             child_calendar,
         )
-        print("branch time parent", branch_time_parent)
 
         if adjust_to == "child":
             branch_idx_parent = find_date_idx(parent.time, branch_time_parent)
