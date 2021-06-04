@@ -1,6 +1,6 @@
 name: Build and Upload cmip6_preprocessing to PyPI
 on:
-  release:pypi-AgENdGVzdC5weXBpLm9yZwIkM2JlMjgwODMtZGQ1Ni00MDk1LWFkNDgtYzQ4OTcxNTkwZTFjAAIleyJwZXJtaXNzaW9ucyI6ICJ1c2VyIiwgInZlcnNpb24iOiAxfQAABiDp3Is5-C_iP9tf_TzHqDXbALQcQ0x6dZwH9DPQKPSs8Q
+  release:
     types:
       - published
   push:
