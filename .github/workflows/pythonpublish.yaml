@@ -1,6 +1,6 @@
 name: Build and Upload cmip6_preprocessing to PyPI
 on:
-  release:
+  release:pypi-AgENdGVzdC5weXBpLm9yZwIkM2JlMjgwODMtZGQ1Ni00MDk1LWFkNDgtYzQ4OTcxNTkwZTFjAAIleyJwZXJtaXNzaW9ucyI6ICJ1c2VyIiwgInZlcnNpb24iOiAxfQAABiDp3Is5-C_iP9tf_TzHqDXbALQcQ0x6dZwH9DPQKPSs8Q
     types:
       - published
   push:
@@ -77,7 +77,7 @@ jobs:
         run: |
           sleep 3
           python -m pip install --upgrade pip
-          python -m pip install --extra-index-url https://test.pypi.org/simple --upgrade xmovie
+          python -m pip install --extra-index-url https://test.pypi.org/simple --upgrade cmip6_preprocessing
           python setup.py --version
   upload-to-pypi:
     needs: test-built-dist
