@@ -3,9 +3,9 @@ on:
   release:
     types:
       - published
-  push:
-    tags:
-      - 'v*'
+#   push:
+#     tags:
+#       - 'v*'
 
 jobs:
   build-artifacts:
