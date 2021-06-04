@@ -417,7 +417,7 @@ def spec_check_grid(request, gl, vi, ei, cat):
                 ["historical", "piControl", "ssp370"],
                 "gn",
             ),
-            ("EC-Earth3-Veg", "zos", "historical", "gr"),
+            ("EC-Earth3-Veg", "*", "historical", "gr"),
             ("EC-Earth3-CC", "thetao", "*", "gn"),
             ("MPI-ESM-1-2-HAM", "*", "*", "gn"),
             ("NorESM2-MM", "*", "historical", "gn"),
