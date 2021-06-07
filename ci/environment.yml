@@ -3,10 +3,10 @@ channels:
   - conda-forge
 dependencies:
   - xarray
+  - netcdf4
+  - scipy
   - xgcm
-  - pyproj
   - cftime
-  - matplotlib
   - regionmask
   - pytest-cov
   - pytest-xdist
