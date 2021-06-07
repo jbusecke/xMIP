@@ -5,7 +5,6 @@ dependencies:
   - python=3.8
   - pyproj
   - matplotlib
-  - cartopy
   - cftime
   - dask
   - pip
