@@ -4,9 +4,7 @@ channels:
 dependencies:
   - xarray
   - xgcm
-  - pyproj
   - cftime
-  - matplotlib
   - regionmask
   - pytest-cov
   - pytest-xdist
