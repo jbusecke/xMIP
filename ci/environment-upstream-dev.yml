@@ -2,10 +2,10 @@ name: test_env_cmip6_preprocessing
 channels:
   - conda-forge
 dependencies:
-  - python=3.8
   - cftime
   - dask
   - pip
+  - cartopy
   - pip:
     - codecov
     - pytest-cov
