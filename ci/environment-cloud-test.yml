@@ -8,8 +8,6 @@ dependencies:
   - xgcm
   - cftime
   - regionmask
-  - pyproj
-  - matplotlib
   # Dependencies for the pangeo cloud data
   - intake-esm
   - gcsfs
