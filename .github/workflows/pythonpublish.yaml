@@ -23,7 +23,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install setuptools setuptools-scm wheel twine check-manifest
+          python -m pip install setuptools setuptools-scm wheel twine check-manifest toml
       - name: Check current package version
         run: |
           python setup.py --version
@@ -74,6 +74,7 @@ jobs:
       - name: Check uploaded package
         run: |
           sleep 3
+          sudo apt install python3-dev libproj-dev proj-data proj-bin libgeos-dev # needed to get the right proj/geos libraries
           python -m pip install --upgrade pip
           python -m pip install --extra-index-url https://test.pypi.org/simple --upgrade cmip6_preprocessing
           python setup.py --version
