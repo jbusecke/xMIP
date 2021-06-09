@@ -72,14 +72,15 @@ jobs:
           password: ${{ secrets.TESTPYPI_TOKEN }}
           repository_url: https://test.pypi.org/legacy/
           verbose: true
-      - name: Setup upterm session
-        uses: lhotari/action-upterm@v1
+      # - name: Setup upterm session
+      #   uses: lhotari/action-upterm@v1
       - name: Check uploaded package
         run: |
-          sleep 20
+          sleep 10
           python -m pip install --upgrade pip
-          python -m pip install --extra-index-url https://test.pypi.org/simple --upgrade cmip6_preprocessing
-          python setup.py --version
+          pip cache purge
+          python -m pip install --index-url https://test.pypi.org/simple --upgrade cmip6_preprocessing
+          python -c "import cmip6_preprocessing;print(cmip6_preprocessing.__version__)"
   upload-to-pypi:
     needs: test-built-dist
     if: github.event_name == 'release'
