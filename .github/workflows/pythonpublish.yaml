@@ -5,7 +5,7 @@ on:
       - published
   push:
     tags:
-      - 'v*'
+      - 'test_publish*'
 
 jobs:
   build-artifacts:
