@@ -75,7 +75,7 @@ jobs:
 
       - name: Check uploaded package
         run: |
-          sleep 3
+          sleep 20
           python -m pip install --upgrade pip
           python -m pip install --extra-index-url https://test.pypi.org/simple --upgrade cmip6_preprocessing
           python setup.py --version
