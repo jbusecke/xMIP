@@ -7,7 +7,6 @@ dependencies:
   - scipy
   - xgcm
   - cftime
-  - regionmask
   - pytest-cov
   - pytest-xdist
   - codecov
