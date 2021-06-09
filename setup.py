@@ -7,5 +7,5 @@ setup(
         "write_to_template": '__version__ = "{version}"',
         "tag_regex": r"^(?P<prefix>v)?(?P<version>[^\+]+)(?P<suffix>.*)?$",
     },
-    setup_requires=["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.0"],
+    setup_requires=["setuptools>=45", "setuptools_scm[toml]>=6.0"],
 )
