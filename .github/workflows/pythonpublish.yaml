@@ -66,6 +66,7 @@ jobs:
           ls -ltrh
           ls -ltrh dist
       - name: Publish package to TestPyPI
+        if: github.event_name != 'release'
         uses: pypa/gh-action-pypi-publish@v1.4.2
         with:
           user: __token__
