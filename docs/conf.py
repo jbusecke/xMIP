@@ -24,6 +24,13 @@ sys.path.insert(0, str(root))
 
 import cmip6_preprocessing  # isort:skip
 
+# -- Project information -----------------------------------------------------
+
+project = "cmip6_preprocessing"
+copyright = "2021, cmip6_preprocessing maintainers"
+author = "cmip6_preprocessing maintainers"
+
+# -- Version -----------------------------------------------------------------
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
@@ -32,13 +39,6 @@ import cmip6_preprocessing  # isort:skip
 version = cmip6_preprocessing.__version__.split("+")[0]
 # The full version, including alpha/beta/rc tags.
 release = cmip6_preprocessing.__version__
-
-
-# -- Project information -----------------------------------------------------
-
-project = "cmip6_preprocessing"
-copyright = "2021, cmip6_preprocessing maintainers"
-author = "cmip6_preprocessing maintainers"
 
 
 # -- General configuration ---------------------------------------------------
