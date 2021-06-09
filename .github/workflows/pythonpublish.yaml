@@ -19,6 +19,7 @@ jobs:
         name: Install Python
         with:
           python-version: 3.8
+      - name: Check python version
         run: |
           python --version
       - name: Install dependencies
