@@ -5,7 +5,7 @@ on:
       - published
   push:
     tags:
-      - 'v*'
+      - 'v*rc*' # only trigger this for dev releases (which I currently call release candidates...
 
 jobs:
   build-artifacts:
