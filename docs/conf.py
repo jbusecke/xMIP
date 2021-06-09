@@ -31,12 +31,14 @@ copyright = "2021, cmip6_preprocessing maintainers"
 author = "cmip6_preprocessing maintainers"
 
 # -- Version -----------------------------------------------------------------
-# https://github.com/pypa/setuptools_scm#usage-from-sphinx
-from importlib.metadata import version  # isort:skip
-
-release = version(project)
-# for example take major/minor
-version = ".".join(release.split(".")[:2])
+# The version info for the project you're documenting, acts as replacement for
+# |version| and |release|, also used in various other places throughout the
+# built documents.
+#
+# The short X.Y version.
+version = cmip6_preprocessing.__version__.split("+")[0]
+# The full version, including alpha/beta/rc tags.
+release = cmip6_preprocessing.__version__
 
 
 # -- General configuration ---------------------------------------------------
