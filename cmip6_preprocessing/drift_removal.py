@@ -4,6 +4,10 @@ import dask.array as dsa
 import numpy as np
 import xarray as xr
 
+from xarrayutils.utils import linear_trend
+
+from cmip6_preprocessing.utils import cmip6_dataset_id
+
 
 def _maybe_unpack_date(date):
     """`Unpacks` cftime from xr.Dataarray if provided"""
@@ -235,11 +239,19 @@ def calculate_drift(
 
         reference_cut = reference_cut[variable]
 
+        # TODO: This has pretty poor performance...need to find out why.
         # Reset time dimension to integer index.
-        reference_cut = reference_cut.drop_vars("time")
+        #         reference_cut = reference_cut.drop_vars("time")
 
         # linear regression slope is all we need here.
-        reg = reference_cut.polyfit("time", 1).sel(degree=1).polyfit_coefficients
+        #         reg = reference_cut.polyfit("time", 1).sel(degree=1).polyfit_coefficients
+
+        reg = (
+            linear_trend(reference_cut, "time")
+            .sel(parameter="slope")
+            .drop("parameter")
+            .squeeze()
+        )
 
         # again drop all the coordinates
         reg = reg.reset_coords(drop=True)
@@ -297,17 +309,20 @@ def detrend_basic(da, da_slope, start_idx=0, dim="time", keep_attrs=True):
     return detrended
 
 
-def remove_trend(da, da_slope, ref_date, check_mask=True):
+def remove_trend(ds, ds_slope, variable, ref_date, check_mask=True):
     """Detrending method for cmip6 data. Only works with monthly data!
     This does not correct the time convention. Be careful with experiements that have
     a non compatible time convention (often control runs.)
     """
 
-    # attrs = {k: v for k, v in da.attrs.items()}
-    if not isinstance(da, xr.DataArray):
-        raise ValueError("Input needs to be a dataarray")
+    if not isinstance(ds, xr.Dataset):
+        raise ValueError("`ds` input needs to be a dataset")
 
-    # TODO: I should just check for the input to be dataarrays and then compare the member_id directly
+    if not isinstance(ds_slope, xr.Dataset):
+        raise ValueError("`ds_slope` input needs to be a dataset")
+
+    da = ds[variable]
+    da_slope = ds_slope[variable]
 
     da, da_slope = xr.align(da, da_slope, join="override")
 
@@ -329,6 +344,21 @@ def remove_trend(da, da_slope, ref_date, check_mask=True):
     detrended = detrend_basic(
         da, da_slope, start_idx=ref_idx, dim="time", keep_attrs=True
     )
-    # do I still need this? Ill leave it for now
-    # detrended.attrs = attrs
+
+    # add information to track which data was used to remove trend
+    if "trend_time_range" in ds_slope.coords:
+        trend_start = ds_slope.trend_time_range.isel(bnds=0).data.tolist()
+        trend_stop = ds_slope.trend_time_range.isel(bnds=1).data.tolist()
+
+    else:
+        trend_start = "not-available"
+        trend_stop = "not-available"
+        warnings.warn(
+            "`ds_slope` did not have information about the time over which the slope was calculated. Check the input."
+        )
+
+    detrended.attrs[
+        "drift_removed"
+    ] = f"linear_trend_{cmip6_dataset_id(ds_slope)}_{trend_start}_{trend_stop}"
+
     return detrended

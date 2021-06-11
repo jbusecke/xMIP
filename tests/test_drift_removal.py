@@ -272,11 +272,42 @@ def test_remove_trend(chunk):
     sloped_data = data + (slope * dummy_time)
     sloped_data.attrs = data.attrs
 
-    detrended = remove_trend(sloped_data, slope, ref_date)
-    xr.testing.assert_allclose(data, detrended)
-    assert detrended.attrs == data.attrs
+    sloped_data = sloped_data.to_dataset(name="test")
+    slope = slope.to_dataset(name="test")
+    time_range = xr.DataArray(
+        [
+            "test_start",
+            "test_stop",
+        ],
+        dims="bnds",
+    )
+    slope = slope.assign_coords(trend_time_range=time_range)
 
-    # test mask check
+    detrended = remove_trend(sloped_data, slope, "test", ref_date)
+    xr.testing.assert_allclose(data, detrended)
+    for att in data.attrs.keys():
+        assert detrended.attrs[att] == data.attrs[att]
+
+    assert (
+        detrended.attrs["drift_removed"]
+        == "linear_trend_none.none.none.none.none.none.none.none_test_start_test_stop"
+    )
+
+    # test the additional output when the slope input does not have sufficient information
+
+    with pytest.warns(UserWarning) as winfo:
+        detrended = remove_trend(
+            sloped_data, slope.drop("trend_time_range"), "test", ref_date
+        )
+    assert (
+        detrended.attrs["drift_removed"]
+        == "linear_trend_none.none.none.none.none.none.none.none_not-available_not-available"
+    )
+
+
+@pytest.mark.parametrize("chunk", [False, {"time": 2}])
+def test_remove_trend_mask_check(chunk):
+
     time = xr.cftime_range("1850-01-01", periods=5, freq="1AS")
     data = xr.DataArray(
         np.random.rand(3, 4, len(time)), dims=["x", "y", "time"], coords={"time": time}
@@ -287,8 +318,10 @@ def test_remove_trend(chunk):
     )
 
     slope[0, 0] = np.nan
+
+    ref_date = str(time[0])
     with pytest.raises(ValueError):
-        remove_trend(data, slope, ref_date)
+        remove_trend(data, slope, "test", ref_date)
 
 
 @pytest.mark.parametrize("chunk", [False, {"time": 2}])
@@ -307,8 +340,12 @@ def test_remove_trend_exceptions(chunk):
     ref_date = str(time[0])
     dummy_time = xr.DataArray(np.arange(len(time)), dims=["time"])
     with pytest.raises(ValueError) as einfo:
-        remove_trend(data.to_dataset(name="test"), slope, ref_date)
-    assert str(einfo.value) == "Input needs to be a dataarray"
+        remove_trend(data, slope.to_dataset(name="test"), "test", ref_date)
+    assert str(einfo.value) == "`ds` input needs to be a dataset"
+
+    with pytest.raises(ValueError) as einfo:
+        remove_trend(data.to_dataset(name="test"), slope, "test", ref_date)
+    assert str(einfo.value) == "`ds_slope` input needs to be a dataset"
 
 
 def test_calculate_drift_missing_attrs():
@@ -390,9 +427,13 @@ def test_calculate_drift(trend_years):
     )
 
     reg_expected = (
-        ds_control_expected_normed.test.polyfit("time", 1)
-        .sel(degree=1)
-        .polyfit_coefficients.reset_coords(drop=True)
+        (
+            ds_control_expected_normed.test.polyfit("time", 1)
+            .sel(degree=1)
+            .polyfit_coefficients
+        )
+        .drop(["x", "y", "degree"])
+        .squeeze()
     )
 
     xr.testing.assert_allclose(reg_expected, reg.test)
