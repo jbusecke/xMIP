@@ -67,6 +67,7 @@ def cmip6_dataset_id(
         "institution_id",
         "source_id",
         "experiment_id",
+        "variant_label",
         "table_id",
         "grid_label",
         "version",

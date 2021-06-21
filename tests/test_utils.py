@@ -57,13 +57,14 @@ def test_cmip6_dataset_id():
         "activity_id": "ai",
         "institution_id": "ii",
         "source_id": "si",
+        "variant_label": "vl",
         "experiment_id": "ei",
         "table_id": "ti",
         "grid_label": "gl",
     }
 
-    assert cmip6_dataset_id(ds) == "ai.ii.si.ei.ti.gl.none"
-    assert cmip6_dataset_id(ds, sep="_") == "ai_ii_si_ei_ti_gl_none"
+    assert cmip6_dataset_id(ds) == "ai.ii.si.ei.vl.ti.gl.none"
+    assert cmip6_dataset_id(ds, sep="_") == "ai_ii_si_ei_vl_ti_gl_none"
     assert (
         cmip6_dataset_id(ds, id_attrs=["grid_label", "activity_id", "wrong_attrs"])
         == "gl.ai.none"

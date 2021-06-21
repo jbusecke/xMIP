@@ -66,7 +66,11 @@ We aim to provide a flexible solution for many scientific workflows which might 
 
 The `preprocessing` module deals with 'cleaning' single variable datasets (e.g. from a single zarr store in the `pangeo CMIP6 cloud data <https://pangeo-data.github.io/pangeo-cmip6-cloud/>`_ or a dataset loaded from mulitple netcdf files on a local server/HPC).
 
+It is often desired to remove control run drift from the data before running analyses. Check out the `drift_removal` module for utilities based on aligning/detrending branched runs.
+
 Depending on your science goal, you might need to combine several datasets into members (multi variable datasets) or even further. These combination tasks are facilitated by the `postprocessing` module. This provides the ability to 'match and combine' datasets based on their attributes. For more detailed examples please check out the `Postprocessing` section.
+
+The `regionmask` module enables you to create basin masks for each model (and any other data with longitude/latitude values)
 
 
 .. I need to check out how to link the API sections and from within notebooks properly. Look into https://myst-nb.readthedocs.io/en/latest/
@@ -80,6 +84,7 @@ Contents
 
    tutorial
    postprocessing
+   drift_removal
    regionmask
    contributor-guide
    api
