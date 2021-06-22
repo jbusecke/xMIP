@@ -85,8 +85,6 @@ jobs:
   upstream-dev:
     name: Build (upstream-dev)
     runs-on: ubuntu-latest
-    needs: detect-ci-trigger
-    if: needs.detect-ci-trigger.outputs.triggered == 'false'
     defaults:
       run:
         shell: bash -l {0}
@@ -123,6 +121,8 @@ jobs:
         pytest --ignore=tests/test_preprocessing_cloud.py
 
   cloud-tests:
+    needs: detect-ci-trigger
+    if: needs.detect-ci-trigger.outputs.triggered == 'false'
     name: Build (cloud-data-tests | ${{ matrix.variable_id }} | ${{ matrix.experiment_id }} | ${{ matrix.grid_label }})
     strategy:
       fail-fast: false
@@ -131,8 +131,6 @@ jobs:
         experiment_id: ["historical", "ssp585"]
         grid_label: ["gn", "gr"]
     runs-on: ubuntu-latest
-    needs: detect-ci-trigger
-    if: needs.detect-ci-trigger.outputs.triggered == 'false'
     defaults:
       run:
         shell: bash -l {0}
