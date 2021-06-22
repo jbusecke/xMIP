@@ -2,8 +2,16 @@
 
 What's New
 ===========
-.. _whats-new.0.2.1:
+.. _whats-new.0.4.0:
 
+v0.4.0 (unreleased)
+-------------------
+
+New Features
+~~~~~~~~~~~~
+- Started implementing metadata fixes in `combined_preprocessing` (:pull:`147`). By `Julius Busecke <https://github.com/jbusecke>`_
+
+.. _whats-new.0.3.0:
 
 v0.3.0 (2021/6/9)
 -------------------
