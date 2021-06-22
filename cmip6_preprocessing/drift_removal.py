@@ -249,7 +249,7 @@ def calculate_drift(
         reg = (
             linear_trend(reference_cut, "time")
             .sel(parameter="slope")
-            .drop("parameter")
+            .drop_vars("parameter")
             .squeeze()
         )
 
