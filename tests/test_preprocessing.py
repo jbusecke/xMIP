@@ -11,6 +11,7 @@ from cmip6_preprocessing.preprocessing import (
     correct_coordinates,
     correct_lon,
     correct_units,
+    fix_metadata,
     maybe_convert_bounds_to_vertex,
     maybe_convert_vertex_to_bounds,
     parse_lon_lat_bounds,
@@ -18,7 +19,6 @@ from cmip6_preprocessing.preprocessing import (
     rename_cmip6,
     replace_x_y_nominal_lat_lon,
     sort_vertex_order,
-    fix_metadata,
 )
 
 
@@ -419,13 +419,21 @@ def test_sort_vertex_order():
 def test_fix_metadata():
     # Create a dataset with matching attrs
     ds = xr.Dataset()
-    ds.attrs = {"source_id":"GFDL-CM4", "experiment_id":"historical", "branch_time_in_parent":"nonsense"}
+    ds.attrs = {
+        "source_id":"GFDL-CM4",
+        "experiment_id":"historical",
+        "branch_time_in_parent":"nonsense"
+    }
     ds_fixed = fix_metadata(ds)
     assert ds.attrs["branch_time_in_parent"] == 91250
     
     # Test that another dataset is untouched
     ds = xr.Dataset()
-    ds.attrs = {"source_id":"GFDL-CM4", "experiment_id":"other", "branch_time_in_parent":"nonsense"}
+    ds.attrs = {
+        "source_id":"GFDL-CM4",
+        "experiment_id":"other",
+        "branch_time_in_parent":"nonsense"
+    }
     ds_fixed = fix_metadata(ds)
     assert ds.attrs["branch_time_in_parent"] == "nonsense"
 
