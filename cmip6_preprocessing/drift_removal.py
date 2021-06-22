@@ -3,6 +3,7 @@ import warnings
 import dask.array as dsa
 import numpy as np
 import xarray as xr
+import xarrayutils as xru
 
 from xarrayutils.utils import linear_trend
 
@@ -246,12 +247,18 @@ def calculate_drift(
         # linear regression slope is all we need here.
         #         reg = reference_cut.polyfit("time", 1).sel(degree=1).polyfit_coefficients
 
-        reg = (
-            linear_trend(reference_cut, "time")
-            .sel(parameter="slope")
-            .drop_vars("parameter")
-            .squeeze()
+        reg_raw = linear_trend(
+            reference_cut,
+            "time",
         )
+
+        #! quite possibly the shittiest fix ever.
+        # I changed the API over at xarrayutils and now I have to pay the price over here.
+        # TODO: Might want to eliminate this ones the new xarrayutils version has matured.
+        if xru.__version__ > "v0.1.3":
+            reg = reg_raw.slope
+        else:
+            reg = reg_raw.sel(parameter="slope").drop_vars("parameter").squeeze()
 
         # again drop all the coordinates
         reg = reg.reset_coords(drop=True)
