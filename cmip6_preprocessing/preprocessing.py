@@ -400,12 +400,13 @@ def sort_vertex_order(ds):
 
     return ds
 
+
 # TODO: Implement this in a sleeker way with daops
 def fix_metadata(ds):
     """
     Fix known issues (from errata) with the metadata.
     """
-    
+
     # https://errata.es-doc.org/static/view.html?uid=2f6b5963-f87e-b2df-a5b0-2f12b6b68d32
     if ds.attrs["source_id"] == "GFDL-CM4" and ds.attrs["experiment_id"] in [
         "1pctCO2",
