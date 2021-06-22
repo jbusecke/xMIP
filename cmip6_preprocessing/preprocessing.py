@@ -400,6 +400,27 @@ def sort_vertex_order(ds):
 
     return ds
 
+# TODO: Implement this in a sleeker way with daops
+def fix_metadata(ds):
+    """
+    Fix known issues (from errata) with the metadata.
+    """
+    
+    # https://errata.es-doc.org/static/view.html?uid=2f6b5963-f87e-b2df-a5b0-2f12b6b68d32
+    if ds.attrs["source_id"] == "GFDL-CM4" and ds.attrs["experiment_id"] in [
+        "1pctCO2",
+        "abrupt-4xCO2",
+        "historical",
+    ]:
+        ds.attrs["branch_time_in_parent"] = 91250
+    # https://errata.es-doc.org/static/view.html?uid=61fb170e-91bb-4c64-8f1d-6f5e342ee421
+    if ds.attrs["source_id"] == "GFDL-CM4" and ds.attrs["experiment_id"] in [
+        "ssp245",
+        "ssp585",
+    ]:
+        ds.attrs["branch_time_in_child"] = 60225
+    return ds
+
 
 def combined_preprocessing(ds):
     if "AWI" not in ds.attrs["source_id"]:
@@ -423,4 +444,5 @@ def combined_preprocessing(ds):
         # convert vertex into bounds and vice versa, so both are available
         ds = maybe_convert_bounds_to_vertex(ds)
         ds = maybe_convert_vertex_to_bounds(ds)
+        ds = fix_metadata(ds)
     return ds
