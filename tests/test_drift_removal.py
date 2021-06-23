@@ -297,7 +297,7 @@ def test_remove_trend(chunk):
 
     with pytest.warns(UserWarning) as winfo:
         detrended = remove_trend(
-            sloped_data, slope.drop("trend_time_range"), "test", ref_date
+            sloped_data, slope.drop_vars("trend_time_range"), "test", ref_date
         )
     assert (
         detrended.attrs["drift_removed"]
@@ -432,7 +432,7 @@ def test_calculate_drift(trend_years):
             .sel(degree=1)
             .polyfit_coefficients
         )
-        .drop(["x", "y", "degree"])
+        .drop_vars(["x", "y", "degree"])
         .squeeze()
     )
 

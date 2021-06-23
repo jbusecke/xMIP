@@ -93,7 +93,7 @@ def test_broadcast_lonlat():
 def test_promote_empty_dims():
     xlen, ylen, zlen = (10, 5, 6)
     ds = create_test_ds("x", "y", "z", xlen, ylen, zlen)
-    ds = ds.drop(["x", "y", "z"])
+    ds = ds.drop_vars(["x", "y", "z"])
     ds_promoted = promote_empty_dims(ds)
     assert set(["x", "y", "z"]).issubset(set(ds_promoted.coords))
 
@@ -423,7 +423,9 @@ def test_combined_preprocessing_mislabeled_coords():
     """Test if the renaming is applied to datavariables and then if they are moved to the coords."""
     # create a 2d dataset
     xlen, ylen, zlen = (10, 5, 1)
-    ds = create_test_ds("x", "y", "dummy", xlen, ylen, zlen).squeeze().drop("dummy")
+    ds = (
+        create_test_ds("x", "y", "dummy", xlen, ylen, zlen).squeeze().drop_vars("dummy")
+    )
     ds = ds.assign(depth=5.0)
 
     ds_pp = combined_preprocessing(ds)
