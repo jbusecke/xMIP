@@ -11,6 +11,7 @@ from cmip6_preprocessing.preprocessing import (
     correct_coordinates,
     correct_lon,
     correct_units,
+    fix_metadata,
     maybe_convert_bounds_to_vertex,
     maybe_convert_vertex_to_bounds,
     parse_lon_lat_bounds,
@@ -414,6 +415,28 @@ def test_sort_vertex_order():
         da_shift = da_shift.assign_coords(vertex=da_shift.vertex + 10)
         da_sorted_shift = sort_vertex_order(da_shift).squeeze()
         np.testing.assert_allclose(da_sorted_shift.vertex.data, np.arange(4))
+
+
+def test_fix_metadata():
+    # Create a dataset with matching attrs
+    ds = xr.Dataset()
+    ds.attrs = {
+        "source_id": "GFDL-CM4",
+        "experiment_id": "historical",
+        "branch_time_in_parent": "nonsense",
+    }
+    ds_fixed = fix_metadata(ds)
+    assert ds.attrs["branch_time_in_parent"] == 91250
+
+    # Test that another dataset is untouched
+    ds = xr.Dataset()
+    ds.attrs = {
+        "source_id": "GFDL-CM4",
+        "experiment_id": "other",
+        "branch_time_in_parent": "nonsense",
+    }
+    ds_fixed = fix_metadata(ds)
+    assert ds.attrs["branch_time_in_parent"] == "nonsense"
 
 
 ### Combination test - involving###
