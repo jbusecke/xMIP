@@ -3,9 +3,6 @@ on:
   release:
     types:
       - published
-  push:
-    tags:
-      - 'v*rc*' # only trigger this for dev releases (which I currently call release candidates...
 
 jobs:
   build-artifacts:
@@ -51,6 +48,7 @@ jobs:
 
   test-built-dist:
     needs: build-artifacts
+    if: github.event.release.prerelease
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-python@v2
@@ -89,7 +87,7 @@ jobs:
           python -c "import cmip6_preprocessing;print(cmip6_preprocessing.__version__)"
   upload-to-pypi:
     needs: test-built-dist
-    if: github.event_name == 'release'
+    if: "!github.event.release.prerelease"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v2
