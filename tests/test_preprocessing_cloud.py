@@ -166,7 +166,6 @@ intake_concat_failures = [
 @pytest.fixture
 def spec_check_dim_coord_values_wo_intake(request, gl, vi, ei, cat):
     expected_failures = not_supported_failures + [
-        ("GISS-E2-2-G", "uo", "piControl", "gn"),
         ("FGOALS-f3-L", ["thetao"], "piControl", "gn"),
         # (
         #     "GFDL-CM4",
@@ -240,7 +239,6 @@ def spec_check_dim_coord_values(request, gl, vi, ei, cat):
         not_supported_failures
         + intake_concat_failures
         + [
-            ("GISS-E2-2-G", "uo", "piControl", "gn"),
             ("NorESM2-MM", ["uo", "zos"], "historical", "gn"),
             ("NorESM2-MM", "thetao", "historical", "gn"),
             ("NorESM2-MM", "thetao", "historical", "gr"),
@@ -318,7 +316,6 @@ def spec_check_bounds_verticies(request, gl, vi, ei, cat):
             ("IPSL-CM6A-LR", ["thetao", "o2"], "historical", "gn"),
             ("IITM-ESM", ["so", "uo", "thetao"], "piControl", "gn"),
             ("GFDL-CM4", "uo", "*", "gn"),
-            ("EC-Earth3-LR", "uo", "piControl", "gn"),
         ]
     )
     spec = (request.param, vi, ei, gl, cat)
@@ -418,7 +415,7 @@ def spec_check_grid(request, gl, vi, ei, cat):
                 "gn",
             ),
             ("EC-Earth3-Veg", "*", "historical", "gr"),
-            ("EC-Earth3-CC", "thetao", "*", "gn"),
+            ("EC-Earth3-CC", "*", "*", "gn"),
             ("MPI-ESM-1-2-HAM", "*", "*", "gn"),
             ("NorESM2-MM", "*", "historical", "gn"),
             ("NorESM2-MM", ["thetao", "so", "uo"], "historical", "gr"),
