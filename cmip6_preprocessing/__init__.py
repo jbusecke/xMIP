@@ -1,4 +1,5 @@
-from importlib.metadata import version, PackageNotFoundError
+# from importlib.metadata import version, PackageNotFoundError # only works for python 3.8 and upwards
+from importlib_metadata import version, PackageNotFoundError
 
 try:
     __version__ = version("version_testing")
