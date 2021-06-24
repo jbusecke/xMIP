@@ -1,6 +1,6 @@
 try:
     from importlib.metadata import (
-        version, 
+        version,
         PackageNotFoundError,
     )  # only works for python 3.8 and upwards
 except:
