@@ -23,11 +23,11 @@ os.environ["PYTHONPATH"] = str(root)
 sys.path.insert(0, str(root))
 
 import cmip6_preprocessing  # isort:skip
-from importlib.metadata import version # isort:skip
+from importlib.metadata import version  # isort:skip
 
-release = version('cmip6_preprocessing')
-# for example take major/minor
-version = '.'.join(release.split('.')[:3])
+release = version("cmip6_preprocessing")
+# for example take major/minor/patch
+version = ".".join(release.split(".")[:3])
 
 # From https://github.com/pypa/setuptools_scm/#usage-from-sphinx
 

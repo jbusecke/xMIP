@@ -68,3 +68,4 @@ target/
 
 .vscode
 .mypy_cache
+readthedocs.yml
