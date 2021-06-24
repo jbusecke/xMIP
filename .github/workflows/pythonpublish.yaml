@@ -45,10 +45,8 @@ jobs:
         with:
           name: releases
           path: dist
-
   test-built-dist:
     needs: build-artifacts
-    if: github.event.release.prerelease
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-python@v2
@@ -63,30 +61,23 @@ jobs:
         run: |
           ls -ltrh
           ls -ltrh dist
+  upload-to-testpypi:
+    needs: test-built-dist
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: releases
+          path: dist
       - name: Publish package to TestPyPI
         uses: pypa/gh-action-pypi-publish@v1.4.2
         with:
           user: __token__
-          password: ${{ secrets.TESTPYPI_TOKEN }}
           repository_url: https://test.pypi.org/legacy/
+          password: ${{ secrets.TESTPYPI_TOKEN }}
           verbose: true
-      # - name: Setup upterm session
-      #   uses: lhotari/action-upterm@v1
-      - name: Check uploaded package
-        run: |
-          sleep 10
-          python -m pip install --upgrade pip
-          pip cache purge
-          # This is kind of stupid, but the only way I got this to work with the latest versions on testpypi
-          # If I used: python -m pip install --extra-index-url https://test.pypi.org/simple --upgrade cmip6_preprocessing
-          # It would grab an older cmip6_pp version and with `--index-url=...` I cant get the proper dependencies from pypi
-          # So I am installing the dependencies manually from pypi and the newest version from testpypi...not sure if this
-          # defeats the purpose, but I am frankly fed up with this shit!
-          python -m pip install xgcm xarray numpy pandas cftime
-          python -m pip install --index-url https://test.pypi.org/simple --upgrade cmip6_preprocessing
-          python -c "import cmip6_preprocessing;print(cmip6_preprocessing.__version__)"
   upload-to-pypi:
-    needs: test-built-dist
+    needs: upload-to-testpypi
     if: "!github.event.release.prerelease"
     runs-on: ubuntu-latest
     steps:
