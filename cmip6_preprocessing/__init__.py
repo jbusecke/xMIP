@@ -1,12 +1,12 @@
 try:
     from importlib.metadata import (
         version, 
-        PackageNotFoundError
+        PackageNotFoundError,
     )  # only works for python 3.8 and upwards
 except:
     from importlib_metadata import (
         version,
-        PackageNotFoundError
+        PackageNotFoundError,
     )  # works for python <3.8
 
 try:
