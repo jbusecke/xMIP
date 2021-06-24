@@ -1,4 +1,8 @@
+from importlib.metadata import version, PackageNotFoundError
+
 try:
-    from ._version import __version__
-except ImportError:
+    __version__ = version("version_testing")
+except PackageNotFoundError:
+    # package is not installed
     __version__ = "unknown"
+    pass
