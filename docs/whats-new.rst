@@ -2,16 +2,31 @@
 
 What's New
 ===========
-.. _whats-new.0.2.1:
+.. _whats-new.0.4.0:
 
-
-v0.2.1 (unreleased)
+v0.4.0 (unreleased)
 -------------------
 
 New Features
 ~~~~~~~~~~~~
-- Added `postprocessing` module and added ability to parse metrics to multiple datasets in a dictionary (:pull:`110`). By `Julius Busecke <https://github.com/jbusecke>`_
 
+- Started implementing metadata fixes in `combined_preprocessing` (:pull:`147`). By `Julius Busecke <https://github.com/jbusecke>`_
+- Added `drift_removal` which adds ability to align time of branched runs and remove drift from the parent (e.g. control) run (:pull:`126`, :pull:`148`). By `Julius Busecke <https://github.com/jbusecke>`_
+
+.. _whats-new.0.3.0:
+
+v0.3.0 (2021/6/9)
+-------------------
+
+New Features
+~~~~~~~~~~~~
+- Added `postprocessing` module and added ability to parse metrics to multiple datasets in a dictionary (:pull:`110`, :pull:`117`). By `Julius Busecke <https://github.com/jbusecke>`_
+
+
+Internal Changes
+~~~~~~~~~~~~~~~~
+
+- Refactored CI internals, added dependabot, and some updated failcases (:pull:`121`, :pull:`128`, :pull:`129`, :pull:`133`, :pull:`134`, :pull:`135`). By `Julius Busecke <https://github.com/jbusecke>`_
 
 .. _whats-new.0.2.0:
 

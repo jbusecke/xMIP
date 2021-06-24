@@ -2,13 +2,10 @@ name: test_env_cmip6_preprocessing
 channels:
   - conda-forge
 dependencies:
-  - python=3.8
-  - pyproj
-  - matplotlib
-  - cartopy
   - cftime
   - dask
   - pip
+  - cartopy
   - pip:
     - codecov
     - pytest-cov
@@ -16,3 +13,4 @@ dependencies:
     - git+https://github.com/mathause/regionmask.git
     - git+https://github.com/pydata/xarray.git
     - git+https://github.com/xgcm/xgcm.git
+    - git+https://github.com/jbusecke/xarrayutils.git

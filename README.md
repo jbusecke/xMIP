@@ -22,7 +22,7 @@ I explicitly welcome suggestions regarding the wording of this statement and for
 
 # cmip6_preprocessing
 
-Frustrated with how 'dirty' CMIP6 data still is? Do you just want to run a simple (or complicated) analysis on various models and end up having to write logic for each seperate case? Then this package is for you.
+Are you interested in CMIP6 data, but find that is is not quite `analysis ready`? Do you just want to run a simple (or complicated) analysis on various models and end up having to write logic for each seperate case, because various datasets still require fixes to names, coordinates, etc.? Then this package is for you.
 
 Developed during the [cmip6-hackathon](https://cmip6hack.github.io/#/) this package provides utility functions that play nicely with [intake-esm](https://github.com/NCAR/intake-esm).
 

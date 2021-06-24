@@ -2,13 +2,13 @@ name: test_env_cmip6_preprocessing
 channels:
   - conda-forge
 dependencies:
-  - python=3.8
   - xarray
+  - netcdf4
+  - scipy
   - xgcm
-  - pyproj
   - cftime
-  - matplotlib
   - regionmask
+  - xarrayutils
   - pytest-cov
   - pytest-xdist
   - codecov

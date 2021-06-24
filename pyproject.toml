@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=42", "wheel", "setuptools_scm[toml]>=3.4"]
+requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools_scm]
@@ -20,7 +20,7 @@ quiet = false
 color = true
 
 [tool.isort]
-known_third_party = ["fsspec", "numpy", "pandas", "pkg_resources", "pytest", "setuptools", "xarray", "xgcm", "yaml"]
+known_third_party = ["cftime", "dask", "fsspec", "numpy", "pandas", "pkg_resources", "pytest", "setuptools", "xarray", "xarrayutils", "xgcm", "yaml"]
 
 [tool.pytest.ini_options]
 minversion = "6.0"

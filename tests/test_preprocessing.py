@@ -1,7 +1,6 @@
 import itertools
 
 import numpy as np
-import pandas as pd
 import pytest
 import xarray as xr
 
@@ -12,6 +11,7 @@ from cmip6_preprocessing.preprocessing import (
     correct_coordinates,
     correct_lon,
     correct_units,
+    fix_metadata,
     maybe_convert_bounds_to_vertex,
     maybe_convert_vertex_to_bounds,
     parse_lon_lat_bounds,
@@ -94,7 +94,7 @@ def test_broadcast_lonlat():
 def test_promote_empty_dims():
     xlen, ylen, zlen = (10, 5, 6)
     ds = create_test_ds("x", "y", "z", xlen, ylen, zlen)
-    ds = ds.drop(["x", "y", "z"])
+    ds = ds.drop_vars(["x", "y", "z"])
     ds_promoted = promote_empty_dims(ds)
     assert set(["x", "y", "z"]).issubset(set(ds_promoted.coords))
 
@@ -417,6 +417,28 @@ def test_sort_vertex_order():
         np.testing.assert_allclose(da_sorted_shift.vertex.data, np.arange(4))
 
 
+def test_fix_metadata():
+    # Create a dataset with matching attrs
+    ds = xr.Dataset()
+    ds.attrs = {
+        "source_id": "GFDL-CM4",
+        "experiment_id": "historical",
+        "branch_time_in_parent": "nonsense",
+    }
+    ds_fixed = fix_metadata(ds)
+    assert ds.attrs["branch_time_in_parent"] == 91250
+
+    # Test that another dataset is untouched
+    ds = xr.Dataset()
+    ds.attrs = {
+        "source_id": "GFDL-CM4",
+        "experiment_id": "other",
+        "branch_time_in_parent": "nonsense",
+    }
+    ds_fixed = fix_metadata(ds)
+    assert ds.attrs["branch_time_in_parent"] == "nonsense"
+
+
 ### Combination test - involving###
 
 
@@ -424,7 +446,9 @@ def test_combined_preprocessing_mislabeled_coords():
     """Test if the renaming is applied to datavariables and then if they are moved to the coords."""
     # create a 2d dataset
     xlen, ylen, zlen = (10, 5, 1)
-    ds = create_test_ds("x", "y", "dummy", xlen, ylen, zlen).squeeze().drop("dummy")
+    ds = (
+        create_test_ds("x", "y", "dummy", xlen, ylen, zlen).squeeze().drop_vars("dummy")
+    )
     ds = ds.assign(depth=5.0)
 
     ds_pp = combined_preprocessing(ds)

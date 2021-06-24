@@ -30,8 +30,7 @@ release = version('cmip6_preprocessing')
 version = '.'.join(release.split('.')[:2])
 
 # https://github.com/pypa/setuptools_scm/#usage-from-sphinx
-
-
+=======
 # -- Project information -----------------------------------------------------
 
 project = "cmip6_preprocessing"
