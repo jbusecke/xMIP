@@ -2,12 +2,12 @@ try:
     from importlib.metadata import (
         version, 
         PackageNotFoundError
-    ) # only works for python 3.8 and upwards
+    )  # only works for python 3.8 and upwards
 except:
     from importlib_metadata import (
         version,
         PackageNotFoundError
-    ) # works for python <3.8
+    )  # works for python <3.8
 
 try:
     __version__ = version("cmip6_preprocessing")
