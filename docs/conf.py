@@ -27,10 +27,10 @@ from importlib.metadata import version # isort:skip
 
 release = version('cmip6_preprocessing')
 # for example take major/minor
-version = '.'.join(release.split('.')[:2])
+version = '.'.join(release.split('.')[:3])
 
-# https://github.com/pypa/setuptools_scm/#usage-from-sphinx
-=======
+# From https://github.com/pypa/setuptools_scm/#usage-from-sphinx
+
 # -- Project information -----------------------------------------------------
 
 project = "cmip6_preprocessing"
