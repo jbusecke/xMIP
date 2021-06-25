@@ -11,8 +11,9 @@ sphinx:
 
 # Install the package using python setup.py install .
 python:
-   - method: setuptools
-     path: .
+  install:
+    - method: setuptools
+      path: .
 
 # Set up dependencies from conda env
 conda:
