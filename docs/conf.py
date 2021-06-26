@@ -23,22 +23,19 @@ os.environ["PYTHONPATH"] = str(root)
 sys.path.insert(0, str(root))
 
 import cmip6_preprocessing  # isort:skip
+from importlib.metadata import version  # isort:skip
+
+release = version("cmip6_preprocessing")
+# for example take major/minor/patch
+version = ".".join(release.split(".")[:3])
+
+# From https://github.com/pypa/setuptools_scm/#usage-from-sphinx
 
 # -- Project information -----------------------------------------------------
 
 project = "cmip6_preprocessing"
 copyright = "2021, cmip6_preprocessing maintainers"
 author = "cmip6_preprocessing maintainers"
-
-# -- Version -----------------------------------------------------------------
-# The version info for the project you're documenting, acts as replacement for
-# |version| and |release|, also used in various other places throughout the
-# built documents.
-#
-# The short X.Y version.
-version = cmip6_preprocessing.__version__.split("+")[0]
-# The full version, including alpha/beta/rc tags.
-release = cmip6_preprocessing.__version__
 
 
 # -- General configuration ---------------------------------------------------
