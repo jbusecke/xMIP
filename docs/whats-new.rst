@@ -9,8 +9,9 @@ v0.5.0 (unreleased)
 
 New Features
 ~~~~~~~~~~~~
-
-- :py:meth:`~cmip6_preprocessing.drift_removal.match_and_remove_drift` enables batch detrending/drift-drift_removal
+- :py:func:`~cmip6_preprocessing.postprocessing.interpolate_grid_labels` enables batch combination of different grid_labels
+(e.g. from native to regridded and vice versa) using xesmf (:pull:`161`). By `Julius Busecke <https://github.com/jbusecke>`_
+- :py:func:`~cmip6_preprocessing.drift_removal.match_and_remove_drift` enables batch detrending/drift-drift_removal
 from a dictionary of datasets (:pull:`155`). By `Julius Busecke <https://github.com/jbusecke>`_
 
 .. _whats-new.0.4.0:
