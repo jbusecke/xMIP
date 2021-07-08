@@ -7,6 +7,7 @@ import xarrayutils as xru
 
 from xarrayutils.utils import linear_trend
 
+from cmip6_preprocessing.postprocessing import _match_datasets, exact_attrs
 from cmip6_preprocessing.utils import cmip6_dataset_id
 
 
@@ -369,3 +370,55 @@ def remove_trend(ds, ds_slope, variable, ref_date, check_mask=True):
     ] = f"linear_trend_{cmip6_dataset_id(ds_slope)}_{trend_start}_{trend_stop}"
 
     return detrended
+
+
+def match_and_remove_trend(
+    ddict, trend_ddict, ref_date="1850", nomatch="warn", **detrend_kwargs
+):
+    """Find and remove trend files from a dictonary of datasets
+
+    Parameters
+    ----------
+    ddict : dict
+        dictionary with xr.Datasets which should get a trend/drift removed
+    trend_ddict : dict
+        dictionary with results of linear regressions. These should be removed from the datasets in `ddict`
+    ref_date : str, optional
+        Start date of the trend, by default "1850"
+    nomatch : str, optional
+        Define the behavior when for a given dataset in `ddict` there is no matching trend dataset in `trend_ddict`.
+        Can be `warn`, `raise`, or `ignore`, by default 'warn'
+
+    Returns
+    -------
+    dict
+        Dictionary of detrended dataasets. Only contains values of `ddict` that actually had a trend removed.
+
+    """
+    ddict_detrended = {}
+    match_attrs = [ma for ma in exact_attrs if ma not in ["experiment_id"]] + [
+        "variable_id"
+    ]
+
+    for k, ds in ddict.items():
+        trend_ds = _match_datasets(
+            ds, trend_ddict, match_attrs, pop=False, unique=True, nomatch=nomatch
+        )
+        # # print(trend_ds)
+        if len(trend_ds) == 2:
+            trend_ds = trend_ds[
+                1
+            ]  # this is a bit clunky. _match_datasest does return the input ds, so we have to grab the second one?
+            # I guess I could pass *trend_ds, but that is not very readable
+            variable = ds.attrs["variable_id"]
+            da_detrended = ds.assign(
+                {
+                    variable: remove_trend(
+                        ds, trend_ds, variable, ref_date=ref_date, **detrend_kwargs
+                    )
+                }
+            )
+            # should this just return a dataset instead?
+            ddict_detrended[k] = da_detrended
+
+    return ddict_detrended
