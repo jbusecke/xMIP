@@ -10,6 +10,9 @@ dependencies:
   - cftime
   - regionmask
   - xarrayutils
+  - pint
+  - cf_xarray
+  - pint-xarray
   - pytest-cov
   - pytest-xdist
   - codecov
