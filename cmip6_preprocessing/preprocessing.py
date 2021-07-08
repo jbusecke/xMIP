@@ -6,8 +6,8 @@ import pandas as pd
 import xarray as xr
 
 from cmip6_preprocessing.utils import _maybe_make_list
-import pint
 import cf_xarray.units
+import pint
 import pint_xarray
 
 
