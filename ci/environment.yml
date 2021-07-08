@@ -11,7 +11,7 @@ dependencies:
   - regionmask
   - xarrayutils
   - pint
-  - cf_xarray
+  - cf_xarray>=0.6.0
   - pint-xarray
   - pytest-cov
   - pytest-xdist
