@@ -5,8 +5,8 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-import pint
 import cf_xarray.units
+import pint
 import pint_xarray
 
 
@@ -191,9 +191,9 @@ def replace_x_y_nominal_lat_lon(ds):
 
 def correct_units(ds):
     "Converts coordinates into SI units using pint-xarray"
-    if 'lev' in ds:
-        if ds['lev'].units != 'm':
-            ds = ds.pint.to(lev='m')
+    if "lev" in ds:
+        if ds["lev"].units != "m":
+            ds = ds.pint.to(lev="m")
 
     return ds
 
