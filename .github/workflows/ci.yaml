@@ -72,7 +72,7 @@ jobs:
         run: lscpu
       - name: Run Tests
         run: |
-          pytest --cov=./ --cov-report=xml --ignore=tests/test_preprocessing_cloud.py
+          pytest -n auto --cov=./ --cov-report=xml --ignore=tests/test_preprocessing_cloud.py
       - name: Upload code coverage to Codecov
         uses: codecov/codecov-action@v1
         with:
@@ -118,7 +118,7 @@ jobs:
       run: conda list
     - name: Run Tests
       run: |
-        pytest --ignore=tests/test_preprocessing_cloud.py
+        pytest -n auto --ignore=tests/test_preprocessing_cloud.py
 
   cloud-tests:
     needs: detect-ci-trigger
@@ -168,4 +168,4 @@ jobs:
       run: |
         pwd
         echo $PYTHONPATH
-        pytest --reruns 1 --reruns-delay 5 tests/test_preprocessing_cloud.py --gl ${{ matrix.grid_label }} --ei ${{ matrix.experiment_id }} --vi ${{ matrix.variable_id }}
+        pytest -n auto --reruns 1 --reruns-delay 5 tests/test_preprocessing_cloud.py --gl ${{ matrix.grid_label }} --ei ${{ matrix.experiment_id }} --vi ${{ matrix.variable_id }}
