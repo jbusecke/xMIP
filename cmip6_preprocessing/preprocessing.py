@@ -6,6 +6,9 @@ import pandas as pd
 import xarray as xr
 
 from cmip6_preprocessing.utils import _maybe_make_list
+import pint
+import cf_xarray.units
+import pint_xarray
 
 
 def cmip6_renaming_dict():
@@ -202,30 +205,12 @@ def replace_x_y_nominal_lat_lon(ds):
     return ds
 
 
-def unit_conversion_dict():
-    """Units conversion database"""
-    unit_dict = {"m": {"centimeters": 1 / 100}}
-    return unit_dict
+def correct_units(ds):
+    "Converts coordinates into SI units using pint-xarray"
+    if "lev" in ds:
+        if ds["lev"].units != "m":
+            ds = ds.pint.to(lev="m")
 
-
-def correct_units(ds, verbose=False, stric=False):
-    "Converts coordinates into SI units using `unit_conversion_dict`"
-    unit_dict = unit_conversion_dict()
-    ds = ds.copy()
-    # coordinate conversions
-    for co, expected_unit in [("lev", "m")]:
-        if co in ds.coords:
-            if "units" in ds.coords[co].attrs.keys():
-                unit = ds.coords[co].attrs["units"]
-                if unit != expected_unit:
-                    if unit in unit_dict[expected_unit].keys():
-                        factor = unit_dict[expected_unit][unit]
-                        ds.coords[co] = ds.coords[co] * factor
-                        ds.coords[co].attrs["units"] = expected_unit
-                    else:
-                        warnings.warn("No conversion found in unit_dict")
-            else:
-                warnings.warn(f'{ds.attrs["source_id"]}: No units found for {co}')
     return ds
 
 
