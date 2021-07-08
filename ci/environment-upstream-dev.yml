@@ -16,4 +16,5 @@ dependencies:
     - git+https://github.com/xgcm/xgcm.git
     - git+https://github.com/jbusecke/xarrayutils.git
     - git+https://github.com/xarray-contrib/cf-xarray.git
+    - git+https://github.com/hgrecco/pint.git
     - git+https://github.com/xarray-contrib/pint-xarray.git
