@@ -25,7 +25,7 @@ def _match_attrs(ds_a, ds_b, match_attrs):
     return sum([ds_a.attrs[i] == ds_b.attrs[i] for i in match_attrs])
 
 
-def _match_datasets(ds, ds_dict, match_attrs, pop=True):
+def _match_datasets(ds, ds_dict, match_attrs, pop=True, nomatch="ignore", unique=False):
     """Find all datasets in a dictionary of datasets that have a matching set
     of attributes and return a list of datasets for merging/concatting.
     Optionally remove the matching datasets from the input dict.
@@ -41,6 +41,24 @@ def _match_datasets(ds, ds_dict, match_attrs, pop=True):
             # preserve the original dictionary key of the chosen dataset in attribute.
             ds_matched.attrs["original_key"] = k
             datasets.append(ds_matched)
+    if len(datasets) > 2:
+        if unique:
+            raise ValueError(
+                f"Found more than one matching dataset for {cmip6_dataset_id(ds)}. Pass `unique=False` to ignore this."
+            )
+    nomatch_msg = f"Could not find a matching dataset for {cmip6_dataset_id(ds)}"
+    if len(datasets) < 2:
+        if nomatch == "ignore":
+            pass
+        elif nomatch == "warn":
+            warnings.warn(nomatch_msg)
+        elif nomatch == "raise":
+            raise RuntimeError(nomatch_msg)
+        else:
+            # Could this be done in an annotation? Or some other built in way to do this?
+            raise ValueError(
+                f"Invalid input ({nomatch}) for `nomatch`, should be `ignore`, `warn`, or `raise`"
+            )
     return datasets
 
 

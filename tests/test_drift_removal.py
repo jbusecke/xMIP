@@ -9,10 +9,12 @@ from cmip6_preprocessing.drift_removal import (
     _construct_cfdate,
     calculate_drift,
     find_date_idx,
+    match_and_remove_trend,
     remove_trend,
     replace_time,
     unify_time,
 )
+from cmip6_preprocessing.postprocessing import exact_attrs
 
 
 # I copied this from a PR I made to parcels a while back.
@@ -527,3 +529,135 @@ def test_calculate_drift_exceptions_partial():
     with pytest.warns(UserWarning) as winfo:
         reg = calculate_drift(ds_control, ds, "test", compute_short_trends=True)
     assert "years to calculate trend. Using 1 years only" in winfo[0].message.args[0]
+
+
+@pytest.mark.parametrize("ref_date", ["1850", "2000-01-02"])
+def test_match_and_remove_trend_matching_experiment(ref_date):
+    # construct a dict of data to be detrended
+    nx, ny = (10, 20)
+    nt = 24
+    time_historical = xr.cftime_range("1850-01-01", periods=nt, freq="1MS")
+    time_ssp = xr.cftime_range("2014-01-01", periods=nt, freq="1MS")
+    raw_attrs = {k: "dummy" for k in exact_attrs + ["variable_id"]}
+
+    ds_a_hist_vara = xr.DataArray(
+        np.random.rand(nx, ny, nt),
+        dims=["x", "y", "time"],
+        coords={"time": time_historical},
+    ).to_dataset(name="vara")
+    ds_a_hist_vara.attrs = {k: v for k, v in raw_attrs.items()}
+    ds_a_hist_vara.attrs["variant_label"] = "a"
+    ds_a_hist_vara.attrs["variable_id"] = "vara"
+    ds_a_hist_vara.attrs["experiment_id"] = "historical"
+
+    ds_a_hist_varb = xr.DataArray(
+        np.random.rand(nx, ny, nt),
+        dims=["x", "y", "time"],
+        coords={"time": time_historical},
+    ).to_dataset(name="varb")
+    ds_a_hist_varb.attrs = {k: v for k, v in raw_attrs.items()}
+    ds_a_hist_varb.attrs["variant_label"] = "a"
+    ds_a_hist_varb.attrs["variable_id"] = "varb"
+    ds_a_hist_varb.attrs["experiment_id"] = "historical"
+    ds_a_other_vara = xr.DataArray(
+        np.random.rand(nx, ny, nt),
+        dims=["x", "y", "time"],
+        coords={"time": time_ssp},
+    ).to_dataset(name="vara")
+    ds_a_other_vara.attrs = {k: v for k, v in raw_attrs.items()}
+    ds_a_other_vara.attrs["variant_label"] = "a"
+    ds_a_other_vara.attrs["variable_id"] = "vara"
+    ds_a_other_vara.attrs["experiment_id"] = "other"
+
+    ds_b_hist_vara = xr.DataArray(
+        np.random.rand(nx, ny, nt),
+        dims=["x", "y", "time"],
+        coords={"time": time_historical},
+    ).to_dataset(name="vara")
+    ds_b_hist_vara.attrs = {k: v for k, v in raw_attrs.items()}
+    ds_b_hist_vara.attrs["variant_label"] = "b"
+    ds_b_hist_vara.attrs["variable_id"] = "vara"
+    ds_b_hist_vara.attrs["experiment_id"] = "historical"
+
+    ddict = {
+        "ds_a_hist_vara": ds_a_hist_vara,
+        "ds_a_hist_varb": ds_a_hist_varb,
+        "ds_a_other_vara": ds_a_other_vara,
+        "ds_b_hist_vara": ds_b_hist_vara,
+    }
+
+    trend_a_vara = (
+        xr.ones_like(ds_a_hist_vara.isel(time=0)).drop_vars("time") * np.random.rand()
+    )
+    trend_a_varb = (
+        xr.ones_like(ds_a_hist_varb.isel(time=0)).drop_vars("time") * np.random.rand()
+    )
+
+    trend_b_vara = (
+        xr.ones_like(ds_b_hist_vara.isel(time=0)).drop_vars("time") * np.random.rand()
+    )
+    # trend_b_varb = (
+    #     xr.ones_like(ds_b_hist_varb.isel(time=0)).drop_vars("time") * np.random.rand()
+    # )
+    # print(trend_b_varb)
+
+    ddict_trend = {
+        n: ds for n, ds in enumerate([trend_a_vara, trend_b_vara, trend_a_varb])
+    }
+
+    ddict_detrended = match_and_remove_trend(ddict, ddict_trend, ref_date=ref_date)
+
+    for name, ds, trend_ds in [
+        ("ds_a_hist_vara", ds_a_hist_vara, trend_a_vara),
+        ("ds_b_hist_vara", ds_b_hist_vara, trend_b_vara),
+        ("ds_a_hist_varb", ds_a_hist_varb, trend_a_varb),
+        ("ds_a_other_vara", ds_a_other_vara, trend_a_vara),
+    ]:
+        variable = ds.attrs["variable_id"]
+        expected = remove_trend(ds, trend_ds, variable, ref_date).to_dataset(
+            name=variable
+        )
+        xr.testing.assert_allclose(
+            ddict_detrended[name],
+            expected,
+        )
+
+
+def test_match_and_remove_trend_nomatch():
+    # create two datasets that do not match (according to the hardcoded conventions in `match_and_detrend`)
+    attrs = {}
+    ds = xr.DataArray().to_dataset(name="test")
+    ds.attrs = {k: "a" for k in exact_attrs + ["variable_id"]}
+    ds_nomatch = xr.DataArray().to_dataset(name="test")
+    ds_nomatch.attrs = {k: "b" for k in exact_attrs + ["variable_id"]}
+
+    detrended = match_and_remove_trend({"aa": ds}, {"bb": ds_nomatch}, nomatch="ignore")
+    assert detrended == {}
+
+    match_msg = "Could not find a matching dataset for *"
+    with pytest.warns(UserWarning, match=match_msg):
+        detrended = match_and_remove_trend(
+            {"aa": ds}, {"bb": ds_nomatch}, nomatch="warn"
+        )
+
+    with pytest.raises(RuntimeError, match=match_msg):
+        detrended = match_and_remove_trend(
+            {"aa": ds}, {"bb": ds_nomatch}, nomatch="raise"
+        )
+
+
+def test_match_and_remove_trend_nonunique():
+    # create two datasets that do not match (according to the hardcoded conventions in `match_and_detrend`)
+    attrs = {}
+    ds = xr.DataArray().to_dataset(name="test")
+    ds.attrs = {k: "a" for k in exact_attrs + ["variable_id"]}
+    ds_match_a = xr.DataArray().to_dataset(name="test")
+    ds_match_b = xr.DataArray().to_dataset(name="test")
+    ds_match_a.attrs = ds.attrs
+    ds_match_b.attrs = ds.attrs
+
+    match_msg = "Found more than one matching dataset for *"
+    with pytest.raises(ValueError, match=match_msg):
+        detrended = match_and_remove_trend(
+            {"aa": ds}, {"bb": ds_match_a, "cc": ds_match_b}
+        )

@@ -2,9 +2,20 @@
 
 What's New
 ===========
+.. _whats-new.0.5.0:
+
+v0.5.0 (unreleased)
+-------------------
+
+New Features
+~~~~~~~~~~~~
+
+- :py:meth:`~cmip6_preprocessing.drift_removal.match_and_remove_drift` enables batch detrending/drift-drift_removal
+from a dictionary of datasets (:pull:`155`). By `Julius Busecke <https://github.com/jbusecke>`_
+
 .. _whats-new.0.4.0:
 
-v0.4.0 (unreleased)
+v0.4.0 (2021/6/9)
 -------------------
 
 New Features
