@@ -24,7 +24,7 @@ known_third_party = ["cftime", "dask", "fsspec", "numpy", "pandas", "pkg_resourc
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = " -vv -rXfE -n auto"
+addopts = " -vv -rXfE"
 # only test the root level, otherwise it picks up the tests of the project template
 testpaths = [
     "tests",
