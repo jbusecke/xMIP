@@ -191,6 +191,11 @@ def replace_x_y_nominal_lat_lon(ds):
 
 def correct_units(ds):
     "Converts coordinates into SI units using pint-xarray"
+    # codify units with pint
+    # Perhaps this should be kept separately from the fixing?
+    # See https://github.com/jbusecke/cmip6_preprocessing/pull/160#discussion_r667041858
+    ds = ds.pint.quantify()
+    
     desired_units = {"lev":"m"}
     for var, target_unit in desired_units.items():
         if var in ds:
@@ -426,8 +431,6 @@ def combined_preprocessing(ds):
         ds = broadcast_lonlat(ds)
         # shift all lons to consistent 0-360
         ds = correct_lon(ds)
-        # codify units with pint
-        ds = ds.pint.quantify()
         # fix the units
         ds = correct_units(ds)
         # rename the `bounds` according to their style (bound or vertex)
