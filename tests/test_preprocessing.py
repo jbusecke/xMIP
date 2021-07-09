@@ -286,7 +286,7 @@ def test_correct_units():
     ds.lev.attrs["units"] = "centimeters"
 
     ds_test = correct_units(ds)
-    assert ds_test.lev.attrs["units"] == "m"
+    assert ds_test.lev.attrs["units"] == "meter"
     np.testing.assert_allclose(ds_test.lev.data, ds.lev.data / 100.0)
     with pytest.warns(UserWarning):
         ds_no_units = ds.copy()
