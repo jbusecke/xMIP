@@ -4,11 +4,13 @@ import string
 import numpy as np
 import pytest
 import xarray as xr
+import xesmf
 
 from cmip6_preprocessing.postprocessing import (
     _parse_metric,
     combine_datasets,
     concat_members,
+    interpolate_grid_label,
     match_metrics,
     merge_variables,
 )
@@ -528,3 +530,116 @@ def test_aggregate_error(func):
     ds = xr.concat([random_ds(), random_ds()], "member_id")
     with pytest.raises(ValueError):
         func({"test": ds})
+
+
+@pytest.mark.parametrize("verbose", [True, False])
+def test_interpolate_grid_label(verbose):
+    # build three datasets. Basically both datasets are available on grid_label hr (high res), but only one on grid_label lr (low res)
+    ds_lr_vara = xr.DataArray(
+        np.random.rand(4, 5, 6),
+        dims=["x", "y", "lev"],
+        coords={
+            "lon": ("x", np.linspace(0, 360, 4)),
+            "lat": ("y", np.linspace(-90, 90, 5)),
+        },
+    ).to_dataset(name="vara")
+    ds_lr_vara.attrs = {
+        "source_id": "a",
+        "grid_label": "lr",
+        "experiment_id": "a",
+        "table_id": "a",
+        "variant_label": "a",
+        "version": "a",
+        "variable_id": "vara",
+    }
+
+    ds_hr_vara = xr.DataArray(
+        np.random.rand(10, 50, 6),
+        dims=["x", "y", "lev"],
+        coords={
+            "lon": ("x", np.linspace(0, 360, 10)),
+            "lat": (["y"], np.linspace(-90, 90, 50)),
+        },
+    ).to_dataset(name="vara")
+
+    ds_hr_vara.attrs = {
+        "source_id": "a",
+        "grid_label": "hr",
+        "experiment_id": "a",
+        "table_id": "a",
+        "variant_label": "a",
+        "version": "a",
+        "variable_id": "vara",
+    }
+
+    ds_hr_varb = xr.DataArray(
+        np.random.rand(10, 50, 6),
+        dims=["x", "y", "lev"],
+        coords={
+            "lon": ("x", np.linspace(0, 360, 10)),
+            "lat": (["y"], np.linspace(-90, 90, 50)),
+        },
+    ).to_dataset(name="varb")
+
+    ds_hr_varb.attrs = {
+        "source_id": "a",
+        "grid_label": "hr",
+        "experiment_id": "a",
+        "table_id": "a",
+        "variant_label": "a",
+        "version": "a",
+        "variable_id": "varb",
+    }
+
+    # put in another rando dataset
+
+    ds_rando = xr.DataArray(
+        np.random.rand(14, 55, 6),
+        dims=["x", "y", "lev"],
+        coords={
+            "lon": ("x", np.linspace(0, 360, 14)),
+            "lat": (["y"], np.linspace(-90, 90, 55)),
+        },
+    ).to_dataset(name="varb")
+
+    ds_rando.attrs = {
+        "source_id": "b",
+        "grid_label": "blubb",
+        "experiment_id": "a",
+        "table_id": "a",
+        "variant_label": "a",
+        "version": "a",
+        "variable_id": "varb",
+    }
+
+    ddict = {
+        "a_lr": ds_lr_vara,
+        "a_hr": ds_hr_vara,
+        "b_hr": ds_hr_varb,
+        "rando": ds_rando,
+    }
+
+    # Prefer the high res version (no interpolation needed)
+    combined_ddict = interpolate_grid_label(
+        ddict, target_grid_label="hr", verbose=verbose
+    )
+
+    expected = xr.merge([ds_hr_vara, ds_hr_varb])
+
+    xr.testing.assert_allclose(combined_ddict["a.a.a.a"], expected)
+
+    # now the other way around (interpolation needed for variable whatever_else)
+    combined_ddict = interpolate_grid_label(ddict, target_grid_label="lr")
+
+    regridder = xesmf.Regridder(
+        ds_hr_varb, ds_lr_vara, "bilinear", periodic=True, ignore_degenerate=True
+    )
+
+    regridded = regridder(ds_hr_varb)
+    expected = xr.merge([ds_lr_vara, regridded])
+
+    xr.testing.assert_allclose(combined_ddict["a.a.a.a"], expected)
+    assert (
+        combined_ddict["a.a.a.a"].varb.attrs["cmip6_preprocessing_regrid_method"]
+        == "bilinear"
+    )

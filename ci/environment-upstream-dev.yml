@@ -5,7 +5,8 @@ dependencies:
   - cftime
   - dask
   - pip
-  - cartopy
+  - cartopy #installing this without conda is a nightmare, so ill leave it here
+  - xesmf # same here
   - pip:
     - codecov
     - pytest-cov

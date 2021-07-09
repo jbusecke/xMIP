@@ -65,6 +65,7 @@ target/
 .ipynb_checkpoints
 
 **/dask-worker-space/
+mydask.png
 
 .vscode
 .mypy_cache
