@@ -532,58 +532,6 @@ def test_aggregate_error(func):
         func({"test": ds})
 
 
-# def test_interpolate_grid_label():
-#     # build two different grids
-#     ds_a = xr.DataArray(
-#         np.random.rand(4, 5, 6),
-#         dims=["x", "y", "lev"],
-#         coords={
-#             "lon": ("x", np.linspace(0, 360, 4)),
-#             "lat": ("y", np.linspace(-90, 90, 5)),
-#         },
-#     ).to_dataset(name="data_a")
-#     ds_a.attrs = {
-#         "source_id": "a",
-#         "grid_label": "a",
-#         "experiment_id": "a",
-#         "table_id": "a",
-#         "variant_label": "a",
-#         "version": "a",
-#         "variable_id": "whatever",
-#     }
-
-#     ds_b = xr.DataArray(
-#         np.random.rand(10, 50, 6),
-#         dims=["x", "y", "lev"],
-#         coords={
-#             "lon": ("x", np.linspace(0, 360, 10)),
-#             "lat": (["y"], np.linspace(-90, 90, 50)),
-#         },
-#     ).to_dataset(name="data_b")
-
-#     ds_b.attrs = {
-#         "source_id": "a",
-#         "grid_label": "b",
-#         "experiment_id": "a",
-#         "table_id": "a",
-#         "variant_label": "a",
-#         "version": "a",
-#         "variable_id": "whatever_else",
-#     }
-
-#     ddict = {"a": ds_a, "b": ds_b}
-#     combined_ddict = interpolate_grid_label(ddict, target_grid_label="b")
-#     print(combined_ddict)
-
-#     expected_regridder = xesmf.Regridder(
-#         ds_a, ds_b, "bilinear", periodic=True, ignore_degenerate=True
-#     )
-
-#     expected = xr.merge([ds_b, expected_regridder(ds_a)])
-
-#     xr.testing.assert_allclose(combined_ddict["a.a.a.a"], expected)
-
-
 @pytest.mark.parametrize("verbose", [True, False])
 def test_interpolate_grid_label(verbose):
     # build three datasets. Basically both datasets are available on grid_label hr (high res), but only one on grid_label lr (low res)
