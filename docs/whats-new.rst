@@ -2,9 +2,15 @@
 
 What's New
 ===========
+.. _whats-new.0.6.0:
+
+v0.6.0 (unreleased)
+-------------------
+
+
 .. _whats-new.0.5.0:
 
-v0.5.0 (unreleased)
+v0.5.0 (2021/7/9)
 -------------------
 
 New Features
