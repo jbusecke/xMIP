@@ -191,9 +191,13 @@ def replace_x_y_nominal_lat_lon(ds):
 
 def correct_units(ds):
     "Converts coordinates into SI units using pint-xarray"
-    if "lev" in ds:
-        if ds["lev"].units != "m":
-            ds = ds.pint.to(lev="m")
+    desired_units = {"lev":"m"}
+    for var, target_unit in desired_units.items():
+        if var in ds:
+            if "units" in ds[var].attrs.keys():
+            # do we need to check this, or is pint smart enough to not touch the units, if its already the one we want?
+            #if ds["lev"].units != "m":
+                ds = ds.pint.to({var:target_unit})
 
     return ds
 
