@@ -5,7 +5,8 @@ dependencies:
   - cftime
   - dask
   - pip
-  - cartopy
+  - cartopy #installing this without conda is a nightmare, so ill leave it here
+  - xesmf # same here
   - pip:
     - codecov
     - pytest-cov
@@ -14,4 +15,3 @@ dependencies:
     - git+https://github.com/pydata/xarray.git
     - git+https://github.com/xgcm/xgcm.git
     - git+https://github.com/jbusecke/xarrayutils.git
-    - git+https://github.com/pangeo-data/xESMF.git
