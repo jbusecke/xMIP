@@ -203,7 +203,7 @@ def correct_units(ds):
             # do we need to check this, or is pint smart enough to not touch the units, if its already the one we want?
             #if ds["lev"].units != "m":
                 ds = ds.pint.to({var:target_unit})
-    ds = ds.pint.dequantify()
+    ds = ds.pint.dequantify(format="P")
     return ds
 
 
