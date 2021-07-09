@@ -584,7 +584,8 @@ def test_aggregate_error(func):
 #     xr.testing.assert_allclose(combined_ddict["a.a.a.a"], expected)
 
 
-def test_interpolate_grid_label():
+@pytest.mark.parametrize("verbose", [True, False])
+def test_interpolate_grid_label(verbose):
     # build three datasets. Basically both datasets are available on grid_label hr (high res), but only one on grid_label lr (low res)
     ds_lr_vara = xr.DataArray(
         np.random.rand(4, 5, 6),
@@ -671,7 +672,9 @@ def test_interpolate_grid_label():
     }
 
     # Prefer the high res version (no interpolation needed)
-    combined_ddict = interpolate_grid_label(ddict, target_grid_label="hr")
+    combined_ddict = interpolate_grid_label(
+        ddict, target_grid_label="hr", verbose=verbose
+    )
 
     expected = xr.merge([ds_hr_vara, ds_hr_varb])
 
