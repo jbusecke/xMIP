@@ -9,6 +9,7 @@ dependencies:
   - xgcm
   - cftime
   - regionmask
+  - xesmf
   - xarrayutils
   - pint
   - cf_xarray>=0.6.0

@@ -2,15 +2,23 @@
 
 What's New
 ===========
+.. _whats-new.0.6.0:
+
+v0.6.0 (unreleased)
+-------------------
+
+
 .. _whats-new.0.5.0:
 
-v0.5.0 (unreleased)
+v0.5.0 (2021/7/9)
 -------------------
 
 New Features
 ~~~~~~~~~~~~
+- :py:func:`~cmip6_preprocessing.postprocessing.interpolate_grid_labels` enables batch combination of different grid_labels
+(e.g. from native to regridded and vice versa) using xesmf (:pull:`161`). By `Julius Busecke <https://github.com/jbusecke>`_
 
-- :py:meth:`~cmip6_preprocessing.drift_removal.match_and_remove_drift` enables batch detrending/drift-drift_removal
+- :py:func:`~cmip6_preprocessing.drift_removal.match_and_remove_drift` enables batch detrending/drift-drift_removal
 from a dictionary of datasets (:pull:`155`). By `Julius Busecke <https://github.com/jbusecke>`_
 
 .. _whats-new.0.4.0:
@@ -22,6 +30,7 @@ New Features
 ~~~~~~~~~~~~
 
 - Started implementing metadata fixes in `combined_preprocessing` (:pull:`147`). By `Julius Busecke <https://github.com/jbusecke>`_
+
 - Added `drift_removal` which adds ability to align time of branched runs and remove drift from the parent (e.g. control) run (:pull:`126`, :pull:`148`). By `Julius Busecke <https://github.com/jbusecke>`_
 
 .. _whats-new.0.3.0:
