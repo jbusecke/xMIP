@@ -210,21 +210,24 @@ def replace_x_y_nominal_lat_lon(ds):
     return ds
 
 
+def _pint_standardize_units(da, target_units):
+    da = da.pint.quantify()
+    da = da.pint.to(target_units)
+    da = da.pint.dequantify(format="~P")
+    return da
+
+
 def correct_units(ds):
     "Converts coordinates into SI units using pint-xarray"
     # codify units with pint
     # Perhaps this should be kept separately from the fixing?
     # See https://github.com/jbusecke/cmip6_preprocessing/pull/160#discussion_r667041858
-    ds = ds.pint.quantify()
 
     desired_units = _desired_units()
     for var, target_unit in desired_units.items():
         if var in ds:
             if "units" in ds[var].attrs.keys():
-                # do we need to check this, or is pint smart enough to not touch the units, if its already the one we want?
-                # if ds["lev"].units != "m":
-                ds = ds.pint.to({var: target_unit})
-    ds = ds.pint.dequantify(format="~P")
+                ds = ds.assign_coords({var: _pint_standardize_units(ds[var])})
     return ds
 
 
