@@ -7,8 +7,13 @@ import xarray as xr
 
 from cmip6_preprocessing.utils import _maybe_make_list
 import cf_xarray.units
+
 import pint
 import pint_xarray
+
+
+def _desired_units():
+    return {"lev": "m"}
 
 
 def cmip6_renaming_dict():
@@ -211,14 +216,14 @@ def correct_units(ds):
     # Perhaps this should be kept separately from the fixing?
     # See https://github.com/jbusecke/cmip6_preprocessing/pull/160#discussion_r667041858
     ds = ds.pint.quantify()
-    
-    desired_units = {"lev":"m"}
+
+    desired_units = _desired_units()
     for var, target_unit in desired_units.items():
         if var in ds:
             if "units" in ds[var].attrs.keys():
-            # do we need to check this, or is pint smart enough to not touch the units, if its already the one we want?
-            #if ds["lev"].units != "m":
-                ds = ds.pint.to({var:target_unit})
+                # do we need to check this, or is pint smart enough to not touch the units, if its already the one we want?
+                # if ds["lev"].units != "m":
+                ds = ds.pint.to({var: target_unit})
     ds = ds.pint.dequantify(format="~P")
     return ds
 
