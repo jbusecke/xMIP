@@ -252,8 +252,7 @@ def test_unify_time_adjust_to_error():
             ds_parent, ds_child, adjust_to="nonsense"
         )
 
-
-@pytest.mark.parametrize("chunk", [False, {"time": 2}])
+@pytest.mark.parametrize("chunk", [False, {"time": 2, "bnds":1}])
 def test_remove_trend(chunk):
 
     # normal testing
@@ -380,9 +379,8 @@ def test_calculate_drift_missing_attrs():
         == "`ds_parent` variant_label (b) not compatible with `ds` parent_variant_label (a)"
     )
 
-
 @pytest.mark.parametrize("trend_years", [1, 5, 10])
-def test_calculate_drift(trend_years):
+def test_calculate_drift(trend_years, dask):
     # error if no attr are given
     nx, ny = (10, 20)
     nt_control = 3000
