@@ -252,7 +252,7 @@ def test_unify_time_adjust_to_error():
             ds_parent, ds_child, adjust_to="nonsense"
         )
 
-@pytest.mark.parametrize("chunk", [False, {"time": 2, "bnds":1}])
+@pytest.mark.parametrize("chunk", [False, {"x": -1, "bnds":1}])
 def test_remove_trend(chunk):
 
     # normal testing
