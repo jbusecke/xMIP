@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 import xarray as xr
 
+from cmip6_preprocessing.postprocessing import exact_attrs
 from cmip6_preprocessing.preprocessing import (
     broadcast_lonlat,
     cmip6_renaming_dict,
@@ -42,8 +43,8 @@ def create_test_ds(xname, yname, zname, xlen, ylen, zlen):
     return ds
 
 
-@pytest.mark.parametrize("xname", ["i", "x", "lon"])
-@pytest.mark.parametrize("yname", ["j", "y", "lat"])
+@pytest.mark.parametrize("xname", ["i", "x"])
+@pytest.mark.parametrize("yname", ["j", "y"])
 @pytest.mark.parametrize("zname", ["lev", "olev", "olevel"])
 @pytest.mark.parametrize("missing_dim", [None, "x", "y", "z"])
 def test_rename_cmip6(xname, yname, zname, missing_dim):
@@ -51,16 +52,14 @@ def test_rename_cmip6(xname, yname, zname, missing_dim):
     ds = create_test_ds(xname, yname, zname, xlen, ylen, zlen)
 
     if missing_dim == "x":
-        ds = ds.drop_dims(xname)
+        ds = ds.isel({xname: 0}).squeeze()
     elif missing_dim == "y":
-        ds = ds.drop_dims(yname)
+        ds = ds.isel({yname: 0}).squeeze()
     elif missing_dim == "z":
-        ds = ds.drop_dims(zname)
+        ds = ds.isel({zname: 0}).squeeze()
 
     ds_renamed = rename_cmip6(ds, cmip6_renaming_dict())
     assert set(ds_renamed.dims).issubset(set(["x", "y", "lev"]))
-    if missing_dim not in ["x", "y"]:
-        assert (set(ds_renamed.coords) - set(ds_renamed.dims)) == set(["lon", "lat"])
     if not missing_dim == "x":
         assert xlen == len(ds_renamed.x)
     if not missing_dim == "y":
@@ -68,12 +67,21 @@ def test_rename_cmip6(xname, yname, zname, missing_dim):
     if not missing_dim == "z":
         assert zlen == len(ds_renamed.lev)
 
-    # test exceptions and error handling
-    with pytest.warns(UserWarning):
-        ds_renamed = rename_cmip6(ds, {})
 
-    with pytest.raises(ValueError):
-        ds_renamed = rename_cmip6(ds, {"x": "x"})
+@pytest.mark.parametrize("xname", ["i", "x"])
+@pytest.mark.parametrize("yname", ["j", "y"])
+def test_rename_cmip6_worst_case(xname, yname):
+    xlen, ylen, zlen = (10, 5, 6)
+    ds = create_test_ds(xname, yname, "lev", xlen, ylen, zlen)
+
+    print(ds.lon)
+    # now rename only some of the coordinates to the correct naming
+    ds = ds.assign_coords(
+        {"lon": ds.lon.reset_coords(drop=True).rename({xname: "x", yname: "y"})}
+    )
+    ds_renamed = rename_cmip6(ds, cmip6_renaming_dict())
+
+    assert set(ds_renamed.dims) == set(["x", "y", "lev"])
 
 
 def test_broadcast_lonlat():
@@ -454,3 +462,21 @@ def test_combined_preprocessing_mislabeled_coords():
     ds_pp = combined_preprocessing(ds)
     assert "lev" in ds_pp.coords
     np.testing.assert_allclose(ds.depth.data, ds_pp.lev.data)
+
+
+def test_preserve_attrs():
+    # create a 2d dataset
+    xlen, ylen, zlen = (10, 5, 1)
+    ds = (
+        create_test_ds("x", "y", "dummy", xlen, ylen, zlen).squeeze().drop_vars("dummy")
+    )
+    ds.attrs = {"preserve_this": "here"}
+
+    # TODO:  there are a bunch of errors if the metadata is not full.
+    # I should probably ignore them and still put the datset out?
+    # Well for now create one
+    for att in exact_attrs:
+        ds.attrs[att] = "a"
+
+    ds_pp = combined_preprocessing(ds)
+    assert ds_pp.attrs["preserve_this"] == "here"

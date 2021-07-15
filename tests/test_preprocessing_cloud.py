@@ -73,15 +73,6 @@ def all_models():
     return all_models
 
 
-def _maybe_make_list(item):
-    if isinstance(item, str):
-        return [item]
-    elif isinstance(item, list):
-        return item
-    else:
-        return list(item)
-
-
 # test_models = ["CESM2-FV2", "GFDL-CM4"]
 test_models = all_models()
 
