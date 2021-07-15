@@ -264,9 +264,9 @@ def test_remove_trend(chunk):
         coords={"time": time},
         attrs={"just_some": "test"},
     )
-    
+ 
     slope = xr.DataArray(np.random.rand(3, 4), dims=["x", "y"])
-    
+
     ref_date = str(time[0])
     dummy_time = xr.DataArray(np.arange(len(time)), dims=["time"])
 
@@ -381,7 +381,7 @@ def test_calculate_drift_missing_attrs():
         == "`ds_parent` variant_label (b) not compatible with `ds` parent_variant_label (a)"
     )
 
- 
+
 @pytest.mark.parametrize("trend_years", [1, 5, 10])
 def test_calculate_drift(trend_years):
     # error if no attr are given
