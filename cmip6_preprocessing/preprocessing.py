@@ -210,9 +210,11 @@ def replace_x_y_nominal_lat_lon(ds):
     return ds
 
 
-def _pint_standardize_units(da, target_units):
+def _pint_standardize_units(da, target_unit):
+    # pint doesnt like dimensions passed here directly
+    da.name = "pint_dummy"
     da = da.pint.quantify()
-    da = da.pint.to(target_units)
+    da = da.pint.to(target_unit)
     da = da.pint.dequantify(format="~P")
     return da
 
@@ -224,10 +226,17 @@ def correct_units(ds):
     # See https://github.com/jbusecke/cmip6_preprocessing/pull/160#discussion_r667041858
 
     desired_units = _desired_units()
-    for var, target_unit in desired_units.items():
+    for var, unit in desired_units.items():
         if var in ds:
             if "units" in ds[var].attrs.keys():
-                ds = ds.assign_coords({var: _pint_standardize_units(ds[var])})
+                # This makes sure that pint *only* operates on certain variables
+                # Implemented to avoid the mess with salinity (
+                # see https://github.com/xarray-contrib/cf-xarray/pull/238#issuecomment-863434523
+                # and https://github.com/jbusecke/cmip6_preprocessing/pull/160#issuecomment-878608357)
+                standardized_var = _pint_standardize_units(ds[var], unit)
+                print(standardized_var)
+                ds = ds.assign_coords({var: standardized_var})
+                print(ds)
     return ds
 
 
