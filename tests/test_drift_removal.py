@@ -381,7 +381,7 @@ def test_calculate_drift_missing_attrs():
     )
 
 @pytest.mark.parametrize("trend_years", [1, 5, 10])
-def test_calculate_drift(trend_years, dask):
+def test_calculate_drift(trend_years):
     # error if no attr are given
     nx, ny = (10, 20)
     nt_control = 3000
