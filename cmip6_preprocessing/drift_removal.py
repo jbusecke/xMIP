@@ -355,8 +355,8 @@ def remove_trend(ds, ds_slope, variable, ref_date, check_mask=True):
 
     # add information to track which data was used to remove trend
     if "trend_time_range" in ds_slope.coords:
-        trend_start = ds_slope.trend_time_range.isel(bnds=0).data.tolist()
-        trend_stop = ds_slope.trend_time_range.isel(bnds=1).data.tolist()
+        trend_start = ds_slope.trend_time_range.isel(bnds=0).load().data.tolist()
+        trend_stop = ds_slope.trend_time_range.isel(bnds=1).load().data.tolist()
 
     else:
         trend_start = "not-available"

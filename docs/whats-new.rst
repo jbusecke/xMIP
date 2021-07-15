@@ -7,6 +7,11 @@ What's New
 v0.6.0 (unreleased)
 -------------------
 
+Bugfixes
+~~~~~~~~
+
+- :py:func:`~cmip6_preprocessing.drift_removal.match_and_remove_drift` does now work with chunked (dask powered) datasets (:pull:`164`).By `Julius Busecke <https://github.com/jbusecke>`_
+
 
 .. _whats-new.0.5.0:
 
