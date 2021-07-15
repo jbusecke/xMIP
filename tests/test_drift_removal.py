@@ -264,7 +264,7 @@ def test_remove_trend(chunk):
         coords={"time": time},
         attrs={"just_some": "test"},
     )
- 
+
     slope = xr.DataArray(np.random.rand(3, 4), dims=["x", "y"])
 
     ref_date = str(time[0])
