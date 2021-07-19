@@ -80,16 +80,16 @@ def rename_cmip6(ds, rename_dict=None):
         }
     )
 
+    # special treatment for 'lon'/'lat' if there is no 'x'/'y' after renaming process
+    for di, co in [("x", "lon"), ("y", "lat")]:
+        if di not in ds.dims and co in ds.dims:
+            ds = ds.rename({co: di})
+
     # now rename the variables
     ds = ds.rename({k: v for k, v in inverted_rename_dict.items() if k in ds.data_vars})
 
     # restore attributes
     ds.attrs = attrs
-
-    # special treatment for 'lon'/'lat' if there is no 'x'/'y' after renaming process
-    for di, co in [("x", "lon"), ("y", "lat")]:
-        if di not in ds.dims and co in ds.dims:
-            ds = ds.rename({co: di})
 
     return ds
 
