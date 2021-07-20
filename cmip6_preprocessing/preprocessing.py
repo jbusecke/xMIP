@@ -192,33 +192,24 @@ def replace_x_y_nominal_lat_lon(ds):
     return ds
 
 
-def _pint_standardize_units(da, target_unit):
-    # pint doesnt like dimensions passed here directly
-    da.name = "pint_dummy"
-    da = da.pint.quantify()
-    da = da.pint.to(target_unit)
-    da = da.pint.dequantify(format="~P")
-    return da
-
-
 def correct_units(ds):
     "Converts coordinates into SI units using pint-xarray"
     # codify units with pint
     # Perhaps this should be kept separately from the fixing?
     # See https://github.com/jbusecke/cmip6_preprocessing/pull/160#discussion_r667041858
 
+    # exclude salinity from the quantification (see https://github.com/jbusecke/cmip6_preprocessing/pull/160#issuecomment-878627027 for details)
+    overrides = {name: None for name, var in ds.variables.items() if name in ["so"]}
+    quantified = ds.pint.quantify(overrides)
+
     desired_units = _desired_units()
-    for var, unit in desired_units.items():
-        if var in ds:
-            if "units" in ds[var].attrs.keys():
-                # This makes sure that pint *only* operates on certain variables
-                # Implemented to avoid the mess with salinity (
-                # see https://github.com/xarray-contrib/cf-xarray/pull/238#issuecomment-863434523
-                # and https://github.com/jbusecke/cmip6_preprocessing/pull/160#issuecomment-878608357)
-                standardized_var = _pint_standardize_units(ds[var], unit)
-                print(standardized_var)
-                ds = ds.assign_coords({var: standardized_var})
-                print(ds)
+    for var, target_unit in desired_units.items():
+        if var in quantified:
+            if "units" in quantified[var].attrs.keys():
+                # do we need to check this, or is pint smart enough to not touch the units, if its already the one we want?
+                # if ds["lev"].units != "m":
+                quantified = quantified.pint.to({var: target_unit})
+    ds = quantified.pint.dequantify(format="~P")
     return ds
 
 
