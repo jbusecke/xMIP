@@ -88,3 +88,13 @@ def cmip6_dataset_id(
         Concatenated
     """
     return _key_from_attrs(ds, id_attrs, sep=sep)
+
+
+def _maybe_make_list(item):
+    "utility function to make sure output is a list"
+    if isinstance(item, str):
+        return [item]
+    elif isinstance(item, list):
+        return item
+    else:
+        return list(item)
