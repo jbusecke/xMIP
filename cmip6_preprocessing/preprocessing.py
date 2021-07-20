@@ -86,7 +86,14 @@ def rename_cmip6(ds, rename_dict=None):
             ds = ds.rename({co: di})
 
     # now rename the variables
-    ds = ds.rename({k: v for k, v in inverted_rename_dict.items() if k in ds.data_vars})
+    # try and pass here, cause some of the datasets (MIROC) have like 3 times the same info
+    # e.g. lev/sigma/zlev...not sure this is the best way to handle this with
+    # a silent fail here though...
+    for va in ds.data_vars:
+        try:
+            ds = ds.rename({va: inverted_rename_dict[va]})
+        except:
+            pass
 
     # restore attributes
     ds.attrs = attrs
