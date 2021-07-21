@@ -221,12 +221,12 @@ def correct_units(ds):
 
     desired_units = _desired_units()
     target_units = {
-        var: target_units
+        var: target_unit
         for var, target_unit in desired_units.items()
         if var in quantified
     }
     converted = quantified.pint.to(target_units)
-    ds = quantified.pint.dequantify(format="~P")
+    ds = converted.pint.dequantify(format="~P")
     return ds
 
 
