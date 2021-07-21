@@ -290,6 +290,16 @@ def test_correct_units():
     np.testing.assert_allclose(ds_test.lev.data, ds.lev.data / 100.0)
 
 
+def test_correct_units_missing():
+    lev = np.arange(0, 200)
+    data = np.random.rand(*lev.shape)
+    ds = xr.DataArray(data, dims=["lev"], coords={"lev": lev}).to_dataset(name="test")
+    ds.attrs["source_id"] = "something"
+    # should this raise a warning but pass?
+    ds_test = correct_units(ds)
+    assert "units" not in ds_test.lev.attrs.keys()
+
+
 def test_maybe_convert_bounds_to_vertex():
     # create a ds with bounds
     lon = np.arange(0, 10)
@@ -450,6 +460,7 @@ def test_combined_preprocessing_mislabeled_coords():
         create_test_ds("x", "y", "dummy", xlen, ylen, zlen).squeeze().drop_vars("dummy")
     )
     ds = ds.assign(depth=5.0)
+    ds.depth.attrs["units"] = "m"  # otherwise pint complains.
 
     ds_pp = combined_preprocessing(ds)
     assert "lev" in ds_pp.coords
