@@ -221,12 +221,12 @@ def correct_units(ds):
     quantified = ds.pint.quantify(overrides)
 
     desired_units = _desired_units()
-    for var, target_unit in desired_units.items():
-        if var in quantified:
-            if "units" in quantified[var].attrs.keys():
-                # do we need to check this, or is pint smart enough to not touch the units, if its already the one we want?
-                # if ds["lev"].units != "m":
-                quantified = quantified.pint.to({var: target_unit})
+    target_units = {
+        var: target_units
+        for var, target_unit in desired_units.items()
+        if var in quantified
+    }
+    converted = quantified.pint.to(target_units)
     ds = quantified.pint.dequantify(format="~P")
     return ds
 
