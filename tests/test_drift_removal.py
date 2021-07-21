@@ -253,7 +253,7 @@ def test_unify_time_adjust_to_error():
         )
 
 
-@pytest.mark.parametrize("chunk", [False, {"time": 2}])
+@pytest.mark.parametrize("chunk", [False, {"x": -1, "bnds": 1}])
 def test_remove_trend(chunk):
 
     # normal testing
@@ -264,8 +264,7 @@ def test_remove_trend(chunk):
         coords={"time": time},
         attrs={"just_some": "test"},
     )
-    if chunk:
-        data = data.chunk(chunk)
+
     slope = xr.DataArray(np.random.rand(3, 4), dims=["x", "y"])
 
     ref_date = str(time[0])
@@ -284,6 +283,8 @@ def test_remove_trend(chunk):
         dims="bnds",
     )
     slope = slope.assign_coords(trend_time_range=time_range)
+    if chunk:
+        slope = slope.chunk(chunk)
 
     detrended = remove_trend(sloped_data, slope, "test", ref_date)
     xr.testing.assert_allclose(data, detrended)

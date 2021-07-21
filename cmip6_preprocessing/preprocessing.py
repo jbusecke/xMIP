@@ -8,6 +8,8 @@ import pint
 import pint_xarray
 import xarray as xr
 
+from cmip6_preprocessing.utils import _maybe_make_list
+
 
 def _desired_units():
     return {"lev": "m"}
@@ -19,16 +21,15 @@ def cmip6_renaming_dict():
     should be renamed into the target."""
     rename_dict = {
         # dim labels (order represents the priority when checking for the dim labels)
-        "x": ["x", "i", "ni", "xh", "nlon", "lon", "longitude"],
-        "y": ["y", "j", "nj", "yh", "nlat", "lat", "latitude"],
-        "lev": ["lev", "deptht", "olevel", "zlev", "olev", "depth"],
+        "x": ["i", "ni", "xh", "nlon"],
+        "y": ["j", "nj", "yh", "nlat"],
+        "lev": ["deptht", "olevel", "zlev", "olev", "depth"],
         "bnds": ["bnds", "axis_nbounds", "d2"],
         "vertex": ["vertex", "nvertex", "vertices"],
         # coordinate labels
-        "lon": ["lon", "longitude", "nav_lon"],
-        "lat": ["lat", "latitude", "nav_lat"],
+        "lon": ["longitude", "nav_lon"],
+        "lat": ["latitude", "nav_lat"],
         "lev_bounds": [
-            "lev_bounds",
             "deptht_bounds",
             "lev_bnds",
             "olevel_bounds",
@@ -48,44 +49,61 @@ def cmip6_renaming_dict():
             "y_bnds",
             "vertices_latitude",
         ],
-        "time_bounds": ["time_bounds", "time_bnds"],
+        "time_bounds": ["time_bnds"],
     }
     return rename_dict
 
 
+def _invert_dict(rdict):
+    exploded_dict = {}
+    # there is probably a more effective way to 'invert' a dictionary
+    for k, v in rdict.items():
+        v = _maybe_make_list(v)
+        for vv in v:
+            exploded_dict[vv] = k
+    return exploded_dict
+
+
 def rename_cmip6(ds, rename_dict=None):
-    """Homogenizes cmip6 dadtasets to common naming"""
+    """Homogenizes cmip6 dataasets to common naming"""
     ds = ds.copy()
-    source_id = ds.attrs["source_id"]
+    attrs = {k: v for k, v in ds.attrs.items()}
 
     if rename_dict is None:
         rename_dict = cmip6_renaming_dict()
 
-    # rename variables
-    if len(rename_dict) == 0:
-        warnings.warn(
-            "input dictionary empty.",
-            UserWarning,
-        )
-    else:
-        for di in rename_dict.keys():
+    inverted_rename_dict = _invert_dict(rename_dict)
 
-            # make sure the input is a list
-            if not isinstance(rename_dict[di], list):
-                raise ValueError(
-                    f"Input dict must have a list as value. Got {rename_dict[di]} for key {di}"
-                )
+    ds_reset = ds.reset_coords()
 
-            if di not in ds.variables:
+    def _maybe_rename(obj, rdict):
+        return obj.rename({kk: vv for kk, vv in rdict.items() if kk in obj.dims})
 
-                # For now just stop in the list if the dimension is already there, or one 'hit'
-                # was already encountered.
-                trigger = False
-                for wrong in rename_dict[di]:
-                    if wrong in ds.variables or wrong in ds.dims:
-                        if not trigger:
-                            ds = ds.rename({wrong: di})
-                            trigger = True
+    # first take care of the dims and reconstruct a clean ds
+    ds = xr.Dataset(
+        {
+            k: _maybe_rename(ds_reset[k], inverted_rename_dict)
+            for k in ds_reset.data_vars
+        }
+    )
+
+    # special treatment for 'lon'/'lat' if there is no 'x'/'y' after renaming process
+    for di, co in [("x", "lon"), ("y", "lat")]:
+        if di not in ds.dims and co in ds.dims:
+            ds = ds.rename({co: di})
+
+    # now rename the variables
+    # try and pass here, cause some of the datasets (MIROC) have like 3 times the same info
+    # e.g. lev/sigma/zlev...not sure this is the best way to handle this with
+    # a silent fail here though...
+    for va in ds.data_vars:
+        try:
+            ds = ds.rename({va: inverted_rename_dict[va]})
+        except:
+            pass
+
+    # restore attributes
+    ds.attrs = attrs
 
     return ds
 
@@ -96,7 +114,6 @@ def promote_empty_dims(ds):
     for di in ds.dims:
         if di not in ds.coords:
             ds = ds.assign_coords({di: ds[di]})
-            # ds.coords[di] = ds[di]
     return ds
 
 
@@ -425,26 +442,25 @@ def fix_metadata(ds):
 
 
 def combined_preprocessing(ds):
-    if "AWI" not in ds.attrs["source_id"]:
-        ds = ds.copy()
-        # fix naming
-        ds = rename_cmip6(ds)
-        # promote empty dims to actual coordinates
-        ds = promote_empty_dims(ds)
-        # demote coordinates from data_variables
-        ds = correct_coordinates(ds)
-        # broadcast lon/lat
-        ds = broadcast_lonlat(ds)
-        # shift all lons to consistent 0-360
-        ds = correct_lon(ds)
-        # fix the units
-        ds = correct_units(ds)
-        # rename the `bounds` according to their style (bound or vertex)
-        ds = parse_lon_lat_bounds(ds)
-        # sort verticies in a consistent manner
-        ds = sort_vertex_order(ds)
-        # convert vertex into bounds and vice versa, so both are available
-        ds = maybe_convert_bounds_to_vertex(ds)
-        ds = maybe_convert_vertex_to_bounds(ds)
-        ds = fix_metadata(ds)
+    ds = ds.copy()
+    # fix naming
+    ds = rename_cmip6(ds)
+    # promote empty dims to actual coordinates
+    ds = promote_empty_dims(ds)
+    # demote coordinates from data_variables
+    ds = correct_coordinates(ds)
+    # broadcast lon/lat
+    ds = broadcast_lonlat(ds)
+    # shift all lons to consistent 0-360
+    ds = correct_lon(ds)
+    # fix the units
+    ds = correct_units(ds)
+    # rename the `bounds` according to their style (bound or vertex)
+    ds = parse_lon_lat_bounds(ds)
+    # sort verticies in a consistent manner
+    ds = sort_vertex_order(ds)
+    # convert vertex into bounds and vice versa, so both are available
+    ds = maybe_convert_bounds_to_vertex(ds)
+    ds = maybe_convert_vertex_to_bounds(ds)
+    ds = fix_metadata(ds)
     return ds
