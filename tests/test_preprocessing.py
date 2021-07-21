@@ -296,7 +296,9 @@ def test_correct_units_missing():
     ds = xr.DataArray(data, dims=["lev"], coords={"lev": lev}).to_dataset(name="test")
     ds.attrs["source_id"] = "something"
     # should this raise a warning but pass?
-    ds_test = correct_units(ds)
+    msg = "Unit correction failed with: Cannot convert variables"
+    with pytest.warns(UserWarning, match=msg):
+        ds_test = correct_units(ds)
     assert "units" not in ds_test.lev.attrs.keys()
 
 
