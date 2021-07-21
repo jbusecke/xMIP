@@ -5,11 +5,11 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 
-from cmip6_preprocessing.utils import _maybe_make_list
 import cf_xarray.units
 
 import pint
 import pint_xarray
+from cmip6_preprocessing.utils import _maybe_make_list, cmip6_dataset_id
 
 
 def _desired_units():
@@ -215,19 +215,24 @@ def correct_units(ds):
     # codify units with pint
     # Perhaps this should be kept separately from the fixing?
     # See https://github.com/jbusecke/cmip6_preprocessing/pull/160#discussion_r667041858
+    try:
+        # exclude salinity from the quantification (see https://github.com/jbusecke/cmip6_preprocessing/pull/160#issuecomment-878627027 for details)
+        overrides = {name: None for name, var in ds.variables.items() if name in ["so"]}
+        quantified = ds.pint.quantify(overrides)
 
-    # exclude salinity from the quantification (see https://github.com/jbusecke/cmip6_preprocessing/pull/160#issuecomment-878627027 for details)
-    overrides = {name: None for name, var in ds.variables.items() if name in ["so"]}
-    quantified = ds.pint.quantify(overrides)
+        desired_units = _desired_units()
+        target_units = {
+            var: target_unit
+            for var, target_unit in desired_units.items()
+            if var in quantified
+        }
 
-    desired_units = _desired_units()
-    target_units = {
-        var: target_unit
-        for var, target_unit in desired_units.items()
-        if var in quantified
-    }
-    converted = quantified.pint.to(target_units)
-    ds = converted.pint.dequantify(format="~P")
+        converted = quantified.pint.to(target_units)
+        ds = converted.pint.dequantify(format="~P")
+    except Exception as e:
+        warnings.warn(
+            f"{cmip6_dataset_id(ds)}: Unit correction failed with: {e}", UserWarning
+        )
     return ds
 
 
