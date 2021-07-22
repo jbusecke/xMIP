@@ -10,9 +10,9 @@ import xarray as xr
 
 from cmip6_preprocessing.utils import _maybe_make_list, cmip6_dataset_id
 
-
-def _desired_units():
-    return {"lev": "m"}
+# global object for units
+_desired_units = {"lev": "m"}
+_unit_overrides = {name: None for name, var in ds.variables.items() if name in ["so"]}
 
 
 def cmip6_renaming_dict():
@@ -216,10 +216,7 @@ def correct_units(ds):
     # See https://github.com/jbusecke/cmip6_preprocessing/pull/160#discussion_r667041858
     try:
         # exclude salinity from the quantification (see https://github.com/jbusecke/cmip6_preprocessing/pull/160#issuecomment-878627027 for details)
-        overrides = {name: None for name, var in ds.variables.items() if name in ["so"]}
-        quantified = ds.pint.quantify(overrides)
-
-        desired_units = _desired_units()
+        quantified = ds.pint.quantify(_unit_overrides)
         target_units = {
             var: target_unit
             for var, target_unit in desired_units.items()
