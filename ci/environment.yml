@@ -14,7 +14,10 @@ dependencies:
   - xarrayutils
   - pint
   - cf_xarray>=0.6.0
-  - pint-xarray
+#   - pint-xarray #waiting for v0.2.1 to be released on conda-forge
   - pytest-cov
   - pytest-xdist
   - codecov
+  - pip
+  - pip:
+    - pint-xarray # just temporary (see above)
