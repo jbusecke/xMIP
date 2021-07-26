@@ -10,12 +10,9 @@ dependencies:
   - zarr
   - pint
   - cf_xarray>=0.6.0
-#   - pint-xarray # Waiting for release of v0.2.1 on conda-forge
+  - pint-xarray
   # Dependencies for the testing suite
   - pytest-cov
   - pytest-xdist
   - pytest-rerunfailures
   - codecov
-  - pip
-  - pip:
-    - pint-xarray # ! temporary, see above
