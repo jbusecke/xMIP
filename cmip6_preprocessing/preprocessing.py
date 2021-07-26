@@ -225,7 +225,7 @@ def correct_units(ds):
 
         converted = quantified.pint.to(target_units)
         ds = converted.pint.dequantify(format="~P")
-    except Exception as e:
+    except ValueError as e:
         warnings.warn(
             f"{cmip6_dataset_id(ds)}: Unit correction failed with: {e}", UserWarning
         )
