@@ -6,9 +6,13 @@ What's New
 
 v0.6.0 (unreleased)
 -------------------
+Breaking Changes
+~~~~~~~~~~~~~~~~
+- Requires xarray>=0.17.0 and drops support for python 3.6 (:pull:`170`, :pull:`173`). By `Julius Busecke <https://github.com/jbusecke>`_
 
 Bugfixes
 ~~~~~~~~
+- Fixes incompatibility with upstream changes in xarray>=0.19.0 (:pull:`173`). By `Julius Busecke <https://github.com/jbusecke>`_
 
 - :py:func:`~cmip6_preprocessing.drift_removal.match_and_remove_drift` does now work with chunked (dask powered) datasets (:pull:`164`).By `Julius Busecke <https://github.com/jbusecke>`_
 
