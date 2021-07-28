@@ -9,6 +9,7 @@ dependencies:
   - xgcm
   - cftime
   - regionmask
+  - cartopy
   - xesmf
   - xarrayutils
   - pytest-cov
