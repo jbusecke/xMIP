@@ -2,13 +2,14 @@ name: test_env_cmip6_preprocessing
 channels:
   - conda-forge
 dependencies:
-  - xarray
+  - xarray>=0.17.0
   - pandas<1.3 # remove this once https://github.com/pydata/xarray/issues/5581 is released
   - netcdf4
   - scipy
   - xgcm
   - cftime
   - regionmask
+  - cartopy
   - xesmf
   - xarrayutils
   - pytest-cov

@@ -23,24 +23,26 @@ def _add_small_rand(da):
 
 def _test_data(grid_label="gn", z_axis=True):
     xt = np.arange(4) + 1
-
     yt = np.arange(5) + 1
-
     zt = np.arange(6) + 1
+
     x = xr.DataArray(xt, coords=[("x", xt)])
     y = xr.DataArray(yt, coords=[("y", yt)])
     lev = xr.DataArray(zt, coords=[("lev", zt)])
 
     # Need to add a tracer here to get the tracer dimsuffix
-    coords = [("x", x), ("y", y)]
-    data = np.random.rand(len(x), len(y))
+    coords = [("x", x.data), ("y", y.data)]
+    data = np.random.rand(len(xt), len(yt))
+    dims = ["x", "y"]
 
     if z_axis:
-        coords.append(("lev", lev))
+        coords.append(("lev", lev.data))
         data = np.random.rand(len(x), len(y), len(lev))
+        dims = ["x", "y", "lev"]
 
     tr = xr.DataArray(
         data,
+        dims=dims,
         coords=coords,
     )
 
