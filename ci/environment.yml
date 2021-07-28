@@ -15,6 +15,7 @@ dependencies:
   - pytest-xdist
   - codecov
   # temporary fix until regionmask 0.7.0 is on conda-forge
+  - cartopy
   - pip
   - pip:
     - regionmask
