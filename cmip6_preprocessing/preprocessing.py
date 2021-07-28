@@ -220,7 +220,7 @@ def correct_units(ds):
         quantified = ds.pint.quantify(_unit_overrides)
         target_units = {
             var: target_unit
-            for var, target_unit in desired_units.items()
+            for var, target_unit in _desired_units.items()
             if var in quantified
         }
 
