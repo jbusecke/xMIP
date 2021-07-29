@@ -5,14 +5,13 @@ dependencies:
   - cftime
   - dask
   - pip
-  - regionmask
   - cartopy #installing this without conda is a nightmare, so ill leave it here
   - xesmf # same here
   - pip:
     - codecov
     - pytest-cov
     - pytest-xdist
-    # - git+https://github.com/mathause/regionmask.git # install via conda until #179 is fixed
+    - git+https://github.com/regionmask/regionmask.git
     - git+https://github.com/pydata/xarray.git
     - git+https://github.com/xgcm/xgcm.git
     - git+https://github.com/jbusecke/xarrayutils.git
