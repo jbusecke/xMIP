@@ -664,8 +664,15 @@ def test_nested_operations():
         },
         attrs={"source_id": "a", "experiment_id": "a"},
     )
+
     _, ds_combined = merge_variables(concat_members(ddict)).popitem()
     xr.testing.assert_allclose(ds_expected.squeeze(), ds_combined.squeeze())
 
-    _, ds_combined = concat_members(merge_variables(ddict)).popitem()
+    with pytest.warns(UserWarning) as warninfo:
+        _, ds_combined = concat_members(merge_variables(ddict)).popitem()
     xr.testing.assert_allclose(ds_expected.squeeze(), ds_combined.squeeze())
+
+    msg = (
+        "Match attributes ['grid_label', 'table_id'] not found in any of the datasets."
+    )
+    assert msg in warninfo[0].message.args[0]
