@@ -288,14 +288,18 @@ def test_correct_units():
     ds_test = correct_units(ds)
     assert ds_test.lev.attrs["units"] == "m"
     np.testing.assert_allclose(ds_test.lev.data, ds.lev.data / 100.0)
-    with pytest.warns(UserWarning):
-        ds_no_units = ds.copy()
-        ds_no_units.lev.attrs = {}
-        correct_units(ds_no_units)
-    with pytest.warns(UserWarning):
-        ds_unknown_units = ds.copy()
-        ds_unknown_units.lev.attrs["units"] = "whatever"
-        correct_units(ds_unknown_units)
+
+
+def test_correct_units_missing():
+    lev = np.arange(0, 200)
+    data = np.random.rand(*lev.shape)
+    ds = xr.DataArray(data, dims=["lev"], coords={"lev": lev}).to_dataset(name="test")
+    ds.attrs["source_id"] = "something"
+    # should this raise a warning but pass?
+    msg = "Unit correction failed with: Cannot convert variables"
+    with pytest.warns(UserWarning, match=msg):
+        ds_test = correct_units(ds)
+    assert "units" not in ds_test.lev.attrs.keys()
 
 
 def test_maybe_convert_bounds_to_vertex():
@@ -478,6 +482,7 @@ def test_combined_preprocessing_mislabeled_coords():
         create_test_ds("x", "y", "dummy", xlen, ylen, zlen).squeeze().drop_vars("dummy")
     )
     ds = ds.assign(depth=5.0)
+    ds.depth.attrs["units"] = "m"  # otherwise pint complains.
 
     ds_pp = combined_preprocessing(ds)
     assert "lev" in ds_pp.coords

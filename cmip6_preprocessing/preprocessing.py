@@ -1,11 +1,19 @@
 # Preprocessing for CMIP6 models
 import warnings
 
+import cf_xarray.units
 import numpy as np
 import pandas as pd
+import pint
+import pint_xarray
 import xarray as xr
 
-from cmip6_preprocessing.utils import _maybe_make_list
+from cmip6_preprocessing.utils import _maybe_make_list, cmip6_dataset_id
+
+
+# global object for units
+_desired_units = {"lev": "m"}
+_unit_overrides = {name: None for name in ["so"]}
 
 
 _drop_coords = ["bnds", "vertex"]
@@ -205,30 +213,26 @@ def replace_x_y_nominal_lat_lon(ds):
     return ds
 
 
-def unit_conversion_dict():
-    """Units conversion database"""
-    unit_dict = {"m": {"centimeters": 1 / 100}}
-    return unit_dict
+def correct_units(ds):
+    "Converts coordinates into SI units using pint-xarray"
+    # codify units with pint
+    # Perhaps this should be kept separately from the fixing?
+    # See https://github.com/jbusecke/cmip6_preprocessing/pull/160#discussion_r667041858
+    try:
+        # exclude salinity from the quantification (see https://github.com/jbusecke/cmip6_preprocessing/pull/160#issuecomment-878627027 for details)
+        quantified = ds.pint.quantify(_unit_overrides)
+        target_units = {
+            var: target_unit
+            for var, target_unit in _desired_units.items()
+            if var in quantified
+        }
 
-
-def correct_units(ds, verbose=False, stric=False):
-    "Converts coordinates into SI units using `unit_conversion_dict`"
-    unit_dict = unit_conversion_dict()
-    ds = ds.copy()
-    # coordinate conversions
-    for co, expected_unit in [("lev", "m")]:
-        if co in ds.coords:
-            if "units" in ds.coords[co].attrs.keys():
-                unit = ds.coords[co].attrs["units"]
-                if unit != expected_unit:
-                    if unit in unit_dict[expected_unit].keys():
-                        factor = unit_dict[expected_unit][unit]
-                        ds.coords[co] = ds.coords[co] * factor
-                        ds.coords[co].attrs["units"] = expected_unit
-                    else:
-                        warnings.warn("No conversion found in unit_dict")
-            else:
-                warnings.warn(f'{ds.attrs["source_id"]}: No units found for {co}')
+        converted = quantified.pint.to(target_units)
+        ds = converted.pint.dequantify(format="~P")
+    except ValueError as e:
+        warnings.warn(
+            f"{cmip6_dataset_id(ds)}: Unit correction failed with: {e}", UserWarning
+        )
     return ds
 
 

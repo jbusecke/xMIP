@@ -12,6 +12,9 @@ dependencies:
   - cartopy
   - xesmf
   - xarrayutils
+  - pint
+  - cf_xarray>=0.6.0
+  - pint-xarray>=0.2.1
   - pytest-cov
   - pytest-xdist
   - codecov
