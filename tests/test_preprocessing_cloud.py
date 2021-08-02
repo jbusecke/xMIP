@@ -223,8 +223,7 @@ def test_check_dim_coord_values_wo_intake(
     assert len(ds.lat.shape) == 2
 
     ## Check unit conversion
-    unit_dict = _desired_units()
-    for var, expected_unit in unit_dict.items():
+    for var, expected_unit in _desired_units.items():
         if var in ds.variables:
             unit = ds[var].attrs.get("units")
             if unit:
