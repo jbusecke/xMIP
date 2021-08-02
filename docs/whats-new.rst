@@ -6,6 +6,12 @@ What's New
 
 v0.6.0 (unreleased)
 -------------------
+
+New Features
+~~~~~~~~~~~~
+- Postprocessing functions can now easily be nested on top of each other (:pull:`187`). By `Julius Busecke <https://github.com/jbusecke>`_
+
+
 Breaking Changes
 ~~~~~~~~~~~~~~~~
 - Requires xarray>=0.17.0 and drops support for python 3.6 (:pull:`170`, :pull:`173`). By `Julius Busecke <https://github.com/jbusecke>`_
