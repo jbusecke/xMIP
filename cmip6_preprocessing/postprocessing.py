@@ -218,6 +218,53 @@ def concat_members(
     )
 
 
+def _concat_sorted_time(ds_list, **kwargs):
+    # extract the first date
+    start_dates = [str(ds.time.to_index()[0]) for ds in ds_list]
+    sorted_idx = np.argsort(start_dates)
+    ds_list_sorted = [ds_list[i] for i in sorted_idx]
+    return xr.concat(ds_list_sorted, "time", **kwargs)
+
+
+def concat_experiments(
+    ds_dict,
+    concat_kwargs={},
+):
+    """Given a dictionary of datasets, this function merges all available ensemble members
+    (given in seperate datasets) into a single dataset for each combination of attributes,
+    like source_id, grid_label, etc. but with concatnated members.
+    CAUTION: If members do not have the same dimensions (e.g. longer run time for some members),
+    this can result in poor dask performance (see: https://github.com/jbusecke/cmip6_preprocessing/issues/58)
+    Parameters
+    ----------
+    ds_dict : dict
+        Dictionary of xarray datasets.
+    concat_kwargs : dict
+        Optional arguments passed to xr.concat.
+    Returns
+    -------
+    dict
+        A new dict of xr.Datasets with all datasets from `ds_dict`, but with concatenated members and adjusted keys.
+    """
+
+    match_attrs = [ma for ma in exact_attrs if ma not in ["experiment_id"]]
+
+    # set defaults
+    concat_kwargs.setdefault(
+        "combine_attrs",
+        "drop_conflicts",
+    )  # if the size differs throw an error. Requires xarray >=0.17.0
+    concat_kwargs.setdefault("compat", "override")
+    concat_kwargs.setdefault("coords", "minimal")
+
+    return combine_datasets(
+        ds_dict,
+        _concat_sorted_time,
+        combine_func_kwargs=concat_kwargs,
+        match_attrs=match_attrs,
+    )
+
+
 ### Matching wrapper specific to combining grid labels via interpolation with xesmf
 def requires_xesmf(func):
     @functools.wraps(func)
