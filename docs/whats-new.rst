@@ -10,6 +10,11 @@ Breaking Changes
 ~~~~~~~~~~~~~~~~
 - Requires xarray>=0.17.0 and drops support for python 3.6 (:pull:`170`, :pull:`173`). By `Julius Busecke <https://github.com/jbusecke>`_
 
+Internal Changes
+~~~~~~~~~~~~~~~~
+
+- Unit correction logic now uses pint-xarray under the hood (:pull:`160`, :issue:`31`).
+By `Tom Nicholas <https://github.com/TomNicholas>`_ and `Julius Busecke <https://github.com/jbusecke>`_
 Bugfixes
 ~~~~~~~~
 - Fixes incompatibility with upstream changes in xarray>=0.19.0 (:issue:`173`, :pull:`174`). By `Julius Busecke <https://github.com/jbusecke>`_

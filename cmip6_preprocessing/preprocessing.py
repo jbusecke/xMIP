@@ -1,14 +1,13 @@
 # Preprocessing for CMIP6 models
 import warnings
 
+import cf_xarray.units
 import numpy as np
 import pandas as pd
-import xarray as xr
-
-import cf_xarray.units
-
 import pint
 import pint_xarray
+import xarray as xr
+
 from cmip6_preprocessing.utils import _maybe_make_list, cmip6_dataset_id
 
 
