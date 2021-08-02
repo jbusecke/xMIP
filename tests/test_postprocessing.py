@@ -9,6 +9,7 @@ import xesmf
 from cmip6_preprocessing.postprocessing import (
     _parse_metric,
     combine_datasets,
+    concat_experiments,
     concat_members,
     interpolate_grid_label,
     match_metrics,
@@ -502,6 +503,85 @@ def test_concat_members(concat_kwargs):
         assert k in list(result.keys())
         xr.testing.assert_equal(
             result[k], xr.concat(expected[k], "member_id", **concat_kwargs)
+        )
+
+
+@pytest.mark.parametrize("concat_kwargs", [{}, {"compat": "override"}])
+def test_concat_experiments(concat_kwargs):
+    concat_kwargs = {}
+
+    attrs_a = {
+        "source_id": "a",
+        "grid_label": "a",
+        "experiment_id": "a",
+        "table_id": "a",
+        "variant_label": "a",
+        "version": "a",
+    }
+
+    attrs_b = {k: v for k, v in attrs_a.items()}
+    attrs_b["experiment_id"] = "b"
+
+    attrs_c = {k: v for k, v in attrs_b.items()}
+    attrs_c["source_id"] = "c"
+
+    # Create some datasets with a/b attrs
+    ds_a_temp = random_ds(attrs=attrs_a).rename({"data": "temp"})
+    ds_a_temp = ds_a_temp.assign_coords(
+        time=xr.cftime_range("2000", periods=len(ds_a_temp.time))
+    )
+
+    ds_b_temp = random_ds(attrs=attrs_b).rename({"data": "temp"})
+    ds_b_temp = ds_b_temp.assign_coords(
+        time=xr.cftime_range("1850", periods=len(ds_b_temp.time))
+    )
+
+    ds_c_other = random_ds(attrs=attrs_c).rename({"data": "other"})
+    ds_c_other = ds_c_other.assign_coords(
+        time=xr.cftime_range("2000", periods=len(ds_c_other.time))
+    )
+
+    ds_dict = {
+        "".join(random.choices(string.ascii_letters, k=4)): ds
+        for ds in [ds_a_temp, ds_b_temp, ds_c_other]
+    }
+
+    # Group together the expected 'matches'
+    expected = {
+        "a.a.a.a": [ds_b_temp, ds_a_temp],  # these should be sorted in this order!
+        "c.a.a.a": [ds_c_other],
+    }
+
+    result = concat_experiments(
+        ds_dict,
+        concat_kwargs=concat_kwargs,
+    )
+    for k in expected.keys():
+        assert k in list(result.keys())
+        xr.testing.assert_equal(
+            result[k], xr.concat(expected[k], "time", **concat_kwargs)
+        )
+
+    # shuffle the dict entries (not sure that is actually then processed in that order...)
+    ds_dict = {
+        "".join(random.choices(string.ascii_letters, k=4)): ds
+        for ds in [ds_b_temp, ds_c_other, ds_a_temp]
+    }
+
+    # Group together the expected 'matches'
+    expected = {
+        "a.a.a.a": [ds_b_temp, ds_a_temp],  # these should be sorted in this order!
+        "c.a.a.a": [ds_c_other],
+    }
+
+    result = concat_experiments(
+        ds_dict,
+        concat_kwargs=concat_kwargs,
+    )
+    for k in expected.keys():
+        assert k in list(result.keys())
+        xr.testing.assert_equal(
+            result[k], xr.concat(expected[k], "time", **concat_kwargs)
         )
 
 
