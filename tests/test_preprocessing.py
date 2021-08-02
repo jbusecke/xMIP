@@ -454,6 +454,26 @@ def test_fix_metadata():
 ### Combination test - involving###
 
 
+@pytest.mark.parametrize("add_coords", [True, False])
+@pytest.mark.parametrize("shift", [0, 10])
+def test_combined_preprocessing_dropped_coords(add_coords, shift):
+    """Check if coordinates are properly dropped"""
+    # create a 2d dataset
+    xlen, ylen, zlen = (10, 5, 1)
+    ds = (
+        create_test_ds("x", "y", "dummy", xlen, ylen, zlen).squeeze().drop_vars("dummy")
+    )
+    x_bnds = xr.concat([ds.x, ds.x], "bnds")
+    ds = ds.assign_coords(x_bounds=x_bnds)
+
+    if add_coords:
+        ds = ds.assign_coords(bnds=np.arange(len(ds.bnds)) + shift)
+
+    ds = combined_preprocessing(ds)
+
+    assert "bnds" not in ds.coords
+
+
 def test_combined_preprocessing_mislabeled_coords():
     """Test if the renaming is applied to datavariables and then if they are moved to the coords."""
     # create a 2d dataset

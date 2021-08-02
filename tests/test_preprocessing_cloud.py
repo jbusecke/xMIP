@@ -8,7 +8,7 @@ import pytest
 import xarray as xr
 
 from cmip6_preprocessing.grids import combine_staggered_grid
-from cmip6_preprocessing.preprocessing import _desired_units, combined_preprocessing
+from cmip6_preprocessing.preprocessing import _desired_units, _drop_coords, combined_preprocessing
 from cmip6_preprocessing.utils import google_cmip_col, model_id_match
 
 
@@ -221,6 +221,9 @@ def test_check_dim_coord_values_wo_intake(
     # make sure lon and lat are 2d
     assert len(ds.lon.shape) == 2
     assert len(ds.lat.shape) == 2
+    for co in _drop_coords:
+        if co in ds.dims:
+            assert co not in ds.coords
 
     ## Check unit conversion
     for var, expected_unit in _desired_units.items():
@@ -295,6 +298,9 @@ def test_check_dim_coord_values(
     # make sure lon and lat are 2d
     assert len(ds.lon.shape) == 2
     assert len(ds.lat.shape) == 2
+    for co in _drop_coords:
+        if co in ds.dims:
+            assert co not in ds.coords
 
 
 ############################### Specific Bound Coords Test ###############################
