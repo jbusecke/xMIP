@@ -297,25 +297,6 @@ def test_match_metrics_closer(metricname):
     assert ds_dict_parsed["c"][metricname].attrs["original_key"] == "exact_c"
 
 
-def test_match_metrics_exceptions(metricname):
-    # give a dataset that has member_id as dim (indicator that it was aggregated).
-
-    attrs = {
-        "source_id": "a",
-        "grid_label": "a",
-        "experiment_id": "a",
-        "table_id": "a",
-        "variant_label": "a",
-        "version": "a",
-    }
-    ds = random_ds().rename({"z": "member_id"})
-    ds.attrs = attrs
-    ds_metric = random_ds().rename({"data": metricname})
-    ds_metric.attrs = attrs
-    with pytest.raises(ValueError):
-        match_metrics({"a": ds}, {"aa": ds_metric}, [metricname])
-
-
 def test_match_metrics_align_dims():
     metricname = "metric"
     attrs = {
@@ -325,6 +306,7 @@ def test_match_metrics_align_dims():
         "table_id": "a",
         "variant_label": "a",
         "version": "a",
+        "variable_id": "a",
     }
     ds = random_ds(time_coords=True)
     ds.attrs = attrs
@@ -523,15 +505,6 @@ def test_concat_members(concat_kwargs):
         )
 
 
-@pytest.mark.parametrize("func", [merge_variables, concat_members])
-def test_aggregate_error(func):
-    # check if an error is raised if a dataset with `member_id` dimension is passed.
-
-    ds = xr.concat([random_ds(), random_ds()], "member_id")
-    with pytest.raises(ValueError):
-        func({"test": ds})
-
-
 @pytest.mark.parametrize("verbose", [True, False])
 def test_interpolate_grid_label(verbose):
     # build three datasets. Basically both datasets are available on grid_label hr (high res), but only one on grid_label lr (low res)
@@ -624,7 +597,7 @@ def test_interpolate_grid_label(verbose):
         ddict, target_grid_label="hr", verbose=verbose
     )
 
-    expected = xr.merge([ds_hr_vara, ds_hr_varb])
+    expected = xr.merge([ds_hr_vara, ds_hr_varb], combine_attrs="drop_conflicts")
 
     xr.testing.assert_allclose(combined_ddict["a.a.a.a"], expected)
 
@@ -643,3 +616,63 @@ def test_interpolate_grid_label(verbose):
         combined_ddict["a.a.a.a"].varb.attrs["cmip6_preprocessing_regrid_method"]
         == "bilinear"
     )
+
+
+def test_nested_operations():
+    # set up a few datasets to combine
+    ds_1 = xr.Dataset(
+        {"a": ("x", np.array([1]))},
+        attrs={
+            "source_id": "a",
+            "variant_label": "a",
+            "variable_id": "a",
+            "experiment_id": "a",
+        },
+    )
+    ds_2 = xr.Dataset(
+        {"a": ("x", np.array([2]))},
+        attrs={
+            "source_id": "a",
+            "variant_label": "b",
+            "variable_id": "a",
+            "experiment_id": "a",
+        },
+    )
+    ds_3 = xr.Dataset(
+        {"b": ("x", np.array([3]))},
+        attrs={
+            "source_id": "a",
+            "variant_label": "a",
+            "variable_id": "b",
+            "experiment_id": "a",
+        },
+    )
+    ds_4 = xr.Dataset(
+        {"b": ("x", np.array([4]))},
+        attrs={
+            "source_id": "a",
+            "variant_label": "b",
+            "variable_id": "b",
+            "experiment_id": "a",
+        },
+    )
+    ddict = {"ds1": ds_1, "ds2": ds_2, "ds3": ds_3, "ds4": ds_4}
+    ds_expected = xr.Dataset(
+        {
+            "a": xr.DataArray([1, 2], dims=["member_id"]).expand_dims("x"),
+            "b": xr.DataArray([3, 4], dims=["member_id"]).expand_dims("x"),
+        },
+        attrs={"source_id": "a", "experiment_id": "a"},
+    )
+
+    _, ds_combined = merge_variables(concat_members(ddict)).popitem()
+    xr.testing.assert_allclose(ds_expected.squeeze(), ds_combined.squeeze())
+
+    with pytest.warns(UserWarning) as warninfo:
+        _, ds_combined = concat_members(merge_variables(ddict)).popitem()
+    xr.testing.assert_allclose(ds_expected.squeeze(), ds_combined.squeeze())
+
+    msg = (
+        "Match attributes ['grid_label', 'table_id'] not found in any of the datasets."
+    )
+    assert msg in warninfo[0].message.args[0]

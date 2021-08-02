@@ -21,8 +21,8 @@ exact_attrs = [
     "experiment_id",
     "table_id",
     # "version", # for testing
-    # "member_id",
     "variant_label",
+    "variable_id",
 ]
 
 
@@ -102,6 +102,20 @@ def combine_datasets(
     ds_dict = {k: v for k, v in ds_dict.items()}
     ds_dict_combined = {}
 
+    # Check each of the matching attributes. If attr is not present in any of
+    # the input datasets drop from match_attrs and warn
+    missing_match_attrs = []
+    for ma in match_attrs:
+        if all([ma not in ds.attrs.keys() for ds in ds_dict.values()]):
+            missing_match_attrs.append(ma)
+
+    if len(missing_match_attrs) > 0:
+        warnings.warn(
+            f"Match attributes {missing_match_attrs} not found in any of the datasets. \
+        This can happen when several combination functions are used."
+        )
+        match_attrs = [ma for ma in match_attrs if ma not in missing_match_attrs]
+
     while len(ds_dict) > 0:
         # The order does not matter here, so just choose the first key
         k = list(ds_dict.keys())[0]
@@ -111,8 +125,10 @@ def combine_datasets(
         # create new dict key
         new_k = _key_from_attrs(ds, match_attrs, sep=".")
 
-        # for now Ill hardcode the merging. I have been thinking if I should just pass a general `func` to deal with a list of datasets. The user could pass custom stuff
-        # And I think that way I can generalize all/most of the `member` level combine functions. Well for now, lets do it the manual way.
+        # for now Ill hardcode the merging. I have been thinking if I should
+        # just pass a general `func` to deal with a list of datasets. The user could pass custom stuff
+        # And I think that way I can generalize all/most of the `member` level combine functions.
+        # Well for now, lets do it the manual way.
         try:
             ds_combined = combine_func(
                 matched_datasets, *combine_func_args, **combine_func_kwargs
@@ -125,28 +141,6 @@ def combine_datasets(
 
 
 ### Convenience Wrappers for `combine_datasets`. Less flexible but easier to use and understand.
-
-
-def check_aggregated(func):
-    @functools.wraps(func)
-    def wrapper_check_aggregated(*args, **kwargs):
-
-        # Do something before
-        # Very rudimentary check if the data was aggregated with intake-esm
-        # (which leaves non-correct attributes behind see: https://github.com/intake/intake-esm/issues/264)
-        ds_dict = args[0]
-        if any(["member_id" in ds.dims for ds in ds_dict.values()]):
-            raise ValueError(
-                "It seems like some of the input datasets in `ds_dict` have aggregated members.\
-                This is not currently supported. Please use `aggregate=False` when using intake-esm `to_dataset_dict()`."
-            )
-
-        return func(*args, **kwargs)
-
-    return wrapper_check_aggregated
-
-
-@check_aggregated
 def merge_variables(
     ds_dict,
     merge_kwargs={},
@@ -169,6 +163,8 @@ def merge_variables(
 
     """
 
+    match_attrs = [ma for ma in exact_attrs if ma not in ["variable_id"]]
+
     # set defaults
     merge_kwargs.setdefault("compat", "override")
     merge_kwargs.setdefault("join", "exact")  # if the size differs throw an error.
@@ -177,11 +173,10 @@ def merge_variables(
     )  # if the size differs throw an error. Requires xarray >=0.17.0
 
     return combine_datasets(
-        ds_dict, xr.merge, combine_func_kwargs=merge_kwargs, match_attrs=exact_attrs
+        ds_dict, xr.merge, combine_func_kwargs=merge_kwargs, match_attrs=match_attrs
     )
 
 
-@check_aggregated
 def concat_members(
     ds_dict,
     concat_kwargs={},
@@ -344,7 +339,7 @@ def interpolate_grid_label(
         dictionary of combined datasets (usually will combine across different variable ids)
     """
     match_attrs = [
-        ma for ma in exact_attrs if ma not in ["grid_label", "version"]
+        ma for ma in exact_attrs if ma not in ["grid_label", "variable_id"]
     ]  # does this need to be more flexible?
 
     xesmf_kwargs.setdefault("ignore_degenerate", True)
@@ -355,7 +350,7 @@ def interpolate_grid_label(
     # first drop the datasets that might have both the target and another grid_label present
     ds_dict = _drop_duplicate_grid_labels(ds_dict, target_grid_label)
 
-    def combine_func(ds_list, **kwargs):
+    def combine_func(ds_list, xesmf_kwargs={}, merge_kwargs={}):
         grid_labels = np.unique([dss.attrs["grid_label"] for dss in ds_list])
         target_grid = [
             dss for dss in ds_list if target_grid_label == dss.attrs["grid_label"]
@@ -413,6 +408,10 @@ def interpolate_grid_label(
     return combine_datasets(
         ds_dict,
         combine_func,
+        combine_func_kwargs={
+            "xesmf_kwargs": xesmf_kwargs,
+            "merge_kwargs": merge_kwargs,
+        },
         match_attrs=match_attrs,
     )
 
@@ -484,14 +483,12 @@ def _parse_metric(ds, metric, dim_length_conflict="error"):
     return ds
 
 
-@check_aggregated
 def match_metrics(
     ds_dict,
     metric_dict,
     match_variables,
     match_attrs=["source_id", "grid_label"],
     print_statistics=False,
-    exact_attrs=exact_attrs,
     dim_length_conflict="error",
 ):
     """Given two dictionaries of datasets, this function matches metrics from `metric_dict` to
@@ -509,9 +506,6 @@ def match_metrics(
         Minimum dataset attributes that need to match, by default ["source_id", "grid_label"]
     print_statistics : bool, optional
         Option to print statistics about matching, by default False
-    exact_attrs : list
-        List of attributes that define an `exact` match, by
-        default ["source_id","grid_label","experiment_id","table_id", "variant_label"].
     dim_length_conflict : str
         Defines the behavior when parsing metrics with non-exact matches in dimension size.
         See `parse_metric`.
@@ -521,10 +515,15 @@ def match_metrics(
         All datasets from `ds_dict`, if match was not possible the input dataset is returned unchanged.
 
     """
+    # metrics should never match the variable
+    exact_attrs_wo_var = [ma for ma in exact_attrs if ma != "variable_id"]
 
     # if match is set to exact check all these attributes
     if match_attrs == "exact":
-        match_attrs = exact_attrs
+        match_attrs = exact_attrs_wo_var
+
+    # metrics should never match the variable
+    match_attrs = [ma for ma in match_attrs if ma != "variable_id"]
 
     total_datasets = 0
     exact_datasets = {va: 0 for va in match_variables}
@@ -549,7 +548,7 @@ def match_metrics(
                 # This ensures that the exact match is picked if available.
 
                 nmatch = [
-                    _match_attrs(ds, ds_match, exact_attrs)
+                    _match_attrs(ds, ds_match, exact_attrs_wo_var)
                     for ds_match in matched_metric_vars
                 ]
                 closest_match = np.argmax(nmatch)
@@ -557,12 +556,12 @@ def match_metrics(
 
                 # this is a hardcoded check for time variable metrics.
                 # These are very likely only valid for exact matches of runs.
-                # For instance these could be cell thickness values, which cannot simply be used
-                # for all runs of a model.
-                exact_match = _match_attrs(ds, ds_metric, exact_attrs) == len(
-                    exact_attrs
+                # For instance these could be cell thickness values, which cannot
+                # simply be used for all runs of a model.
+                exact_match = _match_attrs(ds, ds_metric, exact_attrs_wo_var) == len(
+                    exact_attrs_wo_var
                 )
-                if "time" in ds_metric.dims and not exact_match:  # and not exact_match
+                if "time" in ds_metric.dims and not exact_match:
                     warnings.warn(
                         "This metric had a time dimension and did not perfectly match. Not parsing anything."
                     )
