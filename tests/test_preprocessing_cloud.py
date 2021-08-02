@@ -221,6 +221,7 @@ def test_check_dim_coord_values_wo_intake(
     # make sure lon and lat are 2d
     assert len(ds.lon.shape) == 2
     assert len(ds.lat.shape) == 2
+    assert "bnds" not in ds.coords
 
 
 # this fixture has to be redifined every time to account for different fail cases for each test
@@ -288,6 +289,7 @@ def test_check_dim_coord_values(
     # make sure lon and lat are 2d
     assert len(ds.lon.shape) == 2
     assert len(ds.lat.shape) == 2
+    assert "bnds" not in ds.coords
 
 
 ############################### Specific Bound Coords Test ###############################

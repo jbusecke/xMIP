@@ -8,6 +8,9 @@ import xarray as xr
 from cmip6_preprocessing.utils import _maybe_make_list
 
 
+_drop_coords = ["bnds"]
+
+
 def cmip6_renaming_dict():
     """a universal renaming dict. Keys correspond to source id (model name)
     and valuse are a dict of target name (key) and a list of variables that
@@ -441,7 +444,6 @@ def fix_metadata(ds):
 
 
 def combined_preprocessing(ds):
-    ds = ds.copy()
     # fix naming
     ds = rename_cmip6(ds)
     # promote empty dims to actual coordinates
@@ -462,4 +464,5 @@ def combined_preprocessing(ds):
     ds = maybe_convert_bounds_to_vertex(ds)
     ds = maybe_convert_vertex_to_bounds(ds)
     ds = fix_metadata(ds)
+    ds = ds.drop_vars(_drop_coords, errors="ignore")
     return ds
