@@ -8,7 +8,7 @@ import pytest
 import xarray as xr
 
 from cmip6_preprocessing.grids import combine_staggered_grid
-from cmip6_preprocessing.preprocessing import combined_preprocessing
+from cmip6_preprocessing.preprocessing import _drop_coords, combined_preprocessing
 from cmip6_preprocessing.utils import google_cmip_col, model_id_match
 
 
@@ -221,7 +221,9 @@ def test_check_dim_coord_values_wo_intake(
     # make sure lon and lat are 2d
     assert len(ds.lon.shape) == 2
     assert len(ds.lat.shape) == 2
-    assert "bnds" not in ds.coords
+    for co in _drop_coords:
+        if co in ds.dims:
+            assert co not in ds.coords
 
 
 # this fixture has to be redifined every time to account for different fail cases for each test
@@ -289,7 +291,9 @@ def test_check_dim_coord_values(
     # make sure lon and lat are 2d
     assert len(ds.lon.shape) == 2
     assert len(ds.lat.shape) == 2
-    assert "bnds" not in ds.coords
+    for co in _drop_coords:
+        if co in ds.dims:
+            assert co not in ds.coords
 
 
 ############################### Specific Bound Coords Test ###############################

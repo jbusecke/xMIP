@@ -8,7 +8,7 @@ import xarray as xr
 from cmip6_preprocessing.utils import _maybe_make_list
 
 
-_drop_coords = ["bnds"]
+_drop_coords = ["bnds", "vertex"]
 
 
 def cmip6_renaming_dict():
