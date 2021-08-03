@@ -15,6 +15,7 @@ New Features
 Breaking Changes
 ~~~~~~~~~~~~~~~~
 - Requires xarray>=0.17.0 and drops support for python 3.6 (:pull:`170`, :pull:`173`). By `Julius Busecke <https://github.com/jbusecke>`_
+- :py:func:`~cmip6_preprocessing.utils.cmip6_dataset_id` not includes the attribute `variable_id` (:pull:`166`) By `Julius Busecke <https://github.com/jbusecke>`_
 
 Internal Changes
 ~~~~~~~~~~~~~~~~
