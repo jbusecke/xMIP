@@ -15,6 +15,7 @@ from cmip6_preprocessing.drift_removal import (
     unify_time,
 )
 from cmip6_preprocessing.postprocessing import exact_attrs
+from cmip6_preprocessing.utils import cmip6_dataset_id
 
 
 # I copied this from a PR I made to parcels a while back.
@@ -293,7 +294,7 @@ def test_remove_trend(chunk):
 
     assert (
         detrended.attrs["drift_removed"]
-        == "linear_trend_none.none.none.none.none.none.none.none_test_start_test_stop"
+        == f"linear_trend_{cmip6_dataset_id(slope)}_test_start_test_stop"
     )
 
     # test the additional output when the slope input does not have sufficient information
@@ -304,7 +305,7 @@ def test_remove_trend(chunk):
         )
     assert (
         detrended.attrs["drift_removed"]
-        == "linear_trend_none.none.none.none.none.none.none.none_not-available_not-available"
+        == f"linear_trend_{cmip6_dataset_id(slope)}_not-available_not-available"
     )
 
 

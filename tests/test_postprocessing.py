@@ -81,7 +81,7 @@ def test_parse_metric_exceptions_input_name():
         ds_parsed = _parse_metric(ds, da_metric_nameless)
     assert (
         warninfo[0].message.args[0]
-        == "a.none.none.none.none.none.none.none:`metric` has no name. This might lead to problems down the line."
+        == "a.none.none.none.none.none.none.none.none:`metric` has no name. This might lead to problems down the line."
     )
 
 
@@ -99,7 +99,7 @@ def test_parse_metric_exception_dim_length():
         ds_parsed = _parse_metric(
             ds, ds_metric.isel(x=slice(0, -1), y=slice(1, None))[metricname]
         )
-    msg = "a.none.none.none.none.none.g.none:`metric` dimensions ['x:2', 'y:1'] do not match `ds` ['x:3', 'y:2']."
+    msg = "a.none.none.none.none.none.g.none.none:`metric` dimensions ['x:2', 'y:1'] do not match `ds` ['x:3', 'y:2']."
     assert execinfo.value.args[0] == msg
 
 
@@ -126,7 +126,7 @@ def test_parse_metric_dim_alignment():
 
     xr.testing.assert_allclose(ds_parsed.time, ds_metric.time)
 
-    msg = "a.none.none.none.none.none.g.none:`metric` dimensions ['time:5'] do not match `ds` ['time:6']. Aligning the data on `inner`"
+    msg = "a.none.none.none.none.none.g.none.none:`metric` dimensions ['time:5'] do not match `ds` ['time:6']. Aligning the data on `inner`"
     assert warninfo[0].message.args[0] == msg
 
 
@@ -323,7 +323,7 @@ def test_match_metrics_align_dims():
             print_statistics=True,
             dim_length_conflict="align",
         )
-    msg = "none.none.a.a.a.a.a.a:`metric` dimensions ['time:5'] do not match `ds` ['time:6']. Aligning the data on `inner`"
+    msg = "none.none.a.a.a.a.a.a.a:`metric` dimensions ['time:5'] do not match `ds` ['time:6']. Aligning the data on `inner`"
     assert warninfo[0].message.args[0] == msg
 
     xr.testing.assert_allclose(ddict_matched["a"].time, ds_metric.time)

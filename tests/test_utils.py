@@ -61,10 +61,11 @@ def test_cmip6_dataset_id():
         "experiment_id": "ei",
         "table_id": "ti",
         "grid_label": "gl",
+        "variable_id": "vi",
     }
 
-    assert cmip6_dataset_id(ds) == "ai.ii.si.ei.vl.ti.gl.none"
-    assert cmip6_dataset_id(ds, sep="_") == "ai_ii_si_ei_vl_ti_gl_none"
+    assert cmip6_dataset_id(ds) == "ai.ii.si.ei.vl.ti.gl.none.vi"
+    assert cmip6_dataset_id(ds, sep="_") == "ai_ii_si_ei_vl_ti_gl_none_vi"
     assert (
         cmip6_dataset_id(ds, id_attrs=["grid_label", "activity_id", "wrong_attrs"])
         == "gl.ai.none"
