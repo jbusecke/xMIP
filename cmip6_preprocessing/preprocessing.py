@@ -109,6 +109,14 @@ def rename_cmip6(ds, rename_dict=None):
     # restore attributes
     ds.attrs = attrs
 
+    # use cf conventions where they can be inferred by cf_xarray
+    print('CONVERTING WITH CF CONVENION FUNCTIONS ---------')
+    print('-------------------------------')
+    print('-----------------------------')
+    ds = ds.cf.guess_coord_axis()
+    ds = ds.cf.add_canonical_attributes()
+    print('ds atrrs keys', ds.attrs.keys())
+
     return ds
 
 

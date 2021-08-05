@@ -66,6 +66,10 @@ def test_rename_cmip6(xname, yname, zname, missing_dim):
         assert ylen == len(ds_renamed.y)
     if not missing_dim == "z":
         assert zlen == len(ds_renamed.lev)
+    
+    # check if cf conventions were inferred
+    print('ds attrs keys from test', ds.attrs.keys())
+    assert 'history' in ds.attrs.keys()
 
 
 @pytest.mark.parametrize("xname", ["i", "x"])
