@@ -644,6 +644,46 @@ def test_interpolate_grid_label(verbose):
         "variable_id": "varb",
     }
 
+    # put in a dataset that has consistent grid_label
+
+    ds_simple_vara = xr.DataArray(
+        np.random.rand(10, 50, 6),
+        dims=["x", "y", "lev"],
+        coords={
+            "lon": ("x", np.linspace(0, 360, 10)),
+            "lat": (["y"], np.linspace(-90, 90, 50)),
+        },
+    ).to_dataset(name="vara")
+
+    ds_simple_vara.attrs = {
+        "source_id": "b",
+        "grid_label": "hr",
+        "experiment_id": "a",
+        "table_id": "a",
+        "variant_label": "a",
+        "version": "a",
+        "variable_id": "vara",
+    }
+
+    ds_simple_varb = xr.DataArray(
+        np.random.rand(10, 50, 6),
+        dims=["x", "y", "lev"],
+        coords={
+            "lon": ("x", np.linspace(0, 360, 10)),
+            "lat": (["y"], np.linspace(-90, 90, 50)),
+        },
+    ).to_dataset(name="varb")
+
+    ds_simple_varb.attrs = {
+        "source_id": "b",
+        "grid_label": "hr",
+        "experiment_id": "a",
+        "table_id": "a",
+        "variant_label": "a",
+        "version": "a",
+        "variable_id": "varb",
+    }
+
     # put in another rando dataset
 
     ds_rando = xr.DataArray(
@@ -669,8 +709,12 @@ def test_interpolate_grid_label(verbose):
         "a_lr": ds_lr_vara,
         "a_hr": ds_hr_vara,
         "b_hr": ds_hr_varb,
+        "a_simple": ds_simple_vara,
+        "b_simple": ds_simple_varb,
         "rando": ds_rando,
     }
+
+    expected_simple = xr.merge([ds_simple_vara, ds_simple_varb])
 
     # Prefer the high res version (no interpolation needed)
     combined_ddict = interpolate_grid_label(
@@ -680,6 +724,7 @@ def test_interpolate_grid_label(verbose):
     expected = xr.merge([ds_hr_vara, ds_hr_varb], combine_attrs="drop_conflicts")
 
     xr.testing.assert_allclose(combined_ddict["a.a.a.a"], expected)
+    xr.testing.assert_allclose(combined_ddict["b.a.a.a"], expected_simple)
 
     # now the other way around (interpolation needed for variable whatever_else)
     combined_ddict = interpolate_grid_label(ddict, target_grid_label="lr")
@@ -692,6 +737,8 @@ def test_interpolate_grid_label(verbose):
     expected = xr.merge([ds_lr_vara, regridded])
 
     xr.testing.assert_allclose(combined_ddict["a.a.a.a"], expected)
+    xr.testing.assert_allclose(combined_ddict["b.a.a.a"], expected_simple)
+
     assert (
         combined_ddict["a.a.a.a"].varb.attrs["cmip6_preprocessing_regrid_method"]
         == "bilinear"

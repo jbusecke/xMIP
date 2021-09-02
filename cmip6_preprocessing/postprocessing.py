@@ -353,6 +353,72 @@ def _regrid_to_target(ds_source, ds_target, regridder):
     return ds_regridded
 
 
+def _interpolate_combine_func(
+    ds_list, target_grid_label, method, verbose=False, xesmf_kwargs={}, merge_kwargs={}
+):
+    grid_labels_raw = [dss.attrs["grid_label"] for dss in ds_list]
+    grid_labels = np.unique(grid_labels_raw)
+
+    # special case: All grid labels are the same but none of them is equal to target_grid_label
+    if len(grid_labels) == 1:
+        return xr.merge(ds_list, **merge_kwargs)
+    else:
+
+        if target_grid_label not in grid_labels:
+            raise ValueError(
+                f"Could not find any variable with the target_grid_label ({target_grid_label}). Found these instead: {grid_labels}"
+            )
+        else:
+            # just take the first one with a matching grid?
+            target_grid = [
+                ds for ds in ds_list if ds.attrs["grid_label"] == target_grid_label
+            ][0]
+
+            # Construct a regridder for each other grid_label
+            regridder_dict = {}
+            if verbose:
+                print(
+                    f'Constructing regridders for source_id {target_grid.attrs["source_id"]} ...'
+                )
+            for gl in grid_labels:
+                if gl != target_grid_label:
+                    if verbose:
+                        print(gl)
+                    source_grid = [
+                        dss for dss in ds_list if dss.attrs["grid_label"] == gl
+                    ][
+                        0
+                    ]  # again just take the first one available
+                    regridder_dict[gl] = _clean_regridder(
+                        source_grid, target_grid, method, **xesmf_kwargs
+                    )
+            if verbose:
+                print("FINISHED")
+
+            # Now regrid all datasets in the list (dont do anything if already on the target_grid)
+            ds_list_new = []
+            for ds_raw in ds_list:
+                if ds_raw.attrs["grid_label"] != target_grid_label:
+                    if verbose:
+                        print(f"regridding {cmip6_dataset_id(ds_raw)}")
+                    ds_regridded = _regrid_to_target(
+                        ds_raw, target_grid, regridder_dict[ds_raw.attrs["grid_label"]]
+                    )
+                    ds_list_new.append(ds_regridded)
+                else:
+                    ds_list_new.append(ds_raw)
+
+            # check that horizontal dimensions are compatible.
+            xy_dimensions = [(len(ds.x), len(ds.y)) for ds in ds_list_new]
+            if not all([xy == xy_dimensions[0] for xy in xy_dimensions]):
+                raise ValueError(
+                    f"Regridded datasets do not have the same dimensions. Found({xy_dimensions}). This will cause broadcasting problems during merge."
+                )
+            if verbose:
+                print("Merging regridded files")
+            return xr.merge(ds_list_new, **merge_kwargs)
+
+
 @requires_xesmf
 def interpolate_grid_label(
     ds_dict,
@@ -397,64 +463,13 @@ def interpolate_grid_label(
     # first drop the datasets that might have both the target and another grid_label present
     ds_dict = _drop_duplicate_grid_labels(ds_dict, target_grid_label)
 
-    def combine_func(ds_list, xesmf_kwargs={}, merge_kwargs={}):
-        grid_labels = np.unique([dss.attrs["grid_label"] for dss in ds_list])
-        target_grid = [
-            dss for dss in ds_list if target_grid_label == dss.attrs["grid_label"]
-        ]
-        if len(target_grid) < 1:
-            raise ValueError(
-                f"Could not find any variable with the target_grid_label{target_grid_label}. Found these instead: {grid_labels}"
-            )
-        else:
-            # just take the first one with a matching grid?
-            target_grid = target_grid[0]
-
-        # Construct a regridder for each other grid_label
-        regridder_dict = {}
-        if verbose:
-            print(
-                f'Constructing regridders for source_id {target_grid.attrs["source_id"]} ...'
-            )
-        for gl in grid_labels:
-            if gl != target_grid_label:
-                if verbose:
-                    print(gl)
-                source_grid = [dss for dss in ds_list if dss.attrs["grid_label"] == gl][
-                    0
-                ]  # again just take the first one available
-                regridder_dict[gl] = _clean_regridder(
-                    source_grid, target_grid, method, **xesmf_kwargs
-                )
-        if verbose:
-            print("FINISHED")
-
-        # Now regrid all datasets in the list (dont do anything if already on the target_grid)
-        ds_list_new = []
-        for ds_raw in ds_list:
-            if ds_raw.attrs["grid_label"] != target_grid_label:
-                if verbose:
-                    print(f"regridding {cmip6_dataset_id(ds_raw)}")
-                ds_regridded = _regrid_to_target(
-                    ds_raw, target_grid, regridder_dict[ds_raw.attrs["grid_label"]]
-                )
-                ds_list_new.append(ds_regridded)
-            else:
-                ds_list_new.append(ds_raw)
-
-        # check that horizontal dimensions are compatible.
-        xy_dimensions = [(len(ds.x), len(ds.y)) for ds in ds_list_new]
-        if not all([xy == xy_dimensions[0] for xy in xy_dimensions]):
-            raise ValueError(
-                f"Regridded datasets do not have the same dimensions. Found({xy_dimensions}). This will cause broadcasting problems during merge."
-            )
-        if verbose:
-            print("Merging regridded files")
-        return xr.merge(ds_list_new, **merge_kwargs)
-
     return combine_datasets(
         ds_dict,
-        combine_func,
+        _interpolate_combine_func,
+        combine_func_args=(
+            target_grid_label,
+            method,
+        ),
         combine_func_kwargs={
             "xesmf_kwargs": xesmf_kwargs,
             "merge_kwargs": merge_kwargs,
