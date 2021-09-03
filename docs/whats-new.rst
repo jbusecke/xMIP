@@ -22,8 +22,11 @@ Internal Changes
 
 - Unit correction logic now uses pint-xarray under the hood (:pull:`160`, :issue:`31`).
 By `Tom Nicholas <https://github.com/TomNicholas>`_ and `Julius Busecke <https://github.com/jbusecke>`_
+
 Bugfixes
 ~~~~~~~~
+- :py:func:`~cmip6_preprocessing.postprocessing.concat_members` now produces a dataset with labelled `member_id` dimension (:issue:`196` , :pull:`197`). By `Julius Busecke <https://github.com/jbusecke>`_
+
 - Fixes incompatibility with upstream changes in xarray>=0.19.0 (:issue:`173`, :pull:`174`). By `Julius Busecke <https://github.com/jbusecke>`_
 
 - :py:func:`~cmip6_preprocessing.drift_removal.match_and_remove_drift` does now work with chunked (dask powered) datasets (:pull:`164`).By `Julius Busecke <https://github.com/jbusecke>`_
