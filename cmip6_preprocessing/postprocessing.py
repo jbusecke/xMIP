@@ -177,6 +177,11 @@ def merge_variables(
     )
 
 
+def _promote_member_id(ds):
+    ds = ds.assign_coords(member_id=ds.attrs["variant_label"])
+    return ds
+
+
 def concat_members(
     ds_dict,
     concat_kwargs={},
@@ -206,6 +211,10 @@ def concat_members(
     concat_kwargs.setdefault(
         "combine_attrs", "drop_conflicts"
     )  # if the size differs throw an error. Requires xarray >=0.17.0
+
+    # promote variant_label attr to coordinate, to have member_ids as coordinates
+
+    ds_dict = {k: _promote_member_id(ds) for k, ds in ds_dict.items()}
 
     return combine_datasets(
         ds_dict,
