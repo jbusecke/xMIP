@@ -8,6 +8,7 @@ import xesmf
 
 from cmip6_preprocessing.postprocessing import (
     _parse_metric,
+    _promote_member_id,
     combine_datasets,
     concat_experiments,
     concat_members,
@@ -490,9 +491,10 @@ def test_concat_members(concat_kwargs):
     }
 
     # Group together the expected 'matches'
+    # promote the member_id like in concat_members
     expected = {
-        "a.a.a.a": [ds_a_temp, ds_b_temp],
-        "c.a.a.a": [ds_c_other],
+        "a.a.a.a": [_promote_member_id(ds_a_temp), _promote_member_id(ds_b_temp)],
+        "c.a.a.a": [_promote_member_id(ds_c_other)],
     }
 
     result = concat_members(
@@ -502,8 +504,13 @@ def test_concat_members(concat_kwargs):
     for k in expected.keys():
         assert k in list(result.keys())
         xr.testing.assert_equal(
-            result[k], xr.concat(expected[k], "member_id", **concat_kwargs)
+            result[k],
+            xr.concat(expected[k], "member_id", **concat_kwargs),
         )
+    # assert that member_id is a proper coordinate
+    assert "member_id" in result["a.a.a.a"].coords
+    for member in ["a", "b"]:
+        assert member in result["a.a.a.a"].member_id
 
 
 @pytest.mark.parametrize("concat_kwargs", [{}, {"compat": "override"}])
@@ -784,10 +791,17 @@ def test_nested_operations():
         },
     )
     ddict = {"ds1": ds_1, "ds2": ds_2, "ds3": ds_3, "ds4": ds_4}
+
+    ddict = {k: _promote_member_id(ds) for k, ds in ddict.items()}
+
     ds_expected = xr.Dataset(
         {
-            "a": xr.DataArray([1, 2], dims=["member_id"]).expand_dims("x"),
-            "b": xr.DataArray([3, 4], dims=["member_id"]).expand_dims("x"),
+            "a": xr.DataArray(
+                [1, 2], dims=["member_id"], coords={"member_id": ["a", "b"]}
+            ).expand_dims("x"),
+            "b": xr.DataArray(
+                [3, 4], dims=["member_id"], coords={"member_id": ["a", "b"]}
+            ).expand_dims("x"),
         },
         attrs={"source_id": "a", "experiment_id": "a"},
     )
