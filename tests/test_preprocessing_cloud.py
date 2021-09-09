@@ -236,6 +236,12 @@ def test_check_dim_coord_values_wo_intake(
             if unit:
                 assert unit == expected_unit
 
+    # check if cf conventions were inferred
+    for dim, axis in [('x', 'X'), ('y', 'Y'), ('lev','Z'), ('time', 'T')]:
+        if dim in ds.dims:
+            #check that the axis is in the cf object
+            assert axis in ds.cf.axes.keys()
+
 
 # this fixture has to be redifined every time to account for different fail cases for each test
 @pytest.fixture
