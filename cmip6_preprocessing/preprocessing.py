@@ -70,7 +70,6 @@ def _invert_dict(rdict):
 
 def _parse_cf(dataset):
     dataset = dataset.cf.guess_coord_axis()
-    dataset = dataset.cf.add_canonical_attributes()
     return dataset
 
 def rename_cmip6(ds, rename_dict=None):
