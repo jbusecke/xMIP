@@ -45,7 +45,7 @@ jobs:
           access_token: ${{ github.token }}
       - uses: actions/checkout@v2
       - name: Cache conda
-        uses: actions/cache@v2.1.6
+        uses: actions/cache@v2.1.7
         env:
           # Increase this value to reset cache if ci/environment.yml has not changed
           CACHE_NUMBER: 0
@@ -95,7 +95,7 @@ jobs:
         access_token: ${{ github.token }}
     - uses: actions/checkout@v2
     - name: Cache conda
-      uses: actions/cache@v2.1.6
+      uses: actions/cache@v2.1.7
       env:
         # Increase this value to reset cache if ci/environment-upstream-dev.yml has not changed
         CACHE_NUMBER: 0
@@ -141,7 +141,7 @@ jobs:
         access_token: ${{ github.token }}
     - uses: actions/checkout@v2
     - name: Cache conda
-      uses: actions/cache@v2.1.6
+      uses: actions/cache@v2.1.7
       env:
         # Increase this value to reset cache if ci/environment-upstream-dev.yml has not changed
         CACHE_NUMBER: 0
