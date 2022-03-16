@@ -20,7 +20,7 @@ def test_merge_mask(verbose):
     ds["lon"] = ds["x"] * xr.ones_like(ds["y"])
     ds["lat"] = xr.ones_like(ds["x"]) * ds["y"]
 
-    basins = regionmask.defined_regions.natural_earth.ocean_basins_50
+    basins = regionmask.defined_regions.natural_earth_v4_1_0.ocean_basins_50
 
     mask = merged_mask(basins, ds, verbose=verbose)
 
