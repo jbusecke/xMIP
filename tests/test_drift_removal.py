@@ -530,7 +530,12 @@ def test_calculate_drift_exceptions_partial():
 
     with pytest.warns(UserWarning) as winfo:
         reg = calculate_drift(ds_control, ds, "test", compute_short_trends=True)
-    assert "years to calculate trend. Using 1 years only" in winfo[0].message.args[0]
+    assert any(
+        [
+            "years to calculate trend. Using 1 years only" in w.message.args[0]
+            for w in winfo
+        ]
+    )
 
 
 @pytest.mark.parametrize("ref_date", ["1850", "2000-01-02"])
