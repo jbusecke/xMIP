@@ -115,7 +115,6 @@ def rename_cmip6(ds, rename_dict=None):
 
     # use cf conventions where they can be inferred by cf_xarray
     ds = _parse_cf(ds)
-    
     return ds
 
 
