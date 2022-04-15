@@ -302,11 +302,11 @@ NorESM1-F:
 NorESM2-LM:
   gn:
     axis_shift:
-      X: right
+      X: left
       Y: left
   gr:
     axis_shift:
-      X: right
+      X: left
       Y: left
 NorESM2-MM:
   gn:
@@ -336,5 +336,10 @@ UKESM1-0-LL:
 MPI-ESM1-2-LR:
   gn:
     axis_shift:
-      X: left
+      X: right
       Y: left
+CMCC-ESM2:
+  gn:
+    axis_shift:
+      X: right
+      Y: right
