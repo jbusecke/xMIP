@@ -109,7 +109,7 @@ jobs:
         channel-priority: strict
         activate-environment: test_env_cmip6_preprocessing # Defined in ci/environment-upstream-dev.yml
         auto-update-conda: false
-        python-version: 3.8
+        python-version: 3.10
         environment-file: ci/environment-upstream-dev.yml
         use-only-tar-bz2: true # IMPORTANT: This needs to be set for caching to work properly!
     - name: Set up conda environment
@@ -155,7 +155,7 @@ jobs:
         channel-priority: strict
         activate-environment: test_env_cmip6_preprocessing # Defined in ci/environment-upstream-dev.yml
         auto-update-conda: false
-        python-version: 3.8
+        python-version: 3.9
         environment-file: ci/environment-cloud-test.yml
         use-only-tar-bz2: true # IMPORTANT: This needs to be set for caching to work properly!
     - name: Set up conda environment
