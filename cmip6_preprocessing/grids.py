@@ -92,7 +92,7 @@ def distance(lon0, lat0, lon1, lat1):
     delta_lon, delta_lat = distance_deg(lon0, lat0, lon1, lat1)
     dy = Re * (np.pi * delta_lat / 180)
     dx = Re * (np.pi * delta_lon / 180) * np.cos(np.pi * lat0 / 180)
-    return np.sqrt(dx ** 2 + dy ** 2)
+    return np.sqrt(dx**2 + dy**2)
 
 
 def recreate_metrics(ds, grid):
