@@ -1,17 +1,18 @@
 name: test_env_cmip6_preprocessing
 channels:
   - conda-forge
+  - numba #TODO: Remove this once numba 
 dependencies:
   - xarray>=0.17.0
   - pandas
   - netcdf4
   - scipy
-  - xgcm<0.7.0
+  - xgcm<0.7.0 #Revert this after fixing the extrapolate option
   - cftime
   - regionmask
   - cartopy
   - xesmf
-  - xarrayutils
+  - xarrayutils #TODO remove when the new xarray polyfit is implemented
   - pint
   - cf_xarray>=0.6.0
   - pint-xarray>=0.2.1
