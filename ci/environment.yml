@@ -1,7 +1,7 @@
 name: test_env_cmip6_preprocessing
 channels:
   - conda-forge
-  - numba #TODO: Remove this once numba 
+  - numba #TODO: Remove this once numba is an optional dependency on xarrayutils (https://github.com/jbusecke/xarrayutils/issues/138) 
 dependencies:
   - xarray>=0.17.0
   - pandas
