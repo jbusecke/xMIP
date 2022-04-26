@@ -6,7 +6,7 @@ dependencies:
   - pandas
   - netcdf4
   - scipy
-  - xgcm
+  - xgcm<0.7.0
   - cftime
   - regionmask
   - cartopy
