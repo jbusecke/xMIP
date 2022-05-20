@@ -179,7 +179,7 @@ def recreate_metrics(ds, grid):
         )
         dist = distance(lon0, lat0, lon1, lat1)
         ds.coords["dx_gy"] = xr.DataArray(
-            dist, coords=grid.interp(ds.lon, "Y", boundary="extrapolate").coords
+            dist, coords=grid.interp(ds.lon, "Y", boundary="extend").coords
         )
 
         # infer dy at the east/west face
@@ -191,7 +191,7 @@ def recreate_metrics(ds, grid):
         )
         dist = distance(lon0, lat0, lon1, lat1)
         ds.coords["dy_gx"] = xr.DataArray(
-            dist, coords=grid.interp(ds.lon, "X", boundary="extrapolate").coords
+            dist, coords=grid.interp(ds.lon, "X", boundary="extend").coords
         )
 
     # for the distances that dont line up with the cell boundaries we need some different logic
@@ -265,8 +265,8 @@ def recreate_metrics(ds, grid):
         )
 
     metrics_dict = {
-        "X": [co for co in ["dx_t", "dx_gy", "dx_gx"] if co in ds.coords],
-        "Y": [co for co in ["dy_t", "dy_gy", "dy_gx"] if co in ds.coords],
+        "X": [co for co in ["dx_t", "dx_gy", "dx_gx", "dx_gxgy"] if co in ds.coords],
+        "Y": [co for co in ["dy_t", "dy_gy", "dy_gx", "dy_gxgy"] if co in ds.coords],
         "Z": [co for co in ["dz_t"] if co in ds.coords],
     }
     # # only put out axes that have entries
