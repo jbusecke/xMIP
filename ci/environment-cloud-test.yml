@@ -3,7 +3,7 @@ channels:
   - conda-forge
 dependencies:
   - xarray>=0.17.0
-  - xgcm
+  - xgcm < 0.7.0
   # Dependencies for the pangeo cloud data
   - intake-esm
   - gcsfs
