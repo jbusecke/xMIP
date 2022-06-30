@@ -4,16 +4,21 @@ channels:
 dependencies:
   - cftime
   - dask
+  - xgcm <0.7.0 # temporary pin since we need 'extrapolate' option for padding
   - pip
   - cartopy #installing this without conda is a nightmare, so ill leave it here
   - xesmf # same here
+  - rasterio # Trying to get around an apparent bug with py 3.10 + pip + rasterio (https://github.com/jbusecke/cmip6_preprocessing/pull/231#issuecomment-1132190649)
+  # These are only a patch until xesmf > 0.6.2 is released. See https://github.com/pangeo-data/xESMF/issues/170
+  - numba
+  - sparse>=0.8.0
   - pip:
     - codecov
     - pytest-cov
     - pytest-xdist
     - git+https://github.com/regionmask/regionmask.git
     - git+https://github.com/pydata/xarray.git
-    - git+https://github.com/xgcm/xgcm.git
+    #- git+https://github.com/xgcm/xgcm.git
     - git+https://github.com/jbusecke/xarrayutils.git
     - git+https://github.com/xarray-contrib/cf-xarray.git
     - git+https://github.com/hgrecco/pint.git

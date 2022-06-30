@@ -3,7 +3,7 @@ channels:
   - conda-forge
 dependencies:
   - xarray>=0.17.0
-  - xgcm
+  - xgcm < 0.7.0 # temporary pin since we need 'extrapolate' option for padding
   # Dependencies for the pangeo cloud data
   - intake-esm
   - gcsfs
@@ -16,3 +16,6 @@ dependencies:
   - pytest-xdist
   - pytest-rerunfailures
   - codecov
+  # These are only a patch until xesmf > 0.6.2 is released. See https://github.com/pangeo-data/xESMF/issues/170
+  - numba
+  - sparse>=0.8.0
