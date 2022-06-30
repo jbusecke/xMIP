@@ -15,6 +15,7 @@ from cmip6_preprocessing.postprocessing import (
     interpolate_grid_label,
     match_metrics,
     merge_variables,
+    pick_first_member,
 )
 
 
@@ -591,6 +592,7 @@ def test_concat_experiments(concat_kwargs):
             result[k], xr.concat(expected[k], "time", **concat_kwargs)
         )
 
+
 def test_pick_first_member():
     concat_kwargs = {}
 
@@ -599,8 +601,9 @@ def test_pick_first_member():
         "grid_label": "a",
         "experiment_id": "a",
         "table_id": "a",
-        "variant_label":"a1b2", #TODO: I might have to reevaluate this for some of the damip experiments (the only ones where variant_label!=member_id)
+        "variant_label": "a1b2",  # TODO: I might have to reevaluate this for some of the damip experiments (the only ones where variant_label!=member_id)
         "version": "a",
+        "variable_id": "a",
     }
 
     attrs_b = {k: v for k, v in attrs_a.items()}
@@ -627,18 +630,19 @@ def test_pick_first_member():
 
     # Group together the expected 'matches'
     expected = {
-        "a.a.a.a": [ds_b],
-        "b.a.a.a": [ds_c],
+        "a.a.a.a.a": ds_b,
+        "b.a.a.a.a": ds_c,
     }
 
     result = pick_first_member(
         ds_dict,
     )
+    print(result)
+    print(result.keys())
     for k in expected.keys():
         assert k in list(result.keys())
-        xr.testing.assert_equal(
-            result[k], expected[k]
-        )
+
+        xr.testing.assert_equal(result[k], expected[k])
 
 
 @pytest.mark.parametrize("verbose", [True, False])
