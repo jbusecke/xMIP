@@ -641,7 +641,6 @@ def test_pick_first_member():
     print(result.keys())
     for k in expected.keys():
         assert k in list(result.keys())
-
         xr.testing.assert_equal(result[k], expected[k])
 
 
