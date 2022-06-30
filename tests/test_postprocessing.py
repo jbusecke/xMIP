@@ -591,6 +591,55 @@ def test_concat_experiments(concat_kwargs):
             result[k], xr.concat(expected[k], "time", **concat_kwargs)
         )
 
+def test_pick_first_member():
+    concat_kwargs = {}
+
+    attrs_a = {
+        "source_id": "a",
+        "grid_label": "a",
+        "experiment_id": "a",
+        "table_id": "a",
+        "variant_label":"a1b2", #TODO: I might have to reevaluate this for some of the damip experiments (the only ones where variant_label!=member_id)
+        "version": "a",
+    }
+
+    attrs_b = {k: v for k, v in attrs_a.items()}
+    attrs_b["variant_label"] = "a1b1"
+
+    attrs_c = {k: v for k, v in attrs_b.items()}
+    attrs_c["source_id"] = "b"
+    attrs_c["variant_label"] = "a1b1"
+
+    attrs_d = {k: v for k, v in attrs_b.items()}
+    attrs_d["source_id"] = "b"
+    attrs_d["variant_label"] = "a2b1"
+
+    # Create some datasets with a/b attrs
+    ds_a = random_ds(attrs=attrs_a).rename({"data": "temp"})
+    ds_b = random_ds(attrs=attrs_b).rename({"data": "temp"})
+    ds_c = random_ds(attrs=attrs_c).rename({"data": "temp"})
+    ds_d = random_ds(attrs=attrs_d).rename({"data": "temp"})
+
+    ds_dict = {
+        "".join(random.choices(string.ascii_letters, k=4)): ds
+        for ds in [ds_a, ds_b, ds_c, ds_d]
+    }
+
+    # Group together the expected 'matches'
+    expected = {
+        "a.a.a.a": [ds_b],
+        "b.a.a.a": [ds_c],
+    }
+
+    result = pick_first_member(
+        ds_dict,
+    )
+    for k in expected.keys():
+        assert k in list(result.keys())
+        xr.testing.assert_equal(
+            result[k], expected[k]
+        )
+
 
 @pytest.mark.parametrize("verbose", [True, False])
 def test_interpolate_grid_label(verbose):
