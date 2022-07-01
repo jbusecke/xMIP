@@ -359,7 +359,7 @@ def test_match_metrics_print_statistics(capsys, metricname):
 
 def test_match_metrics_match_variable_str_input():
     # give a dataset that has member_id as dim (indicator that it was aggregated).
-
+    metricname='area'
     attrs = {
         "source_id": "a",
         "grid_label": "a",
