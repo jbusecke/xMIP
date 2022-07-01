@@ -375,9 +375,7 @@ def test_match_metrics_match_variable_str_input():
 
     ds_dict_parsed_list = match_metrics({"a": ds}, {"aa": ds_metric}, [metricname])
     ds_dict_parsed_str = match_metrics({"a": ds}, {"aa": ds_metric}, metricname)
-    print(ds_dict_parsed_list)
-    print(ds_dict_parsed_str)
-    assert 1==0
+    xr.testing.assert_equal(ds_dict_parsed_str['a'], ds_dict_parsed_list['a'])
 
 
 @pytest.mark.parametrize("combine_func_kwargs", [{}, {"compat": "override"}])
