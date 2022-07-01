@@ -357,6 +357,29 @@ def test_match_metrics_print_statistics(capsys, metricname):
     assert "No match found:" + str({metricname: 0}) in captured.out
 
 
+def test_match_metrics_match_variable_str_input():
+    # give a dataset that has member_id as dim (indicator that it was aggregated).
+
+    attrs = {
+        "source_id": "a",
+        "grid_label": "a",
+        "experiment_id": "a",
+        "table_id": "a",
+        "variant_label": "a",
+        "version": "a",
+    }
+    ds = random_ds()
+    ds.attrs = attrs
+    ds_metric = random_ds().rename({"data": metricname})
+    ds_metric.attrs = attrs
+
+    ds_dict_parsed_list = match_metrics({"a": ds}, {"aa": ds_metric}, [metricname])
+    ds_dict_parsed_str = match_metrics({"a": ds}, {"aa": ds_metric}, metricname)
+    print(ds_dict_parsed_list)
+    print(ds_dict_parsed_str)
+    assert 1==0
+
+
 @pytest.mark.parametrize("combine_func_kwargs", [{}, {"compat": "override"}])
 def test_combine_datasets_merge(combine_func_kwargs):
     attrs_a = {
