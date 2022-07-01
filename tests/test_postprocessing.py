@@ -359,7 +359,7 @@ def test_match_metrics_print_statistics(capsys, metricname):
 
 def test_match_metrics_match_variable_str_input():
     # give a dataset that has member_id as dim (indicator that it was aggregated).
-    metricname='area'
+    metricname = "area"
     attrs = {
         "source_id": "a",
         "grid_label": "a",
@@ -375,7 +375,7 @@ def test_match_metrics_match_variable_str_input():
 
     ds_dict_parsed_list = match_metrics({"a": ds}, {"aa": ds_metric}, [metricname])
     ds_dict_parsed_str = match_metrics({"a": ds}, {"aa": ds_metric}, metricname)
-    xr.testing.assert_equal(ds_dict_parsed_str['a'], ds_dict_parsed_list['a'])
+    xr.testing.assert_equal(ds_dict_parsed_str["a"], ds_dict_parsed_list["a"])
 
 
 @pytest.mark.parametrize("combine_func_kwargs", [{}, {"compat": "override"}])
