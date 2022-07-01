@@ -5,7 +5,11 @@ import warnings
 import numpy as np
 import xarray as xr
 
-from cmip6_preprocessing.utils import _key_from_attrs, cmip6_dataset_id
+from cmip6_preprocessing.utils import (
+    _key_from_attrs,
+    _maybe_make_list,
+    cmip6_dataset_id,
+)
 
 
 try:
@@ -603,6 +607,8 @@ def match_metrics(
     """
     # metrics should never match the variable
     exact_attrs_wo_var = [ma for ma in exact_attrs if ma != "variable_id"]
+
+    match_variables = _maybe_make_list(match_variables)
 
     # if match is set to exact check all these attributes
     if match_attrs == "exact":
