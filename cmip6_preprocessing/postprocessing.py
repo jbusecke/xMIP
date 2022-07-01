@@ -274,6 +274,21 @@ def concat_experiments(
     )
 
 
+def _pick_first_member(ds_list, **kwargs):
+    members = [ds.variant_label for ds in ds_list]
+    first_member_idx = np.argmin(members)
+    return ds_list[first_member_idx]
+
+
+def pick_first_member(ddict):
+    match_attrs = [ma for ma in exact_attrs if ma not in ["variant_label"]]
+    return combine_datasets(
+        ddict,
+        _pick_first_member,
+        match_attrs=match_attrs,
+    )
+
+
 ### Matching wrapper specific to combining grid labels via interpolation with xesmf
 def requires_xesmf(func):
     @functools.wraps(func)
