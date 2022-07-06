@@ -66,6 +66,12 @@ def test_rename_cmip6(xname, yname, zname, missing_dim):
         assert ylen == len(ds_renamed.y)
     if not missing_dim == "z":
         assert zlen == len(ds_renamed.lev)
+    
+    # check if cf conventions were inferred
+    for dim, axis in [('x', 'X'), ('y', 'Y'), ('lev','Z'), ('time', 'T')]:
+        if dim in ds_renamed.dims:
+            #check that the axis is in the cf object
+            assert axis in ds_renamed.cf.axes.keys()
 
 
 @pytest.mark.parametrize("xname", ["i", "x"])

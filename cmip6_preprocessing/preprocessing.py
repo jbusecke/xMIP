@@ -68,6 +68,10 @@ def _invert_dict(rdict):
     return exploded_dict
 
 
+def _parse_cf(dataset):
+    dataset = dataset.cf.guess_coord_axis()
+    return dataset
+
 def rename_cmip6(ds, rename_dict=None):
     """Homogenizes cmip6 dataasets to common naming"""
     ds = ds.copy()
@@ -109,6 +113,8 @@ def rename_cmip6(ds, rename_dict=None):
     # restore attributes
     ds.attrs = attrs
 
+    # use cf conventions where they can be inferred by cf_xarray
+    ds = _parse_cf(ds)
     return ds
 
 
