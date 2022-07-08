@@ -1,1 +1,1 @@
-recursive-include cmip6_preprocessing *
+recursive-include pymip *

@@ -1,4 +1,4 @@
-name: test_env_cmip6_preprocessing
+name: test_env_pymip
 channels:
   - conda-forge
 dependencies:

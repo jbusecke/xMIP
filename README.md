@@ -1,10 +1,10 @@
 [![Documentation Status](https://readthedocs.org/projects/cmip6-preprocessing/badge/?version=latest)](https://cmip6-preprocessing.readthedocs.io/en/latest/?badge=latest)
-[![Anaconda Cloud](https://anaconda.org/conda-forge/cmip6_preprocessing/badges/version.svg)](https://anaconda.org/conda-forge/cmip6_preprocessing)
-[![conda-forge](https://img.shields.io/conda/dn/conda-forge/cmip6_preprocessing?label=conda-forge)](https://anaconda.org/conda-forge/cmip6_preprocessing)
-[![Pypi](https://img.shields.io/pypi/v/cmip6_preprocessing.svg)](https://pypi.org/project/cmip6_preprocessing)
-[![Build Status](https://img.shields.io/github/workflow/status/jbusecke/cmip6_preprocessing/CI?logo=github)](https://github.com/jbusecke/cmip6_preprocessing/actions)
-[![Full Archive CI](https://github.com/jbusecke/cmip6_preprocessing/workflows/Full%20Archive%20CI/badge.svg)](https://github.com/jbusecke/cmip6_preprocessing/actions/workflows/full_archive_ci.yaml)
-[![codecov](https://codecov.io/gh/jbusecke/cmip6_preprocessing/branch/master/graph/badge.svg)](https://codecov.io/gh/jbusecke/cmip6_preprocessing)
+[![Anaconda Cloud](https://anaconda.org/conda-forge/pymip/badges/version.svg)](https://anaconda.org/conda-forge/pymip)
+[![conda-forge](https://img.shields.io/conda/dn/conda-forge/pymip?label=conda-forge)](https://anaconda.org/conda-forge/pymip)
+[![Pypi](https://img.shields.io/pypi/v/pymip.svg)](https://pypi.org/project/pymip)
+[![Build Status](https://img.shields.io/github/workflow/status/jbusecke/pymip/CI?logo=github)](https://github.com/jbusecke/pymip/actions)
+[![Full Archive CI](https://github.com/jbusecke/pymip/workflows/Full%20Archive%20CI/badge.svg)](https://github.com/jbusecke/pymip/actions/workflows/full_archive_ci.yaml)
+[![codecov](https://codecov.io/gh/jbusecke/pymip/branch/main/graph/badge.svg)](https://codecov.io/gh/jbusecke/pymip)
 [![License:MIT](https://img.shields.io/badge/License-MIT-lightgray.svg?style=flt-square)](https://opensource.org/licenses/MIT)
 [![DOI](https://zenodo.org/badge/215606850.svg)](https://zenodo.org/badge/latestdoi/215606850)
 
@@ -18,9 +18,13 @@ Free access to software and hollow diversity statements are hardly enough to cru
 
 If you are using this package, I ask you to go beyond just speaking out and donate [here](https://secure.actblue.com/donate/cmip6_preprocessing) to [Data for Black Lives](http://d4bl.org/) and [Black Lives Matter Action](https://blacklivesmatter.com/global-actions/).
 
-I explicitly welcome suggestions regarding the wording of this statement and for additional organizations to support. Please raise an [issue](https://github.com/jbusecke/cmip6_preprocessing/issues) for suggestions.
+I explicitly welcome suggestions regarding the wording of this statement and for additional organizations to support. Please raise an [issue](https://github.com/jbusecke/pymip/issues) for suggestions.
 
-# cmip6_preprocessing
+
+
+# pymip (formerly cmip6_preprocessing)
+
+This package facilitates the cleaning, organization and interactive analysis of Model Intercomparison Projects (MIPs) within the [Pangeo](https://pangeo.io) software stack.
 
 Are you interested in CMIP6 data, but find that is is not quite `analysis ready`? Do you just want to run a simple (or complicated) analysis on various models and end up having to write logic for each seperate case, because various datasets still require fixes to names, coordinates, etc.? Then this package is for you.
 
@@ -39,19 +43,19 @@ The following issues are under development:
 1. Reconstruct/find grid metrics
 2. Arrange different variables on their respective staggered grid, so they can work seamlessly with [xgcm](https://xgcm.readthedocs.io/en/latest/)
 
-Check out this recent Earthcube [notebook](https://github.com/earthcube2020/ec20_busecke_etal) (cite via doi: [10.1002/essoar.10504241.1](https://www.essoar.org/doi/10.1002/essoar.10504241.1)) for a high level demo of `cmip6_preprocessing` and [xgcm](https://github.com/xgcm/xgcm).
+Check out this recent Earthcube [notebook](https://github.com/earthcube2020/ec20_busecke_etal) (cite via doi: [10.1002/essoar.10504241.1](https://www.essoar.org/doi/10.1002/essoar.10504241.1)) for a high level demo of `pymip` and [xgcm](https://github.com/xgcm/xgcm).
 
 
 ## Installation
 
-Install `cmip6_preprocessing` via pip:
+Install `pymip` via pip:
 
-`pip install cmip6_preprocessing`
+`pip install pymip`
 
 or conda:
 
-`conda install -c conda-forge cmip6_preprocessing`
+`conda install -c conda-forge pymip`
 
-To install the newest master from github you can use pip aswell:
+To install the newest main from github you can use pip aswell:
 
-`pip install git+pip install git+https://github.com/jbusecke/cmip6_preprocessing.git`
+`pip install git+pip install git+https://github.com/jbusecke/pymip.git`

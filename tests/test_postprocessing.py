@@ -6,7 +6,7 @@ import pytest
 import xarray as xr
 import xesmf
 
-from cmip6_preprocessing.postprocessing import (
+from pymip.postprocessing import (
     _parse_metric,
     _promote_member_id,
     combine_datasets,
@@ -50,7 +50,7 @@ def test_parse_metric(metricname):
     xr.testing.assert_allclose(ds_parsed[metricname].reset_coords(drop=True), metric)
     assert (
         ds_parsed[metricname].attrs["parsed_with"]
-        == "cmip6_preprocessing/postprocessing/_parse_metric"
+        == "pymip/postprocessing/_parse_metric"
     )
     # check that existing attrs are conserved
     assert ds_parsed[metricname].attrs["check"] == "carry"
@@ -819,10 +819,7 @@ def test_interpolate_grid_label(verbose):
     xr.testing.assert_allclose(combined_ddict["a.a.a.a"], expected)
     xr.testing.assert_allclose(combined_ddict["b.a.a.a"], expected_simple)
 
-    assert (
-        combined_ddict["a.a.a.a"].varb.attrs["cmip6_preprocessing_regrid_method"]
-        == "bilinear"
-    )
+    assert combined_ddict["a.a.a.a"].varb.attrs["pymip_regrid_method"] == "bilinear"
 
 
 def test_nested_operations():
