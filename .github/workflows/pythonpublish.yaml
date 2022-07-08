@@ -1,4 +1,4 @@
-name: Build and Upload cmip6_preprocessing to PyPI
+name: Build and Upload pymip to PyPI
 on:
   release:
     types:
@@ -7,7 +7,7 @@ on:
 jobs:
   build-artifacts:
     runs-on: ubuntu-latest
-    if: github.repository == 'jbusecke/cmip6_preprocessing'
+    if: github.repository == 'jbusecke/pymip'
     steps:
       - uses: actions/checkout@v3
         with:
@@ -35,7 +35,7 @@ jobs:
         run: |
           python -m twine check dist/*
           pwd
-          if [ -f dist/cmip6_preprocessing-0.0.0.tar.gz ]; then
+          if [ -f dist/pymip-0.0.0.tar.gz ]; then
             echo "❌ INVALID VERSION NUMBER"
             exit 1
           else

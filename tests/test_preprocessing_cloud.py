@@ -7,13 +7,13 @@ import numpy as np
 import pytest
 import xarray as xr
 
-from cmip6_preprocessing.grids import combine_staggered_grid
-from cmip6_preprocessing.preprocessing import (
+from pymip.grids import combine_staggered_grid
+from pymip.preprocessing import (
     _desired_units,
     _drop_coords,
     combined_preprocessing,
 )
-from cmip6_preprocessing.utils import google_cmip_col, model_id_match
+from pymip.utils import google_cmip_col, model_id_match
 
 
 pytest.importorskip("gcsfs")
@@ -57,7 +57,7 @@ def data(
         else:
             ##### debugging options
             # @charlesbluca suggested this to make this work in GHA
-            # https://github.com/jbusecke/cmip6_preprocessing/pull/62#issuecomment-741928365
+            # https://github.com/jbusecke/pymip/pull/62#issuecomment-741928365
             mm = fsspec.get_mapper(
                 cat.df["zstore"][0]
             )  # think you can pass in storage options here as well?

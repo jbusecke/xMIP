@@ -153,7 +153,7 @@ def merged_mask(
         Name of the latitude coordinate in `ds`, defaults to `lat`
     merge_dict : dict, optional
         dictionary defining new aggregated regions (as keys) and the regions to be merge into that region as as values (list of names).
-        Defaults to large scale ocean basins defined by `cmip6_preprocessing.regionmask.default_merge_dict`
+        Defaults to large scale ocean basins defined by `pymip.regionmask.default_merge_dict`
     verbose : bool, optional
        Prints more output, e.g. the regions in `basins` that were not used in the merging step. Defaults to False.
 

@@ -4,8 +4,8 @@ import numpy as np
 import pytest
 import xarray as xr
 
-from cmip6_preprocessing.postprocessing import exact_attrs
-from cmip6_preprocessing.preprocessing import (
+from pymip.postprocessing import exact_attrs
+from pymip.preprocessing import (
     broadcast_lonlat,
     cmip6_renaming_dict,
     combined_preprocessing,
