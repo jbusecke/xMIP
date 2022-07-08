@@ -18,7 +18,7 @@ A good step by step tutorial for this can be found in the
 Environments
 ^^^^^^^^^^^^
 The easiest way to start developing pymip pull requests,
-is to install one of the conda environments provided in the `ci folder <https://github.com/jbusecke/pymip/tree/master/ci>`_::
+is to install one of the conda environments provided in the `ci folder <https://github.com/jbusecke/pymip/tree/main/ci>`_::
 
     conda env create -f ci/environment-py3.8.yml
 

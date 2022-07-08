@@ -4,7 +4,7 @@
 [![Pypi](https://img.shields.io/pypi/v/pymip.svg)](https://pypi.org/project/pymip)
 [![Build Status](https://img.shields.io/github/workflow/status/jbusecke/pymip/CI?logo=github)](https://github.com/jbusecke/pymip/actions)
 [![Full Archive CI](https://github.com/jbusecke/pymip/workflows/Full%20Archive%20CI/badge.svg)](https://github.com/jbusecke/pymip/actions/workflows/full_archive_ci.yaml)
-[![codecov](https://codecov.io/gh/jbusecke/pymip/branch/master/graph/badge.svg)](https://codecov.io/gh/jbusecke/pymip)
+[![codecov](https://codecov.io/gh/jbusecke/pymip/branch/main/graph/badge.svg)](https://codecov.io/gh/jbusecke/pymip)
 [![License:MIT](https://img.shields.io/badge/License-MIT-lightgray.svg?style=flt-square)](https://opensource.org/licenses/MIT)
 [![DOI](https://zenodo.org/badge/215606850.svg)](https://zenodo.org/badge/latestdoi/215606850)
 
@@ -52,6 +52,6 @@ or conda:
 
 `conda install -c conda-forge pymip`
 
-To install the newest master from github you can use pip aswell:
+To install the newest main from github you can use pip aswell:
 
 `pip install git+pip install git+https://github.com/jbusecke/pymip.git`
