@@ -8,11 +8,7 @@ import pytest
 import xarray as xr
 
 from pymip.grids import combine_staggered_grid
-from pymip.preprocessing import (
-    _desired_units,
-    _drop_coords,
-    combined_preprocessing,
-)
+from pymip.preprocessing import _desired_units, _drop_coords, combined_preprocessing
 from pymip.utils import google_cmip_col, model_id_match
 
 

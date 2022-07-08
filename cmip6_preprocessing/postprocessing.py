@@ -5,11 +5,7 @@ import warnings
 import numpy as np
 import xarray as xr
 
-from pymip.utils import (
-    _key_from_attrs,
-    _maybe_make_list,
-    cmip6_dataset_id,
-)
+from pymip.utils import _key_from_attrs, _maybe_make_list, cmip6_dataset_id
 
 
 try:
@@ -374,9 +370,9 @@ def _regrid_to_target(ds_source, ds_target, regridder):
     ds_regridded.attrs["grid_label"] = ds_target.attrs["grid_label"]
     # identify the variables that are regridded
     for var in ds_regridded.data_vars:
-        ds_regridded[var].attrs[
-            "pymip_regrid_method"
-        ] = ds_regridded.attrs["regrid_method"]
+        ds_regridded[var].attrs["pymip_regrid_method"] = ds_regridded.attrs[
+            "regrid_method"
+        ]
 
     return ds_regridded
 
