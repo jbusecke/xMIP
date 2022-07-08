@@ -819,10 +819,7 @@ def test_interpolate_grid_label(verbose):
     xr.testing.assert_allclose(combined_ddict["a.a.a.a"], expected)
     xr.testing.assert_allclose(combined_ddict["b.a.a.a"], expected_simple)
 
-    assert (
-        combined_ddict["a.a.a.a"].varb.attrs["pymip_regrid_method"]
-        == "bilinear"
-    )
+    assert combined_ddict["a.a.a.a"].varb.attrs["pymip_regrid_method"] == "bilinear"
 
 
 def test_nested_operations():
