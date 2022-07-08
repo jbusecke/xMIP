@@ -2,6 +2,9 @@ import numpy as np
 import pytest
 import xarray as xr
 
+from xgcm import Grid
+from xgcm.autogenerate import generate_grid_ds
+
 from pymip.grids import (
     _interp_vertex_to_bounds,
     _parse_bounds_vertex,
@@ -12,8 +15,6 @@ from pymip.grids import (
     distance_deg,
     recreate_metrics,
 )
-from xgcm import Grid
-from xgcm.autogenerate import generate_grid_ds
 
 
 def _add_small_rand(da):

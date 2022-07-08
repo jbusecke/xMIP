@@ -5,9 +5,10 @@ import numpy as np
 import xarray as xr
 import xarrayutils as xru
 
+from xarrayutils.utils import linear_trend
+
 from pymip.postprocessing import _match_datasets, exact_attrs
 from pymip.utils import cmip6_dataset_id
-from xarrayutils.utils import linear_trend
 
 
 def _maybe_unpack_date(date):
