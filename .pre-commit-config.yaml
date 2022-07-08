@@ -5,7 +5,7 @@ repos:
 #   rev: 1.3.2
 #   hooks:
 #     - id: interrogate
-#       exclude: ^(docs|setup.py|tests|pymip/_version.py|pymip/__init__.py)
+#       exclude: ^(docs|setup.py|tests|xmip/_version.py|xmip/__init__.py)
 #       args: [--config=pyproject.toml]
 
 - repo: https://github.com/pre-commit/pre-commit-hooks

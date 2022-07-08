@@ -1,4 +1,4 @@
-name: test_env_pymip
+name: test_env_xmip
 channels:
   - conda-forge
 dependencies:

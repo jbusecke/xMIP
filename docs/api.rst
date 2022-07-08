@@ -3,14 +3,14 @@
 
 preprocessing
 =============
-.. automodule:: pymip.preprocessing
+.. automodule:: xmip.preprocessing
    :members:
    :undoc-members:
    :show-inheritance:
 
 postprocessing
 ==============
-.. automodule:: pymip.postprocessing
+.. automodule:: xmip.postprocessing
    :members:
    :undoc-members:
    :show-inheritance:
@@ -18,21 +18,21 @@ postprocessing
 
 grids
 =====
-.. automodule:: pymip.grids
+.. automodule:: xmip.grids
    :members:
    :undoc-members:
    :show-inheritance:
 
 regionmask
 ==========
-.. automodule:: pymip.regionmask
+.. automodule:: xmip.regionmask
    :members:
    :undoc-members:
    :show-inheritance:
 
 utils
 =====
-.. automodule:: pymip.utils
+.. automodule:: xmip.utils
    :members:
    :undoc-members:
    :show-inheritance:

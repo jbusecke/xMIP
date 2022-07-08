@@ -27,7 +27,7 @@ jobs:
 
   build:
     name: Build (${{ matrix.python-version }} | ${{ matrix.os }})
-    if: github.repository == 'jbusecke/pymip'
+    if: github.repository == 'jbusecke/xmip'
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     defaults:
@@ -57,7 +57,7 @@ jobs:
           channels: conda-forge
           mamba-version: '*'
           channel-priority: strict
-          activate-environment: test_env_pymip # Defined in ci/environment.yml
+          activate-environment: test_env_xmip # Defined in ci/environment.yml
           auto-update-conda: false
           python-version: ${{ matrix.python-version }}
           environment-file: ci/environment.yml
@@ -107,7 +107,7 @@ jobs:
         channels: conda-forge
         mamba-version: '*'
         channel-priority: strict
-        activate-environment: test_env_pymip # Defined in ci/environment-upstream-dev.yml
+        activate-environment: test_env_xmip # Defined in ci/environment-upstream-dev.yml
         auto-update-conda: false
         python-version: "3.10"
         environment-file: ci/environment-upstream-dev.yml
@@ -153,7 +153,7 @@ jobs:
         channels: conda-forge
         mamba-version: '*'
         channel-priority: strict
-        activate-environment: test_env_pymip # Defined in ci/environment-upstream-dev.yml
+        activate-environment: test_env_xmip # Defined in ci/environment-upstream-dev.yml
         auto-update-conda: false
         python-version: "3.10"
         environment-file: ci/environment-cloud-test.yml

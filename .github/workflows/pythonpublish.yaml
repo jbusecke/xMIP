@@ -1,4 +1,4 @@
-name: Build and Upload pymip to PyPI
+name: Build and Upload xmip to PyPI
 on:
   release:
     types:
@@ -7,7 +7,7 @@ on:
 jobs:
   build-artifacts:
     runs-on: ubuntu-latest
-    if: github.repository == 'jbusecke/pymip'
+    if: github.repository == 'jbusecke/xmip'
     steps:
       - uses: actions/checkout@v3
         with:
@@ -35,7 +35,7 @@ jobs:
         run: |
           python -m twine check dist/*
           pwd
-          if [ -f dist/pymip-0.0.0.tar.gz ]; then
+          if [ -f dist/xmip-0.0.0.tar.gz ]; then
             echo "❌ INVALID VERSION NUMBER"
             exit 1
           else

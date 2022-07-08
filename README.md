@@ -1,10 +1,10 @@
 [![Documentation Status](https://readthedocs.org/projects/cmip6-preprocessing/badge/?version=latest)](https://cmip6-preprocessing.readthedocs.io/en/latest/?badge=latest)
-[![Anaconda Cloud](https://anaconda.org/conda-forge/pymip/badges/version.svg)](https://anaconda.org/conda-forge/pymip)
-[![conda-forge](https://img.shields.io/conda/dn/conda-forge/pymip?label=conda-forge)](https://anaconda.org/conda-forge/pymip)
-[![Pypi](https://img.shields.io/pypi/v/pymip.svg)](https://pypi.org/project/pymip)
-[![Build Status](https://img.shields.io/github/workflow/status/jbusecke/pymip/CI?logo=github)](https://github.com/jbusecke/pymip/actions)
-[![Full Archive CI](https://github.com/jbusecke/pymip/workflows/Full%20Archive%20CI/badge.svg)](https://github.com/jbusecke/pymip/actions/workflows/full_archive_ci.yaml)
-[![codecov](https://codecov.io/gh/jbusecke/pymip/branch/main/graph/badge.svg)](https://codecov.io/gh/jbusecke/pymip)
+[![Anaconda Cloud](https://anaconda.org/conda-forge/xmip/badges/version.svg)](https://anaconda.org/conda-forge/xmip)
+[![conda-forge](https://img.shields.io/conda/dn/conda-forge/xmip?label=conda-forge)](https://anaconda.org/conda-forge/xmip)
+[![Pypi](https://img.shields.io/pypi/v/xmip.svg)](https://pypi.org/project/xmip)
+[![Build Status](https://img.shields.io/github/workflow/status/jbusecke/xmip/CI?logo=github)](https://github.com/jbusecke/xmip/actions)
+[![Full Archive CI](https://github.com/jbusecke/xmip/workflows/Full%20Archive%20CI/badge.svg)](https://github.com/jbusecke/xmip/actions/workflows/full_archive_ci.yaml)
+[![codecov](https://codecov.io/gh/jbusecke/xmip/branch/main/graph/badge.svg)](https://codecov.io/gh/jbusecke/xmip)
 [![License:MIT](https://img.shields.io/badge/License-MIT-lightgray.svg?style=flt-square)](https://opensource.org/licenses/MIT)
 [![DOI](https://zenodo.org/badge/215606850.svg)](https://zenodo.org/badge/latestdoi/215606850)
 
@@ -18,11 +18,11 @@ Free access to software and hollow diversity statements are hardly enough to cru
 
 If you are using this package, I ask you to go beyond just speaking out and donate [here](https://secure.actblue.com/donate/cmip6_preprocessing) to [Data for Black Lives](http://d4bl.org/) and [Black Lives Matter Action](https://blacklivesmatter.com/global-actions/).
 
-I explicitly welcome suggestions regarding the wording of this statement and for additional organizations to support. Please raise an [issue](https://github.com/jbusecke/pymip/issues) for suggestions.
+I explicitly welcome suggestions regarding the wording of this statement and for additional organizations to support. Please raise an [issue](https://github.com/jbusecke/xmip/issues) for suggestions.
 
 
 
-# pymip (formerly cmip6_preprocessing)
+# xmip (formerly cmip6_preprocessing)
 
 This package facilitates the cleaning, organization and interactive analysis of Model Intercomparison Projects (MIPs) within the [Pangeo](https://pangeo.io) software stack.
 
@@ -43,19 +43,19 @@ The following issues are under development:
 1. Reconstruct/find grid metrics
 2. Arrange different variables on their respective staggered grid, so they can work seamlessly with [xgcm](https://xgcm.readthedocs.io/en/latest/)
 
-Check out this recent Earthcube [notebook](https://github.com/earthcube2020/ec20_busecke_etal) (cite via doi: [10.1002/essoar.10504241.1](https://www.essoar.org/doi/10.1002/essoar.10504241.1)) for a high level demo of `pymip` and [xgcm](https://github.com/xgcm/xgcm).
+Check out this recent Earthcube [notebook](https://github.com/earthcube2020/ec20_busecke_etal) (cite via doi: [10.1002/essoar.10504241.1](https://www.essoar.org/doi/10.1002/essoar.10504241.1)) for a high level demo of `xmip` and [xgcm](https://github.com/xgcm/xgcm).
 
 
 ## Installation
 
-Install `pymip` via pip:
+Install `xmip` via pip:
 
-`pip install pymip`
+`pip install xmip`
 
 or conda:
 
-`conda install -c conda-forge pymip`
+`conda install -c conda-forge xmip`
 
 To install the newest main from github you can use pip aswell:
 
-`pip install git+pip install git+https://github.com/jbusecke/pymip.git`
+`pip install git+pip install git+https://github.com/jbusecke/xmip.git`

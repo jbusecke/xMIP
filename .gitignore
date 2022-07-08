@@ -70,4 +70,4 @@ mydask.png
 .vscode
 .mypy_cache
 readthedocs.yml
-pymip/_version.py
+xmip/_version.py
