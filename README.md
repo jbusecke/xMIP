@@ -20,7 +20,11 @@ If you are using this package, I ask you to go beyond just speaking out and dona
 
 I explicitly welcome suggestions regarding the wording of this statement and for additional organizations to support. Please raise an [issue](https://github.com/jbusecke/pymip/issues) for suggestions.
 
-# pymip
+
+
+# pymip (formerly cmip6_preprocessing)
+
+This package facilitates the cleaning, organization and interactive analysis of Model Intercomparison Projects (MIPs) within the [Pangeo](https://pangeo.io) software stack.
 
 Are you interested in CMIP6 data, but find that is is not quite `analysis ready`? Do you just want to run a simple (or complicated) analysis on various models and end up having to write logic for each seperate case, because various datasets still require fixes to names, coordinates, etc.? Then this package is for you.
 
