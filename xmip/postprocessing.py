@@ -5,7 +5,7 @@ import warnings
 import numpy as np
 import xarray as xr
 
-from pymip.utils import _key_from_attrs, _maybe_make_list, cmip6_dataset_id
+from xmip.utils import _key_from_attrs, _maybe_make_list, cmip6_dataset_id
 
 
 try:
@@ -190,7 +190,7 @@ def concat_members(
     (given in seperate datasets) into a single dataset for each combination of attributes,
     like source_id, grid_label, etc. but with concatnated members.
     CAUTION: If members do not have the same dimensions (e.g. longer run time for some members),
-    this can result in poor dask performance (see: https://github.com/jbusecke/pymip/issues/58)
+    this can result in poor dask performance (see: https://github.com/jbusecke/xmip/issues/58)
 
     Parameters
     ----------
@@ -243,7 +243,7 @@ def concat_experiments(
     (given in seperate datasets) into a single dataset for each combination of attributes,
     like source_id, grid_label, etc. but with concatnated members.
     CAUTION: If members do not have the same dimensions (e.g. longer run time for some members),
-    this can result in poor dask performance (see: https://github.com/jbusecke/pymip/issues/58)
+    this can result in poor dask performance (see: https://github.com/jbusecke/xmip/issues/58)
     Parameters
     ----------
     ds_dict : dict
@@ -370,7 +370,7 @@ def _regrid_to_target(ds_source, ds_target, regridder):
     ds_regridded.attrs["grid_label"] = ds_target.attrs["grid_label"]
     # identify the variables that are regridded
     for var in ds_regridded.data_vars:
-        ds_regridded[var].attrs["pymip_regrid_method"] = ds_regridded.attrs[
+        ds_regridded[var].attrs["xmip_regrid_method"] = ds_regridded.attrs[
             "regrid_method"
         ]
 
@@ -561,7 +561,7 @@ def _parse_metric(ds, metric, dim_length_conflict="error"):
     # add attributes
     metric_stripped.attrs[
         "parsed_with"
-    ] = f"pymip/postprocessing/{inspect.currentframe().f_code.co_name}"
+    ] = f"xmip/postprocessing/{inspect.currentframe().f_code.co_name}"
     # TODO: Get the package and module name without hardcoding.
 
     ds = ds.assign_coords({metric_stripped.name: metric_stripped})

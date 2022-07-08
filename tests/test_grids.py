@@ -5,7 +5,7 @@ import xarray as xr
 from xgcm import Grid
 from xgcm.autogenerate import generate_grid_ds
 
-from pymip.grids import (
+from xmip.grids import (
     _interp_vertex_to_bounds,
     _parse_bounds_vertex,
     combine_staggered_grid,

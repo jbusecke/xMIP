@@ -2,8 +2,8 @@ import numpy as np
 import pytest
 import xarray as xr
 
-from pymip.preprocessing import combined_preprocessing
-from pymip.regionmask import _default_merge_dict, merged_mask
+from xmip.preprocessing import combined_preprocessing
+from xmip.regionmask import _default_merge_dict, merged_mask
 
 
 regionmask = pytest.importorskip(

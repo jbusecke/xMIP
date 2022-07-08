@@ -10,7 +10,7 @@ except:
     )  # works for python <3.8
 
 try:
-    __version__ = version("pymip")
+    __version__ = version("xmip")
 except PackageNotFoundError:
     # package is not installed
     __version__ = "unknown"

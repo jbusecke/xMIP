@@ -1,4 +1,4 @@
-.. currentmodule:: pymip
+.. currentmodule:: xmip
 
 What's New
 ===========
@@ -15,7 +15,7 @@ New Features
 Breaking Changes
 ~~~~~~~~~~~~~~~~
 - Requires xarray>=0.17.0 and drops support for python 3.6 (:pull:`170`, :pull:`173`). By `Julius Busecke <https://github.com/jbusecke>`_
-- :py:func:`~pymip.utils.cmip6_dataset_id` not includes the attribute `variable_id` (:pull:`166`) By `Julius Busecke <https://github.com/jbusecke>`_
+- :py:func:`~xmip.utils.cmip6_dataset_id` not includes the attribute `variable_id` (:pull:`166`) By `Julius Busecke <https://github.com/jbusecke>`_
 
 Internal Changes
 ~~~~~~~~~~~~~~~~
@@ -25,13 +25,13 @@ By `Tom Nicholas <https://github.com/TomNicholas>`_ and `Julius Busecke <https:/
 
 Bugfixes
 ~~~~~~~~
-- :py:func:`~pymip.postprocessing.match_metrics` now accepts single variables as str input (:issue:`229`, :pull:`245`)
+- :py:func:`~xmip.postprocessing.match_metrics` now accepts single variables as str input (:issue:`229`, :pull:`245`)
 
-- :py:func:`~pymip.postprocessing.concat_members` now returns a dataset with labelled `member_id` dimension (:issue:`196` , :pull:`197`). By `Julius Busecke <https://github.com/jbusecke>`_
+- :py:func:`~xmip.postprocessing.concat_members` now returns a dataset with labelled `member_id` dimension (:issue:`196` , :pull:`197`). By `Julius Busecke <https://github.com/jbusecke>`_
 
 - Fixes incompatibility with upstream changes in xarray>=0.19.0 (:issue:`173`, :pull:`174`). By `Julius Busecke <https://github.com/jbusecke>`_
 
-- :py:func:`~pymip.drift_removal.match_and_remove_drift` does now work with chunked (dask powered) datasets (:pull:`164`).By `Julius Busecke <https://github.com/jbusecke>`_
+- :py:func:`~xmip.drift_removal.match_and_remove_drift` does now work with chunked (dask powered) datasets (:pull:`164`).By `Julius Busecke <https://github.com/jbusecke>`_
 
 Internal Changes
 ~~~~~~~~~~~~~~~~
@@ -47,10 +47,10 @@ v0.5.0 (2021/7/9)
 
 New Features
 ~~~~~~~~~~~~
-- :py:func:`~pymip.postprocessing.interpolate_grid_labels` enables batch combination of different grid_labels
+- :py:func:`~xmip.postprocessing.interpolate_grid_labels` enables batch combination of different grid_labels
 (e.g. from native to regridded and vice versa) using xesmf (:pull:`161`). By `Julius Busecke <https://github.com/jbusecke>`_
 
-- :py:func:`~pymip.drift_removal.match_and_remove_drift` enables batch detrending/drift-drift_removal
+- :py:func:`~xmip.drift_removal.match_and_remove_drift` enables batch detrending/drift-drift_removal
 from a dictionary of datasets (:pull:`155`). By `Julius Busecke <https://github.com/jbusecke>`_
 
 .. _whats-new.0.4.0:

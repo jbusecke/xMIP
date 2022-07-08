@@ -14,7 +14,7 @@ ignore-property-decorators = true
 ignore-module = false
 fail-under = 95
 # This somehow does not work...the excludes are defined in the pre-commit-config.yaml for now
-# exclude = ["setup.py", "docs", "tests/*", "pymip/_version.py"]
+# exclude = ["setup.py", "docs", "tests/*", "xmip/_version.py"]
 verbose = 1
 quiet = false
 color = true

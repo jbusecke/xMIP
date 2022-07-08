@@ -1,4 +1,4 @@
-.. pymip documentation master file, created by
+.. xmip documentation master file, created by
    sphinx-quickstart on Thu Feb 25 16:11:36 2021.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
@@ -21,7 +21,7 @@ However, from the viewpoint of analyzing these data, the output is still quite '
 inherently difficult.
 
 Most of the problems arise from differences in the convention the model output is provided in. This includes, but is not limited to different naming conventions for coordinate variables,  units, grid variables.
-`pymip` aims to provide lightweight tools, that let you get right to the science, without spending hours on cleaning up the data.
+`xmip` aims to provide lightweight tools, that let you get right to the science, without spending hours on cleaning up the data.
 
 
 
@@ -34,21 +34,21 @@ Installation from Conda Forge
 The easiest way to install xgcm along with its dependencies is via conda
 forge::
 
-    conda install -c conda-forge pymip
+    conda install -c conda-forge xmip
 
 Installation from Pip
 ^^^^^^^^^^^^^^^^^^^^^
 
 An alternative is to use pip::
 
-    pip install pymip
+    pip install xmip
 
 Installation from GitHub
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 You can get the newest version by installing directly from GitHub::
 
-    pip install git+https://github.com/jbusecke/pymip.git
+    pip install git+https://github.com/jbusecke/xmip.git
 
 
 Getting Started

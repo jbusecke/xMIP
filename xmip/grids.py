@@ -356,7 +356,7 @@ def create_full_grid(base_ds, grid_dict=None):
         axis_shift = grid_dict[source_id][grid_label]["axis_shift"]
     except KeyError:
         warnings.warn(
-            f"Could not find the source_id/grid_label ({source_id}/{grid_label}) combo in `grid_dict`, returning `None`. Please submit an issue to github: https://github.com/jbusecke/pymip/issues"
+            f"Could not find the source_id/grid_label ({source_id}/{grid_label}) combo in `grid_dict`, returning `None`. Please submit an issue to github: https://github.com/jbusecke/xmip/issues"
         )
         return None
 
