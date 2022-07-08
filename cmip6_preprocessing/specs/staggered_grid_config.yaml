@@ -31,8 +31,8 @@ CAS-ESM2-0:
 CESM1-1-CAM5-CMIP5:
   gn:
     axis_shift:
-      X: left
-      Y: left
+      X: right
+      Y: right
   gr:
     axis_shift:
       X: left
@@ -40,7 +40,7 @@ CESM1-1-CAM5-CMIP5:
 CESM2:
   gn:
     axis_shift:
-      X: left
+      X: right
       Y: right
   gr:
     axis_shift:
@@ -49,8 +49,8 @@ CESM2:
 CESM2-FV2:
   gn:
     axis_shift:
-      X: left
-      Y: left
+      X: right
+      Y: right
   gr:
     axis_shift:
       X: left
@@ -58,7 +58,7 @@ CESM2-FV2:
 CESM2-WACCM:
   gn:
     axis_shift:
-      X: left
+      X: right
       Y: right
   gr:
     axis_shift:
@@ -67,7 +67,7 @@ CESM2-WACCM:
 CESM2-WACCM-FV2:
   gn:
     axis_shift:
-      X: left
+      X: right
       Y: right
   gr:
     axis_shift:
