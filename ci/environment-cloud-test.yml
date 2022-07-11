@@ -16,6 +16,3 @@ dependencies:
   - pytest-xdist
   - pytest-rerunfailures
   - codecov
-  # These are only a patch until xesmf > 0.6.2 is released. See https://github.com/pangeo-data/xESMF/issues/170
-  - numba
-  - sparse>=0.8.0
