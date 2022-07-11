@@ -7,8 +7,8 @@ import xarrayutils as xru
 
 from xarrayutils.utils import linear_trend
 
-from cmip6_preprocessing.postprocessing import _match_datasets, exact_attrs
-from cmip6_preprocessing.utils import cmip6_dataset_id
+from xmip.postprocessing import _match_datasets, exact_attrs
+from xmip.utils import cmip6_dataset_id
 
 
 def _maybe_unpack_date(date):
@@ -97,7 +97,7 @@ def find_date_idx(time, date):
 
 
 def unify_time(parent, child, adjust_to="child"):
-    """Uses the CMIP6 specific metadata (augmented by cmip6_preprocessing....time_preprocessing!!!) to adjust parent time encoding to child experiment.
+    """Uses the CMIP6 specific metadata (augmented by xmip....time_preprocessing!!!) to adjust parent time encoding to child experiment.
     Similar to `switch_to_child_time`, but sets the time parameters (e.g. calendar) explicitly to the child conventions
     """
     branch_time_in_parent = child.attrs.get("branch_time_in_parent")

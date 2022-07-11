@@ -1,7 +1,7 @@
 import pytest
 import xarray as xr
 
-from cmip6_preprocessing.utils import cmip6_dataset_id, google_cmip_col, model_id_match
+from xmip.utils import cmip6_dataset_id, google_cmip_col, model_id_match
 
 
 def test_google_cmip_col():

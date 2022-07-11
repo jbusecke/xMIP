@@ -34,7 +34,7 @@ jobs:
         channels: conda-forge
         mamba-version: '*'
         channel-priority: strict
-        activate-environment: test_env_cmip6_preprocessing # Defined in ci/environment-upstream-dev.yml
+        activate-environment: test_env_xmip # Defined in ci/environment-upstream-dev.yml
         auto-update-conda: false
         python-version: 3.8
         environment-file: ci/environment-cloud-test.yml

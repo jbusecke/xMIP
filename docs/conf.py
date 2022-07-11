@@ -22,10 +22,10 @@ root = pathlib.Path(__file__).parent.parent.absolute()
 os.environ["PYTHONPATH"] = str(root)
 sys.path.insert(0, str(root))
 
-import cmip6_preprocessing  # isort:skip
+import xmip  # isort:skip
 from importlib.metadata import version  # isort:skip
 
-release = version("cmip6_preprocessing")
+release = version("xmip")
 # for example take major/minor/patch
 version = ".".join(release.split(".")[:3])
 
@@ -33,9 +33,9 @@ version = ".".join(release.split(".")[:3])
 
 # -- Project information -----------------------------------------------------
 
-project = "cmip6_preprocessing"
-copyright = "2021, cmip6_preprocessing maintainers"
-author = "cmip6_preprocessing maintainers"
+project = "xmip"
+copyright = "2021, xmip maintainers"
+author = "xmip maintainers"
 
 
 # -- General configuration ---------------------------------------------------
@@ -70,8 +70,8 @@ exclude_patterns = ["_build", "**.ipynb_checkpoints", "Thumbs.db", ".DS_Store"]
 
 # link to github issues
 extlinks = {
-    "issue": ("https://github.com/jbusecke/cmip6_preprocessing/issues/%s", "GH#"),
-    "pull": ("https://github.com/jbusecke/cmip6_preprocessing/issues/%s", "GH#"),
+    "issue": ("https://github.com/jbusecke/xmip/issues/%s", "GH#"),
+    "pull": ("https://github.com/jbusecke/xmip/issues/%s", "GH#"),
 }
 
 # -- Options for HTML output -------------------------------------------------

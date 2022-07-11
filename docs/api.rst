@@ -3,14 +3,14 @@
 
 preprocessing
 =============
-.. automodule:: cmip6_preprocessing.preprocessing
+.. automodule:: xmip.preprocessing
    :members:
    :undoc-members:
    :show-inheritance:
 
 postprocessing
 ==============
-.. automodule:: cmip6_preprocessing.postprocessing
+.. automodule:: xmip.postprocessing
    :members:
    :undoc-members:
    :show-inheritance:
@@ -18,21 +18,21 @@ postprocessing
 
 grids
 =====
-.. automodule:: cmip6_preprocessing.grids
+.. automodule:: xmip.grids
    :members:
    :undoc-members:
    :show-inheritance:
 
 regionmask
 ==========
-.. automodule:: cmip6_preprocessing.regionmask
+.. automodule:: xmip.regionmask
    :members:
    :undoc-members:
    :show-inheritance:
 
 utils
 =====
-.. automodule:: cmip6_preprocessing.utils
+.. automodule:: xmip.utils
    :members:
    :undoc-members:
    :show-inheritance:

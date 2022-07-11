@@ -18,5 +18,5 @@ coverage:
 ignore:
   - "setup.py"
   - "tests/*"
-  - "cmip6_preprocessing/__init__.py"
-  - "cmip6_preprocessing/_version.py"
+  - "xmip/__init__.py"
+  - "xmip/_version.py"

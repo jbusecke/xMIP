@@ -8,7 +8,7 @@ import pint
 import pint_xarray
 import xarray as xr
 
-from cmip6_preprocessing.utils import _maybe_make_list, cmip6_dataset_id
+from xmip.utils import _maybe_make_list, cmip6_dataset_id
 
 
 # global object for units
@@ -217,9 +217,9 @@ def correct_units(ds):
     "Converts coordinates into SI units using pint-xarray"
     # codify units with pint
     # Perhaps this should be kept separately from the fixing?
-    # See https://github.com/jbusecke/cmip6_preprocessing/pull/160#discussion_r667041858
+    # See https://github.com/jbusecke/xmip/pull/160#discussion_r667041858
     try:
-        # exclude salinity from the quantification (see https://github.com/jbusecke/cmip6_preprocessing/pull/160#issuecomment-878627027 for details)
+        # exclude salinity from the quantification (see https://github.com/jbusecke/xmip/pull/160#issuecomment-878627027 for details)
         quantified = ds.pint.quantify(_unit_overrides)
         target_units = {
             var: target_unit

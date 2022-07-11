@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 import xarray as xr
 
-from cmip6_preprocessing.drift_removal import (
+from xmip.drift_removal import (
     _construct_cfdate,
     calculate_drift,
     find_date_idx,
@@ -14,8 +14,8 @@ from cmip6_preprocessing.drift_removal import (
     replace_time,
     unify_time,
 )
-from cmip6_preprocessing.postprocessing import exact_attrs
-from cmip6_preprocessing.utils import cmip6_dataset_id
+from xmip.postprocessing import exact_attrs
+from xmip.utils import cmip6_dataset_id
 
 
 # I copied this from a PR I made to parcels a while back.
