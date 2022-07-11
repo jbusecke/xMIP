@@ -23,7 +23,7 @@ jobs:
       - uses: xarray-contrib/ci-trigger@v1
         id: detect-trigger
         with:
-          keyword: "[skip-ci]"
+          keyword: "[full-cloud-ci]"
 
   build:
     name: Build (${{ matrix.python-version }} | ${{ matrix.os }})
@@ -122,7 +122,7 @@ jobs:
 
   cloud-tests:
     needs: detect-ci-trigger
-    if: needs.detect-ci-trigger.outputs.triggered == 'false'
+    if: needs.detect-ci-trigger.outputs.triggered == 'true'
     name: Build (cloud-data-tests | ${{ matrix.variable_id }} | ${{ matrix.experiment_id }} | ${{ matrix.grid_label }})
     strategy:
       fail-fast: false
