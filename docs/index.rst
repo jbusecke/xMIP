@@ -31,7 +31,7 @@ Installation
 Installation from Conda Forge
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The easiest way to install xgcm along with its dependencies is via conda
+The easiest way to install xMIP along with its dependencies is via conda
 forge::
 
     conda install -c conda-forge xmip
