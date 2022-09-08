@@ -29,7 +29,7 @@ jobs:
     name: Build (${{ matrix.python-version }} | ${{ matrix.os }})
     if: github.repository == 'jbusecke/xmip'
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 30
+    timeout-minutes: 45
     defaults:
       run:
         shell: bash -l {0}
