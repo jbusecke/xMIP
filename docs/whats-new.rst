@@ -24,6 +24,8 @@ Internal Changes
 - Unit correction logic now uses pint-xarray under the hood (:pull:`160`, :issue:`31`).
 By `Tom Nicholas <https://github.com/TomNicholas>`_ and `Julius Busecke <https://github.com/jbusecke>`_
 
+- License changed to Apache-2.0 (:pull:`272`, :issue:`256`). By `Julius Busecke <https://github.com/jbusecke>`_
+
 Bugfixes
 ~~~~~~~~
 - :py:func:`~xmip.postprocessing.match_metrics` now accepts single variables as str input (:issue:`229`, :pull:`245`)
