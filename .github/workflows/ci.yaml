@@ -52,7 +52,7 @@ jobs:
         with:
           path: ~/conda_pkgs_dir
           key: ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{ hashFiles('ci/environment.yml') }}
-      - uses: conda-incubator/setup-miniconda@v2.1.1
+      - uses: conda-incubator/setup-miniconda@v2.2.0
         with:
           channels: conda-forge
           mamba-version: '*'
@@ -102,7 +102,7 @@ jobs:
       with:
         path: ~/conda_pkgs_dir
         key: ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{ hashFiles('ci/environment-upstream-dev.yml') }}
-    - uses: conda-incubator/setup-miniconda@v2.1.1
+    - uses: conda-incubator/setup-miniconda@v2.2.0
       with:
         channels: conda-forge
         mamba-version: '*'
@@ -148,7 +148,7 @@ jobs:
       with:
         path: ~/conda_pkgs_dir
         key: ${{ runner.os }}-conda-${{ env.CACHE_NUMBER }}-${{ hashFiles('ci/environment-upstream-dev.yml') }}
-    - uses: conda-incubator/setup-miniconda@v2.1.1
+    - uses: conda-incubator/setup-miniconda@v2.2.0
       with:
         channels: conda-forge
         mamba-version: '*'
