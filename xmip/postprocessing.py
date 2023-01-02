@@ -15,7 +15,7 @@ except ImportError:
 
 
 # define the attrs that are needed to get an 'exact' match
-exact_attrs = [
+EXACT_ATTRS = [
     "source_id",
     "grid_label",
     "experiment_id",
@@ -28,7 +28,12 @@ exact_attrs = [
 
 def _match_attrs(ds_a, ds_b, match_attrs):
     """returns the number of matched attrs between two datasets"""
-    return sum([ds_a.attrs[i] == ds_b.attrs[i] for i in match_attrs])
+    try:
+        n_match = sum([ds_a.attrs[i] == ds_b.attrs[i] for i in match_attrs])
+        return n_match
+    except KeyError:
+        raise ValueError(f'Cannot match datasets because at least one of the datasets does not contain all attributes [{match_attrs}].')
+
 
 
 def _match_datasets(ds, ds_dict, match_attrs, pop=True, nomatch="ignore", unique=False):
@@ -67,13 +72,32 @@ def _match_datasets(ds, ds_dict, match_attrs, pop=True, nomatch="ignore", unique
             )
     return datasets
 
+def _prune_match_attrs_to_available(match_attrs: list[str], ds_dict: dict[str,xr.Dataset]):
+    """prune a set of attrs to only the ones available in every dataset"""
+    missing_match_attrs = []
+    for ma in match_attrs:
+        if all([ma not in ds.attrs.keys() for ds in ds_dict.values()]):
+            missing_match_attrs.append(ma)
+
+    if len(missing_match_attrs) > 0:
+        warnings.warn(
+            f"Match attributes {missing_match_attrs} not found in any of the datasets. \
+        This can happen when several combination functions are used and attributes are removed during merging. \
+        Double check the results."
+        )
+        pruned_match_attrs = [ma for ma in match_attrs if ma not in missing_match_attrs]
+        return pruned_match_attrs
+    else:
+        return match_attrs
+
+
 
 def combine_datasets(
     ds_dict,
     combine_func,
     combine_func_args=(),
     combine_func_kwargs={},
-    match_attrs=exact_attrs,
+    match_attrs=EXACT_ATTRS,
 ):
     """General combination function to combine datasets within a dictionary according to their matching attributes.
     This function provides maximum flexibility, but can be somewhat complex to set up. The postprocessing module provided several
@@ -104,17 +128,7 @@ def combine_datasets(
 
     # Check each of the matching attributes. If attr is not present in any of
     # the input datasets drop from match_attrs and warn
-    missing_match_attrs = []
-    for ma in match_attrs:
-        if all([ma not in ds.attrs.keys() for ds in ds_dict.values()]):
-            missing_match_attrs.append(ma)
-
-    if len(missing_match_attrs) > 0:
-        warnings.warn(
-            f"Match attributes {missing_match_attrs} not found in any of the datasets. \
-        This can happen when several combination functions are used."
-        )
-        match_attrs = [ma for ma in match_attrs if ma not in missing_match_attrs]
+    match_attrs = _prune_match_attrs_to_available(match_attrs, ds_dict)
 
     while len(ds_dict) > 0:
         # The order does not matter here, so just choose the first key
@@ -162,8 +176,10 @@ def merge_variables(
         A new dict of xr.Datasets with all datasets from `ds_dict`, but with merged variables and adjusted keys.
 
     """
+    # An exact match is only possible if all attrs in `EXACT_ATTRS` are in every dataset
 
-    match_attrs = [ma for ma in exact_attrs if ma not in ["variable_id"]]
+
+    match_attrs = [ma for ma in EXACT_ATTRS if ma not in ["variable_id"]]
 
     # set defaults
     merge_kwargs.setdefault("compat", "override")
@@ -205,7 +221,7 @@ def concat_members(
         A new dict of xr.Datasets with all datasets from `ds_dict`, but with concatenated members and adjusted keys.
 
     """
-    match_attrs = [ma for ma in exact_attrs if ma not in ["variant_label"]]
+    match_attrs = [ma for ma in EXACT_ATTRS if ma not in ["variant_label"]]
 
     # set defaults
     concat_kwargs.setdefault(
@@ -256,7 +272,7 @@ def concat_experiments(
         A new dict of xr.Datasets with all datasets from `ds_dict`, but with concatenated members and adjusted keys.
     """
 
-    match_attrs = [ma for ma in exact_attrs if ma not in ["experiment_id"]]
+    match_attrs = [ma for ma in EXACT_ATTRS if ma not in ["experiment_id"]]
 
     # set defaults
     concat_kwargs.setdefault(
@@ -281,7 +297,7 @@ def _pick_first_member(ds_list, **kwargs):
 
 
 def pick_first_member(ddict):
-    match_attrs = [ma for ma in exact_attrs if ma not in ["variant_label"]]
+    match_attrs = [ma for ma in EXACT_ATTRS if ma not in ["variant_label"]]
     return combine_datasets(
         ddict,
         _pick_first_member,
@@ -318,7 +334,7 @@ def _pick_grid_label(ds_list, preferred_grid_label):
 def _drop_duplicate_grid_labels(ddict, preferred_grid_label):
     """Eliminate multiple grid labels for the same dataset, by dropping multiples
     with a preference for `preferred_grid_label`"""
-    match_attrs = [ma for ma in exact_attrs if ma not in ["version", "grid_label"]] + [
+    match_attrs = [ma for ma in EXACT_ATTRS if ma not in ["version", "grid_label"]] + [
         "variable_id"
     ]
     return combine_datasets(
@@ -476,7 +492,7 @@ def interpolate_grid_label(
         dictionary of combined datasets (usually will combine across different variable ids)
     """
     match_attrs = [
-        ma for ma in exact_attrs if ma not in ["grid_label", "variable_id"]
+        ma for ma in EXACT_ATTRS if ma not in ["grid_label", "variable_id"]
     ]  # does this need to be more flexible?
 
     xesmf_kwargs.setdefault("ignore_degenerate", True)
@@ -589,7 +605,8 @@ def match_metrics(
     match_variables : list
         Data variables of datasets in `metric_dict` to parse.
     match_attrs : list, optional
-        Minimum dataset attributes that need to match, by default ["source_id", "grid_label"]
+        Minimum dataset attributes that need to match, by default ["source_id", "grid_label"]. 
+        Pass "exact" to only allow exact matches using all required attributes.
     print_statistics : bool, optional
         Option to print statistics about matching, by default False
     dim_length_conflict : str
@@ -602,7 +619,14 @@ def match_metrics(
 
     """
     # metrics should never match the variable
-    exact_attrs_wo_var = [ma for ma in exact_attrs if ma != "variable_id"]
+    exact_attrs_wo_var = [ma for ma in EXACT_ATTRS if ma != "variable_id"]
+    
+    #TODO: this naming is a big weird. Basically this here is necessary to still get a 'closest match' on whichever of the full
+    # set of 'exact' attrs are given on each of the datasets
+    pruned_attrs = _prune_match_attrs_to_available(exact_attrs_wo_var, ds_dict)
+    # and this also needs to be true for the metrics of course.
+    pruned_attrs = _prune_match_attrs_to_available(pruned_attrs, metric_dict)
+
 
     match_variables = _maybe_make_list(match_variables)
 
@@ -610,9 +634,7 @@ def match_metrics(
     if match_attrs == "exact":
         match_attrs = exact_attrs_wo_var
 
-    # metrics should never match the variable
-    match_attrs = [ma for ma in match_attrs if ma != "variable_id"]
-
+    # --- set up statistics --- #
     total_datasets = 0
     exact_datasets = {va: 0 for va in match_variables}
     nonexact_datasets = {va: 0 for va in match_variables}
@@ -636,7 +658,7 @@ def match_metrics(
                 # This ensures that the exact match is picked if available.
 
                 nmatch = [
-                    _match_attrs(ds, ds_match, exact_attrs_wo_var)
+                    _match_attrs(ds, ds_match, pruned_attrs)
                     for ds_match in matched_metric_vars
                 ]
                 closest_match = np.argmax(nmatch)
@@ -646,7 +668,7 @@ def match_metrics(
                 # These are very likely only valid for exact matches of runs.
                 # For instance these could be cell thickness values, which cannot
                 # simply be used for all runs of a model.
-                exact_match = _match_attrs(ds, ds_metric, exact_attrs_wo_var) == len(
+                exact_match = _match_attrs(ds, ds_metric, pruned_attrs) == len(
                     exact_attrs_wo_var
                 )
                 if "time" in ds_metric.dims and not exact_match:
