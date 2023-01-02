@@ -248,6 +248,47 @@ def test_match_metrics(metricname):
     ds_dict_parsed = match_metrics(ds_dict, metric_dict, match_variables=[metricname])
     _assert_parsed_ds_dict(ds_dict_parsed, ds_metric[metricname], ["a"])
 
+def test_match_metrics_missing_attr():
+    """This test ensures that as long as the provided `match_metrics` are 
+    given they will be matched. This is relevant if e.g. the variant label 
+    has been removed due to merging"""
+    metricname = 'area'
+    ds_a = random_ds()
+    ds_a.attrs = {
+        "source_id": "a",
+        "grid_label": "a",
+    }
+    ds_metric = random_ds().isel(time=0).rename({"data": metricname})
+    ds_metric.attrs = ds_a.attrs
+    
+    ds_dict = {"a": ds_a}
+    metric_dict = {"something": ds_metric}
+    expected = ds_metric[metricname]
+
+    ds_dict_parsed = match_metrics(ds_dict, metric_dict, [metricname])
+
+    assert 'a' in ds_dict_parsed.keys()
+    #TODO this should be factored out into _assert_parsed_ds_dict from the test above
+    xr.testing.assert_allclose(expected, ds_dict_parsed['a'][metricname].reset_coords(drop=True))
+
+def test_match_metrics_missing_match_attrs():
+    """If one of the `match_attrs` is not in the dataset this should error out"""
+    metricname = 'area'
+    ds_a = random_ds()
+    ds_a.attrs = {
+        "source_id": "a",
+    }
+    ds_metric = random_ds().isel(time=0).rename({"data": metricname})
+    ds_metric.attrs = ds_a.attrs
+    
+    ds_dict = {"a": ds_a}
+    metric_dict = {"something": ds_metric}
+    expected = ds_metric[metricname]
+    with pytest.raises(ValueError, match='Cannot match datasets because at least one of the datasets does not contain all attributes'):
+        ds_dict_parsed = match_metrics(ds_dict, metric_dict, [metricname])
+
+
+
 
 def test_match_metrics_missing_attr():
     """This test ensures that as long as the provided `match_metrics` are
