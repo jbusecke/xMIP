@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 import xarray as xr
 
-from xmip.postprocessing import exact_attrs
+from xmip.postprocessing import EXACT_ATTRS
 from xmip.preprocessing import (
     broadcast_lonlat,
     cmip6_renaming_dict,
@@ -500,7 +500,7 @@ def test_preserve_attrs():
     # TODO:  there are a bunch of errors if the metadata is not full.
     # I should probably ignore them and still put the datset out?
     # Well for now create one
-    for att in exact_attrs:
+    for att in EXACT_ATTRS:
         ds.attrs[att] = "a"
 
     ds_pp = combined_preprocessing(ds)

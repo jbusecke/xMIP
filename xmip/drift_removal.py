@@ -7,7 +7,7 @@ import xarrayutils as xru
 
 from xarrayutils.utils import linear_trend
 
-from xmip.postprocessing import _match_datasets, exact_attrs
+from xmip.postprocessing import _match_datasets, EXACT_ATTRS
 from xmip.utils import cmip6_dataset_id
 
 
@@ -396,7 +396,7 @@ def match_and_remove_trend(
 
     """
     ddict_detrended = {}
-    match_attrs = [ma for ma in exact_attrs if ma not in ["experiment_id"]] + [
+    match_attrs = [ma for ma in EXACT_ATTRS if ma not in ["experiment_id"]] + [
         "variable_id"
     ]
 

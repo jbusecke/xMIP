@@ -14,7 +14,7 @@ from xmip.drift_removal import (
     replace_time,
     unify_time,
 )
-from xmip.postprocessing import exact_attrs
+from xmip.postprocessing import EXACT_ATTRS
 from xmip.utils import cmip6_dataset_id
 
 
@@ -545,7 +545,7 @@ def test_match_and_remove_trend_matching_experiment(ref_date):
     nt = 24
     time_historical = xr.cftime_range("1850-01-01", periods=nt, freq="1MS")
     time_ssp = xr.cftime_range("2014-01-01", periods=nt, freq="1MS")
-    raw_attrs = {k: "dummy" for k in exact_attrs + ["variable_id"]}
+    raw_attrs = {k: "dummy" for k in EXACT_ATTRS + ["variable_id"]}
 
     ds_a_hist_vara = xr.DataArray(
         np.random.rand(nx, ny, nt),
@@ -634,9 +634,9 @@ def test_match_and_remove_trend_nomatch():
     # create two datasets that do not match (according to the hardcoded conventions in `match_and_detrend`)
     attrs = {}
     ds = xr.DataArray().to_dataset(name="test")
-    ds.attrs = {k: "a" for k in exact_attrs + ["variable_id"]}
+    ds.attrs = {k: "a" for k in EXACT_ATTRS + ["variable_id"]}
     ds_nomatch = xr.DataArray().to_dataset(name="test")
-    ds_nomatch.attrs = {k: "b" for k in exact_attrs + ["variable_id"]}
+    ds_nomatch.attrs = {k: "b" for k in EXACT_ATTRS + ["variable_id"]}
 
     detrended = match_and_remove_trend({"aa": ds}, {"bb": ds_nomatch}, nomatch="ignore")
     assert detrended == {}
@@ -657,7 +657,7 @@ def test_match_and_remove_trend_nonunique():
     # create two datasets that do not match (according to the hardcoded conventions in `match_and_detrend`)
     attrs = {}
     ds = xr.DataArray().to_dataset(name="test")
-    ds.attrs = {k: "a" for k in exact_attrs + ["variable_id"]}
+    ds.attrs = {k: "a" for k in EXACT_ATTRS + ["variable_id"]}
     ds_match_a = xr.DataArray().to_dataset(name="test")
     ds_match_b = xr.DataArray().to_dataset(name="test")
     ds_match_a.attrs = ds.attrs
