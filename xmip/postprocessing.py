@@ -1,6 +1,7 @@
 import functools
 import inspect
 import warnings
+from typing import Mapping, List
 
 from typing import List, Mapping
 
@@ -68,6 +69,25 @@ def _match_datasets(ds, ds_dict, match_attrs, pop=True, nomatch="ignore", unique
                 f"Invalid input ({nomatch}) for `nomatch`, should be `ignore`, `warn`, or `raise`"
             )
     return datasets
+
+def _prune_match_attrs_to_available(match_attrs: List[str], ds_dict: Mapping[str,xr.Dataset]) -> List[str]:
+    """prune a set of attrs to only the ones available in every dataset"""
+    missing_match_attrs = []
+    for ma in match_attrs:
+        if all([ma not in ds.attrs.keys() for ds in ds_dict.values()]):
+            missing_match_attrs.append(ma)
+
+    if len(missing_match_attrs) > 0:
+        warnings.warn(
+            f"Match attributes {missing_match_attrs} not found in any of the datasets. \
+        This can happen when several combination functions are used and attributes are removed during merging. \
+        Double check the results."
+        )
+        pruned_match_attrs = [ma for ma in match_attrs if ma not in missing_match_attrs]
+        return pruned_match_attrs
+    else:
+        return match_attrs
+
 
 
 def combine_datasets(
