@@ -1,6 +1,7 @@
 import functools
 import inspect
 import warnings
+from typing import Mapping, List
 
 import numpy as np
 import xarray as xr
@@ -72,7 +73,7 @@ def _match_datasets(ds, ds_dict, match_attrs, pop=True, nomatch="ignore", unique
             )
     return datasets
 
-def _prune_match_attrs_to_available(match_attrs: list[str], ds_dict: dict[str,xr.Dataset]):
+def _prune_match_attrs_to_available(match_attrs: List[str], ds_dict: Mapping[str,xr.Dataset]) -> List[str]:
     """prune a set of attrs to only the ones available in every dataset"""
     missing_match_attrs = []
     for ma in match_attrs:
