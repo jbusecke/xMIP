@@ -4,8 +4,6 @@ import warnings
 
 from typing import List, Mapping
 
-from typing import List, Mapping
-
 import numpy as np
 import xarray as xr
 
