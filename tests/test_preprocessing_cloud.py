@@ -1,6 +1,5 @@
 # This module tests data directly from the pangeo google cloud storage.
 # Tests are meant to be more high level and also serve to document known problems (see skip statements).
-import contextlib
 
 import fsspec
 import numpy as np
@@ -15,12 +14,13 @@ from xmip.utils import google_cmip_col, model_id_match
 pytest.importorskip("gcsfs")
 
 
-def diagnose_doubles(data):
+def diagnose_duplicates(data):
     """displays non-unique entries in data"""
     _, idx = np.unique(data, return_index=True)
     missing = np.array([i for i in np.arange(len(data)) if i not in idx])
     if len(missing) > 0:
         missing_values = data[missing]
+        raise ValueError(f"Duplicate Values ({missing_values}) found")
 
 
 def data(
@@ -51,7 +51,7 @@ def data(
             )
             _, ds = ddict.popitem()
         else:
-            ##### debugging options
+            # debugging options
             # @charlesbluca suggested this to make this work in GHA
             # https://github.com/jbusecke/xmip/pull/62#issuecomment-741928365
             mm = fsspec.get_mapper(
@@ -94,19 +94,19 @@ def pytest_generate_tests(metafunc):
 
 # print(f"\n\n\n\n$$$$$$$ All available models: {all_models()}$$$$$$$\n\n\n\n")
 
-## Combine the input parameters according to command line input
+# Combine the input parameters according to command line input
 
-########################### Most basic test #########################
+# --- Most basic test --- #
 
 # Try to combine some of the failures
 
-## We dont support these at all
+# We dont support these at all
 not_supported_failures = [
     ("AWI-ESM-1-1-LR", "*", "*", "gn"),
     ("AWI-CM-1-1-MR", "*", "*", "gn"),
 ]
 
-## basic problems when trying to concat with intake-esm
+# basic problems when trying to concat with intake-esm
 intake_concat_failures = [
     (
         "CanESM5",
@@ -153,6 +153,7 @@ intake_concat_failures = [
     ),
 ]
 
+
 # this fixture has to be redifined every time to account for different fail cases for each test
 @pytest.fixture
 def spec_check_dim_coord_values_wo_intake(request, gl, vi, ei, cat):
@@ -198,14 +199,14 @@ def test_check_dim_coord_values_wo_intake(
             f"No data found for {source_id}|{variable_id}|{experiment_id}|{grid_label}"
         )
 
-    ##### Check for dim duplicates
+    # Check for dim duplicates
     # check all dims for duplicates
     # for di in ds.dims:
     # for now only test a subset of the dims. TODO: Add the bounds once they
     # are cleaned up.
     for di in ["x", "y", "lev", "time"]:
         if di in ds.dims:
-            diagnose_doubles(ds[di].load().data)
+            diagnose_duplicates(ds[di].load().data)
             assert len(ds[di]) == len(np.unique(ds[di]))
             if di != "time":  # these tests do not make sense for decoded time
                 assert np.all(~np.isnan(ds[di]))
@@ -225,7 +226,7 @@ def test_check_dim_coord_values_wo_intake(
         if co in ds.dims:
             assert co not in ds.coords
 
-    ## Check unit conversion
+    # Check unit conversion
     for var, expected_unit in _desired_units.items():
         if var in ds.variables:
             unit = ds[var].attrs.get("units")
@@ -275,14 +276,14 @@ def test_check_dim_coord_values(
             f"No data found for {source_id}|{variable_id}|{experiment_id}|{grid_label}"
         )
 
-    ##### Check for dim duplicates
+    # Check for dim duplicates
     # check all dims for duplicates
     # for di in ds.dims:
     # for now only test a subset of the dims. TODO: Add the bounds once they
     # are cleaned up.
     for di in ["x", "y", "lev", "time"]:
         if di in ds.dims:
-            diagnose_doubles(ds[di].load().data)
+            diagnose_duplicates(ds[di].load().data)
             assert len(ds[di]) == len(np.unique(ds[di]))
             if di != "time":  # these tests do not make sense for decoded time
                 assert np.all(~np.isnan(ds[di]))
@@ -303,7 +304,7 @@ def test_check_dim_coord_values(
             assert co not in ds.coords
 
 
-############################### Specific Bound Coords Test ###############################
+# --- Specific Bound Coords Test -----
 
 
 # this fixture has to be redifined every time to account for different fail cases for each test
@@ -350,13 +351,13 @@ def test_check_bounds_verticies(spec_check_bounds_verticies):
     if "vertex" in ds.dims:
         np.testing.assert_allclose(ds.vertex.data, np.arange(4))
 
-    ####Check for existing bounds and verticies
+    # Check for existing bounds and verticies
     for co in ["lon_bounds", "lat_bounds", "lon_verticies", "lat_verticies"]:
         assert co in ds.coords
         # make sure that all other dims are eliminated from the bounds.
         assert (set(ds[co].dims) - set(["bnds", "vertex"])) == set(["x", "y"])
 
-    #### Check the order of the vertex
+    # Check the order of the vertex
     # Ill only check these south of the Arctic for now. Up there
     # things are still weird.
     test_ds = ds.where(abs(ds.lat) <= 40, drop=True)
@@ -390,9 +391,7 @@ def test_check_bounds_verticies(spec_check_bounds_verticies):
     assert (lat_diffs <= 0).sum() <= (5 * len(lat_diffs.y))
 
 
-################################# xgcm grid specific tests ########################################
-
-
+# --- xgcm grid specific tests --- #
 # this fixture has to be redifined every time to account for different fail cases for each test
 @pytest.fixture
 def spec_check_grid(request, gl, vi, ei, cat):

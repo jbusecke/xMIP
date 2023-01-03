@@ -1,7 +1,8 @@
 import functools
 import inspect
 import warnings
-from typing import Mapping, List
+
+from typing import List, Mapping
 
 import numpy as np
 import xarray as xr
@@ -33,8 +34,9 @@ def _match_attrs(ds_a, ds_b, match_attrs):
         n_match = sum([ds_a.attrs[i] == ds_b.attrs[i] for i in match_attrs])
         return n_match
     except KeyError:
-        raise ValueError(f'Cannot match datasets because at least one of the datasets does not contain all attributes [{match_attrs}].')
-
+        raise ValueError(
+            f"Cannot match datasets because at least one of the datasets does not contain all attributes [{match_attrs}]."
+        )
 
 
 def _match_datasets(ds, ds_dict, match_attrs, pop=True, nomatch="ignore", unique=False):
@@ -73,7 +75,10 @@ def _match_datasets(ds, ds_dict, match_attrs, pop=True, nomatch="ignore", unique
             )
     return datasets
 
-def _prune_match_attrs_to_available(match_attrs: List[str], ds_dict: Mapping[str,xr.Dataset]) -> List[str]:
+
+def _prune_match_attrs_to_available(
+    match_attrs: List[str], ds_dict: Mapping[str, xr.Dataset]
+) -> List[str]:
     """prune a set of attrs to only the ones available in every dataset"""
     missing_match_attrs = []
     for ma in match_attrs:
@@ -90,7 +95,6 @@ def _prune_match_attrs_to_available(match_attrs: List[str], ds_dict: Mapping[str
         return pruned_match_attrs
     else:
         return match_attrs
-
 
 
 def combine_datasets(
@@ -155,7 +159,7 @@ def combine_datasets(
     return ds_dict_combined
 
 
-### Convenience Wrappers for `combine_datasets`. Less flexible but easier to use and understand.
+# Convenience Wrappers for `combine_datasets`. Less flexible but easier to use and understand.
 def merge_variables(
     ds_dict,
     merge_kwargs={},
@@ -178,7 +182,6 @@ def merge_variables(
 
     """
     # An exact match is only possible if all attrs in `EXACT_ATTRS` are in every dataset
-
 
     match_attrs = [ma for ma in EXACT_ATTRS if ma not in ["variable_id"]]
 
@@ -306,7 +309,7 @@ def pick_first_member(ddict):
     )
 
 
-### Matching wrapper specific to combining grid labels via interpolation with xesmf
+# Matching wrapper specific to combining grid labels via interpolation with xesmf
 def requires_xesmf(func):
     @functools.wraps(func)
     def wrapper_requires_xesmf(*args, **kwargs):
@@ -519,7 +522,7 @@ def interpolate_grid_label(
     )
 
 
-### Matching wrapper specific to metric datasets
+# Matching wrapper specific to metric datasets
 
 
 def _parse_metric(ds, metric, dim_length_conflict="error"):
@@ -606,7 +609,7 @@ def match_metrics(
     match_variables : list
         Data variables of datasets in `metric_dict` to parse.
     match_attrs : list, optional
-        Minimum dataset attributes that need to match, by default ["source_id", "grid_label"]. 
+        Minimum dataset attributes that need to match, by default ["source_id", "grid_label"].
         Pass "exact" to only allow exact matches using all required attributes.
     print_statistics : bool, optional
         Option to print statistics about matching, by default False
@@ -621,13 +624,12 @@ def match_metrics(
     """
     # metrics should never match the variable
     exact_attrs_wo_var = [ma for ma in EXACT_ATTRS if ma != "variable_id"]
-    
-    #TODO: this naming is a big weird. Basically this here is necessary to still get a 'closest match' on whichever of the full
+
+    # TODO: this naming is a big weird. Basically this here is necessary to still get a 'closest match' on whichever of the full
     # set of 'exact' attrs are given on each of the datasets
     pruned_attrs = _prune_match_attrs_to_available(exact_attrs_wo_var, ds_dict)
     # and this also needs to be true for the metrics of course.
     pruned_attrs = _prune_match_attrs_to_available(pruned_attrs, metric_dict)
-
 
     match_variables = _maybe_make_list(match_variables)
 

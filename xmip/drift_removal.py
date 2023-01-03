@@ -7,7 +7,7 @@ import xarrayutils as xru
 
 from xarrayutils.utils import linear_trend
 
-from xmip.postprocessing import _match_datasets, EXACT_ATTRS
+from xmip.postprocessing import EXACT_ATTRS, _match_datasets
 from xmip.utils import cmip6_dataset_id
 
 
@@ -43,7 +43,7 @@ def replace_time(
     """This function replaces the time encoding of a dataset acoording to `ref_date`.
     The ref date can be any index of ds.time (default is 0; meaning the first timestep of ds will be replaced with `ref_date`).
     """
-    #! I might be able to achieve some of this with time.shift
+    # ! I might be able to achieve some of this with time.shift
     # !
 
     if calendar is None:
@@ -101,7 +101,6 @@ def unify_time(parent, child, adjust_to="child"):
     Similar to `switch_to_child_time`, but sets the time parameters (e.g. calendar) explicitly to the child conventions
     """
     branch_time_in_parent = child.attrs.get("branch_time_in_parent")
-    parent_time_units = child.attrs.get("parent_time_units")
 
     # if branch time is not in attrs do nothing
     if branch_time_in_parent is None:
@@ -180,7 +179,7 @@ def calculate_drift(
         "source_id",
         "variant_label",
     ]:
-        if not attr in ds.attrs:
+        if attr not in ds.attrs:
             raise ValueError(f"Could not find {attr} in attributes of `ds`.")
 
     # Check if the parent member id matches
@@ -208,7 +207,7 @@ def calculate_drift(
 
     if len(reference_cut.time) == 0:
         raise RuntimeError(
-            f"Selecting from `reference` according to the branch time resulted in empty dataset. Check the metadata."
+            "Selecting from `reference` according to the branch time resulted in empty dataset. Check the metadata."
         )
         return None
     else:
@@ -234,9 +233,9 @@ def calculate_drift(
         # strings
         time_range = time_range.astype(str)
 
-        # # The polyfit implementation actually respects the units.
-        # # For now my implementation requires the slope to be in units .../month
-        # # I might be able to change this later and accomodate other time frequencies?
+        # The polyfit implementation actually respects the units.
+        # For now my implementation requires the slope to be in units .../month
+        # I might be able to change this later and accomodate other time frequencies?
         # get rid of all the additional coords, which resets the time to an integer index
 
         reference_cut = reference_cut[variable]
@@ -253,7 +252,7 @@ def calculate_drift(
             "time",
         )
 
-        #! quite possibly the shittiest fix ever.
+        # ! quite possibly the shittiest fix ever.
         # I changed the API over at xarrayutils and now I have to pay the price over here.
         # TODO: Might want to eliminate this ones the new xarrayutils version has matured.
         if xru.__version__ > "v0.1.3":
@@ -288,7 +287,7 @@ def detrend_basic(da, da_slope, start_idx=0, dim="time", keep_attrs=True):
     """Basic detrending just based on time index, not date"""
     # now create a trend timeseries at each point
     # and the time indicies by the ref index. This way the trend is correctly calculated from the reference year.
-    ## this adapts the chunk structure from the input if its a dask array
+    # this adapts the chunk structure from the input if its a dask array
     attrs = {k: v for k, v in da.attrs.items()}
     idx_start = -start_idx
     idx_stop = len(da.time) - start_idx
@@ -404,7 +403,6 @@ def match_and_remove_trend(
         trend_ds = _match_datasets(
             ds, trend_ddict, match_attrs, pop=False, unique=True, nomatch=nomatch
         )
-        # # print(trend_ds)
         if len(trend_ds) == 2:
             trend_ds = trend_ds[
                 1

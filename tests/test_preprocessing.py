@@ -438,7 +438,7 @@ def test_fix_metadata():
         "branch_time_in_parent": "nonsense",
     }
     ds_fixed = fix_metadata(ds)
-    assert ds.attrs["branch_time_in_parent"] == 91250
+    assert ds_fixed.attrs["branch_time_in_parent"] == 91250
 
     # Test that another dataset is untouched
     ds = xr.Dataset()
@@ -448,12 +448,10 @@ def test_fix_metadata():
         "branch_time_in_parent": "nonsense",
     }
     ds_fixed = fix_metadata(ds)
-    assert ds.attrs["branch_time_in_parent"] == "nonsense"
+    assert ds_fixed.attrs["branch_time_in_parent"] == "nonsense"
 
 
-### Combination test - involving###
-
-
+# Combination test - involving #
 @pytest.mark.parametrize("add_coords", [True, False])
 @pytest.mark.parametrize("shift", [0, 10])
 def test_combined_preprocessing_dropped_coords(add_coords, shift):
