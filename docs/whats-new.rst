@@ -29,6 +29,8 @@ By `Tom Nicholas <https://github.com/TomNicholas>`_ and `Julius Busecke <https:/
 
 Bugfixes
 ~~~~~~~~
+- :py:func:`~xmip.postprocessing.concat_members` now accepts datasets which already have 'member_id' as a dimension (maintain compatibility with recent intake-esm changes) (:pull:`277`). By `Julius Busecke <https://github.com/jbusecke>`_
+
 - :py:func:`~xmip.postprocessing.match_metrics` now accepts single variables as str input (:issue:`229`, :pull:`245`). By `Julius Busecke <https://github.com/jbusecke>`_
 
 - :py:func:`~xmip.postprocessing.concat_members` now returns a dataset with labelled `member_id` dimension (:issue:`196` , :pull:`197`). By `Julius Busecke <https://github.com/jbusecke>`_
