@@ -322,7 +322,7 @@ def test_recreate_metrics(xshift, yshift, z_axis):
         assert set(["X", "Y", "Z"]).issubset(set(metrics_dict.keys()))
     else:
         assert set(["X", "Y"]).issubset(set(metrics_dict.keys()))
-        assert not "Z" in list(metrics_dict.keys())
+        assert "Z" not in list(metrics_dict.keys())
 
 
 # TODO: inner and outer (needs to be implemented in xgcm autogenerate first)

@@ -64,7 +64,7 @@ def test_parse_metric_exceptions(metricname):
 
     # provide dataset instead of dataarray
     with pytest.raises(ValueError):
-        ds_parsed = _parse_metric(ds, ds_metric)
+        _parse_metric(ds, ds_metric)
 
 
 def test_parse_metric_exceptions_input_name():
@@ -80,7 +80,7 @@ def test_parse_metric_exceptions_input_name():
         da_metric_nameless = ds_metric["data"]
         da_metric_nameless.name = None
 
-        ds_parsed = _parse_metric(ds, da_metric_nameless)
+        _parse_metric(ds, da_metric_nameless)
     assert (
         warninfo[0].message.args[0]
         == "a.none.none.none.none.none.none.none.none:`metric` has no name. This might lead to problems down the line."
@@ -98,9 +98,7 @@ def test_parse_metric_exception_dim_length():
 
     # provide dataarray with non-matching dimensions
     with pytest.raises(ValueError) as execinfo:
-        ds_parsed = _parse_metric(
-            ds, ds_metric.isel(x=slice(0, -1), y=slice(1, None))[metricname]
-        )
+        _parse_metric(ds, ds_metric.isel(x=slice(0, -1), y=slice(1, None))[metricname])
     msg = "a.none.none.none.none.none.g.none.none:`metric` dimensions ['x:2', 'y:1'] do not match `ds` ['x:3', 'y:2']."
     assert execinfo.value.args[0] == msg
 
@@ -186,6 +184,7 @@ def test_match_metrics(metricname):
     ds_metric = random_ds().isel(time=0).rename({"data": metricname})
     ds_metric.attrs = ds_a.attrs
 
+    # FIXME: This needs to be factored out
     def _assert_parsed_ds_dict(ddict_parsed, expected, match_keys, strict=True):
         expected = expected.copy()
         for i in match_keys:
@@ -248,6 +247,51 @@ def test_match_metrics(metricname):
 
     ds_dict_parsed = match_metrics(ds_dict, metric_dict, match_variables=[metricname])
     _assert_parsed_ds_dict(ds_dict_parsed, ds_metric[metricname], ["a"])
+
+
+def test_match_metrics_missing_attr():
+    """This test ensures that as long as the provided `match_metrics` are
+    given they will be matched. This is relevant if e.g. the variant label
+    has been removed due to merging"""
+    metricname = "area"
+    ds_a = random_ds()
+    ds_a.attrs = {
+        "source_id": "a",
+        "grid_label": "a",
+    }
+    ds_metric = random_ds().isel(time=0).rename({"data": metricname})
+    ds_metric.attrs = ds_a.attrs
+
+    ds_dict = {"a": ds_a}
+    metric_dict = {"something": ds_metric}
+    expected = ds_metric[metricname]
+
+    ds_dict_parsed = match_metrics(ds_dict, metric_dict, [metricname])
+
+    assert "a" in ds_dict_parsed.keys()
+    # TODO this should be factored out into _assert_parsed_ds_dict from the test above
+    xr.testing.assert_allclose(
+        expected, ds_dict_parsed["a"][metricname].reset_coords(drop=True)
+    )
+
+
+def test_match_metrics_missing_match_attrs():
+    """If one of the `match_attrs` is not in the dataset this should error out"""
+    metricname = "area"
+    ds_a = random_ds()
+    ds_a.attrs = {
+        "source_id": "a",
+    }
+    ds_metric = random_ds().isel(time=0).rename({"data": metricname})
+    ds_metric.attrs = ds_a.attrs
+
+    ds_dict = {"a": ds_a}
+    metric_dict = {"something": ds_metric}
+    with pytest.raises(
+        ValueError,
+        match="Cannot match datasets because at least one of the datasets does not contain all attributes",
+    ):
+        match_metrics(ds_dict, metric_dict, [metricname])
 
 
 def test_match_metrics_closer(metricname):
@@ -615,7 +659,6 @@ def test_concat_experiments(concat_kwargs):
 
 
 def test_pick_first_member():
-    concat_kwargs = {}
 
     attrs_a = {
         "source_id": "a",

@@ -2,7 +2,6 @@ import numpy as np
 import pytest
 import xarray as xr
 
-from xmip.preprocessing import combined_preprocessing
 from xmip.regionmask import _default_merge_dict, merged_mask
 
 

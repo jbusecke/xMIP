@@ -9,7 +9,7 @@ repos:
 #       args: [--config=pyproject.toml]
 
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v3.1.0
+  rev: v4.4.0
   hooks:
     - id: trailing-whitespace
       exclude: tests/data
@@ -21,27 +21,25 @@ repos:
     - id: file-contents-sorter
       files: requirements-dev.txt
 
-- repo: https://gitlab.com/pycqa/flake8
-  rev: 3.7.9
+- repo: https://github.com/PyCQA/flake8
+  rev: 6.0.0
   hooks:
     - id: flake8
-      exclude: docs/source/conf.py
-      args: [--max-line-length=105, --ignore=E203,E501,W503, --select=select=C,E,F,W,B,B950]
 
 - repo: https://github.com/pre-commit/mirrors-isort
-  rev: v4.3.21
+  rev: v5.10.1
   hooks:
   - id: isort
     additional_dependencies: [toml]
-    args: [--project=gcm_filters, --multi-line=3, --lines-after-imports=2, --lines-between-types=1, --trailing-comma, --force-grid-wrap=0, --use-parentheses, --line-width=88]
+    args: [--project=xmip, --multi-line=3, --lines-after-imports=2, --lines-between-types=1, --trailing-comma, --force-grid-wrap=0, --use-parentheses, --line-width=88]
 
 - repo: https://github.com/asottile/seed-isort-config
-  rev: v2.1.1
+  rev: v2.2.0
   hooks:
     - id: seed-isort-config
 
 - repo: https://github.com/psf/black
-  rev: 22.3.0
+  rev: 22.12.0
   hooks:
   - id: black
     language_version: python3

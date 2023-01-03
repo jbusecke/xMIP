@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 import xarray as xr
 
-from xmip.postprocessing import exact_attrs
+from xmip.postprocessing import EXACT_ATTRS
 from xmip.preprocessing import (
     broadcast_lonlat,
     cmip6_renaming_dict,
@@ -438,7 +438,7 @@ def test_fix_metadata():
         "branch_time_in_parent": "nonsense",
     }
     ds_fixed = fix_metadata(ds)
-    assert ds.attrs["branch_time_in_parent"] == 91250
+    assert ds_fixed.attrs["branch_time_in_parent"] == 91250
 
     # Test that another dataset is untouched
     ds = xr.Dataset()
@@ -448,12 +448,10 @@ def test_fix_metadata():
         "branch_time_in_parent": "nonsense",
     }
     ds_fixed = fix_metadata(ds)
-    assert ds.attrs["branch_time_in_parent"] == "nonsense"
+    assert ds_fixed.attrs["branch_time_in_parent"] == "nonsense"
 
 
-### Combination test - involving###
-
-
+# Combination test - involving #
 @pytest.mark.parametrize("add_coords", [True, False])
 @pytest.mark.parametrize("shift", [0, 10])
 def test_combined_preprocessing_dropped_coords(add_coords, shift):
@@ -500,7 +498,7 @@ def test_preserve_attrs():
     # TODO:  there are a bunch of errors if the metadata is not full.
     # I should probably ignore them and still put the datset out?
     # Well for now create one
-    for att in exact_attrs:
+    for att in EXACT_ATTRS:
         ds.attrs[att] = "a"
 
     ds_pp = combined_preprocessing(ds)

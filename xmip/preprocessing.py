@@ -1,11 +1,10 @@
 # Preprocessing for CMIP6 models
 import warnings
 
-import cf_xarray.units
+import cf_xarray.units  # noqa: F401
 import numpy as np
-import pandas as pd
-import pint
-import pint_xarray
+import pint  # noqa: F401
+import pint_xarray  # noqa: F401
 import xarray as xr
 
 from xmip.utils import _maybe_make_list, cmip6_dataset_id
@@ -103,7 +102,8 @@ def rename_cmip6(ds, rename_dict=None):
     for va in ds.data_vars:
         try:
             ds = ds.rename({va: inverted_rename_dict[va]})
-        except:
+        except Exception as e:
+            warnings.warn(f"Renaming failed with {e}")
             pass
 
     # restore attributes
