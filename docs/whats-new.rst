@@ -9,6 +9,7 @@ v0.6.0 (unreleased)
 
 New Features
 ~~~~~~~~~~~~
+- :py:func:`~xmip.postprocessing.match_metrics` Now allows more flexible metric matching (accepting e.g. already merged members) + better error for missing match_attrs (:pull:`275`). By `Julius Busecke <https://github.com/jbusecke>`_
 - Postprocessing functions can now easily be nested on top of each other (:pull:`187`). By `Julius Busecke <https://github.com/jbusecke>`_
 
 
@@ -28,7 +29,7 @@ By `Tom Nicholas <https://github.com/TomNicholas>`_ and `Julius Busecke <https:/
 
 Bugfixes
 ~~~~~~~~
-- :py:func:`~xmip.postprocessing.match_metrics` now accepts single variables as str input (:issue:`229`, :pull:`245`)
+- :py:func:`~xmip.postprocessing.match_metrics` now accepts single variables as str input (:issue:`229`, :pull:`245`). By `Julius Busecke <https://github.com/jbusecke>`_
 
 - :py:func:`~xmip.postprocessing.concat_members` now returns a dataset with labelled `member_id` dimension (:issue:`196` , :pull:`197`). By `Julius Busecke <https://github.com/jbusecke>`_
 
