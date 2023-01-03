@@ -1,7 +1,8 @@
 import functools
 import inspect
 import warnings
-from typing import Mapping, List
+
+from typing import List, Mapping
 
 from typing import List, Mapping
 
@@ -31,7 +32,13 @@ EXACT_ATTRS = [
 
 def _match_attrs(ds_a, ds_b, match_attrs):
     """returns the number of matched attrs between two datasets"""
-    return sum([ds_a.attrs[i] == ds_b.attrs[i] for i in match_attrs])
+    try:
+        n_match = sum([ds_a.attrs[i] == ds_b.attrs[i] for i in match_attrs])
+        return n_match
+    except KeyError:
+        raise ValueError(
+            f"Cannot match datasets because at least one of the datasets does not contain all attributes [{match_attrs}]."
+        )
 
 
 def _match_datasets(ds, ds_dict, match_attrs, pop=True, nomatch="ignore", unique=False):
@@ -70,7 +77,10 @@ def _match_datasets(ds, ds_dict, match_attrs, pop=True, nomatch="ignore", unique
             )
     return datasets
 
-def _prune_match_attrs_to_available(match_attrs: List[str], ds_dict: Mapping[str,xr.Dataset]) -> List[str]:
+
+def _prune_match_attrs_to_available(
+    match_attrs: List[str], ds_dict: Mapping[str, xr.Dataset]
+) -> List[str]:
     """prune a set of attrs to only the ones available in every dataset"""
     missing_match_attrs = []
     for ma in match_attrs:
@@ -87,7 +97,6 @@ def _prune_match_attrs_to_available(match_attrs: List[str], ds_dict: Mapping[str
         return pruned_match_attrs
     else:
         return match_attrs
-
 
 
 def combine_datasets(
@@ -174,6 +183,7 @@ def merge_variables(
         A new dict of xr.Datasets with all datasets from `ds_dict`, but with merged variables and adjusted keys.
 
     """
+    # An exact match is only possible if all attrs in `EXACT_ATTRS` are in every dataset
 
     match_attrs = [ma for ma in EXACT_ATTRS if ma not in ["variable_id"]]
 
@@ -601,7 +611,8 @@ def match_metrics(
     match_variables : list
         Data variables of datasets in `metric_dict` to parse.
     match_attrs : list, optional
-        Minimum dataset attributes that need to match, by default ["source_id", "grid_label"]
+        Minimum dataset attributes that need to match, by default ["source_id", "grid_label"].
+        Pass "exact" to only allow exact matches using all required attributes.
     print_statistics : bool, optional
         Option to print statistics about matching, by default False
     dim_length_conflict : str
@@ -614,7 +625,13 @@ def match_metrics(
 
     """
     # metrics should never match the variable
-    exact_attrs_wo_var = [ma for ma in exact_attrs if ma != "variable_id"]
+    exact_attrs_wo_var = [ma for ma in EXACT_ATTRS if ma != "variable_id"]
+
+    # TODO: this naming is a big weird. Basically this here is necessary to still get a 'closest match' on whichever of the full
+    # set of 'exact' attrs are given on each of the datasets
+    pruned_attrs = _prune_match_attrs_to_available(exact_attrs_wo_var, ds_dict)
+    # and this also needs to be true for the metrics of course.
+    pruned_attrs = _prune_match_attrs_to_available(pruned_attrs, metric_dict)
 
     match_variables = _maybe_make_list(match_variables)
 
