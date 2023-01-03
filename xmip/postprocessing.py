@@ -199,8 +199,26 @@ def merge_variables(
     )
 
 
-def _promote_member_id(ds):
-    ds = ds.assign_coords(member_id=ds.attrs["variant_label"])
+def _construct_and_promote_member_id(ds):
+    # construct member_id according to https://docs.google.com/document/d/1h0r8RZr_f3-8egBMMh7aqLwy3snpD6_MrDz1q8n5XUk/edit
+    sub_experiment_id = ds.attrs.get("sub_experiment_id", "none")
+    variant_label = ds.attrs[
+        "variant_label"
+    ]  # if this should fail in the future, we could build an error/warning in here
+    if sub_experiment_id == "none":
+        member_id = variant_label
+    else:
+        member_id = f"{sub_experiment_id}-{variant_label}"
+
+    if "member_id" not in ds.dims:
+        ds = ds.expand_dims({"member_id": [member_id]})
+    else:
+        existing_member_id = ds.member_id.data[0]
+        if not existing_member_id == member_id:
+            warnings.warn(
+                f"{cmip6_dataset_id(ds)} already contained a member_id ({existing_member_id}) but this is different from the reconstructed value ({member_id}). The existing value is not modified, but we recommend checking the input.",
+                UserWarning,
+            )
     return ds
 
 
@@ -236,7 +254,7 @@ def concat_members(
 
     # promote variant_label attr to coordinate, to have member_ids as coordinates
 
-    ds_dict = {k: _promote_member_id(ds) for k, ds in ds_dict.items()}
+    ds_dict = {k: _construct_and_promote_member_id(ds) for k, ds in ds_dict.items()}
 
     return combine_datasets(
         ds_dict,

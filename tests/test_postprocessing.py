@@ -7,8 +7,8 @@ import xarray as xr
 import xesmf
 
 from xmip.postprocessing import (
+    _construct_and_promote_member_id,
     _parse_metric,
-    _promote_member_id,
     combine_datasets,
     concat_experiments,
     concat_members,
@@ -604,8 +604,11 @@ def test_concat_members(concat_kwargs):
     # Group together the expected 'matches'
     # promote the member_id like in concat_members
     expected = {
-        "a.a.a.a": [_promote_member_id(ds_a_temp), _promote_member_id(ds_b_temp)],
-        "c.a.a.a": [_promote_member_id(ds_c_other)],
+        "a.a.a.a": [
+            _construct_and_promote_member_id(ds_a_temp),
+            _construct_and_promote_member_id(ds_b_temp),
+        ],
+        "c.a.a.a": [_construct_and_promote_member_id(ds_c_other)],
     }
 
     result = concat_members(
@@ -622,6 +625,109 @@ def test_concat_members(concat_kwargs):
     assert "member_id" in result["a.a.a.a"].coords
     for member in ["a", "b"]:
         assert member in result["a.a.a.a"].member_id
+
+
+def test_concat_members_existing_member_dim():
+    attrs_a = {
+        "source_id": "a",
+        "grid_label": "a",
+        "experiment_id": "a",
+        "table_id": "a",
+        "variant_label": "a",
+        "version": "a",
+    }
+
+    attrs_b = {k: v for k, v in attrs_a.items()}
+    attrs_b["variant_label"] = "b"
+
+    # Create some datasets with a/b attrs
+    ds_a = random_ds(attrs=attrs_a).rename({"data": "temp"})
+    ds_b = random_ds(attrs=attrs_b).rename({"data": "temp"})
+
+    ds_a_promoted = ds_a.expand_dims({"member_id": [ds_a.attrs["variant_label"]]})
+    ds_b_promoted = ds_b.expand_dims({"member_id": [ds_b.attrs["variant_label"]]})
+
+    # testing mixed case
+    ds_dict = {"some": ds_a_promoted, "thing": ds_b}
+
+    # promote the member_id like in concat_members
+    expected = xr.concat([ds_a_promoted, ds_b_promoted], "member_id")
+
+    result = concat_members(
+        ds_dict,
+    )
+
+    xr.testing.assert_equal(
+        result["a.a.a.a"],
+        expected,
+    )
+
+
+def test_concat_members_existing_member_dim_different_warning():
+    attrs_a = {
+        "source_id": "a",
+        "grid_label": "a",
+        "experiment_id": "a",
+        "table_id": "a",
+        "variant_label": "a",
+        "version": "a",
+    }
+
+    attrs_b = {k: v for k, v in attrs_a.items()}
+    attrs_b["variant_label"] = "b"
+
+    # Create some datasets with a/b attrs
+    ds_a = random_ds(attrs=attrs_a).rename({"data": "temp"})
+    ds_b = random_ds(attrs=attrs_b).rename({"data": "temp"})
+
+    ds_a_promoted_wrong = ds_a.expand_dims({"member_id": ["something"]})
+
+    # testing mixed case
+    ds_dict = {"some": ds_a_promoted_wrong, "thing": ds_b}
+    msg = "but this is different from the reconstructed value"
+    # TODO: Had trouble here when putting in the actual values I expected.
+    # Probably some regex shit. This should be enough for now
+    with pytest.warns(UserWarning, match=msg):
+        concat_members(
+            ds_dict,
+        )
+
+
+def test_concat_members_reconstruct_from_sub_experiment_id():
+    attrs_a = {
+        "source_id": "a",
+        "grid_label": "a",
+        "experiment_id": "a",
+        "table_id": "a",
+        "variant_label": "a",
+        "version": "a",
+    }
+
+    attrs_b = {k: v for k, v in attrs_a.items()}
+    attrs_b["variant_label"] = "b"
+    attrs_b["sub_experiment_id"] = "sub_something"
+
+    # Create some datasets with a/b attrs
+    ds_a = random_ds(attrs=attrs_a).rename({"data": "temp"})
+    ds_b = random_ds(attrs=attrs_b).rename({"data": "temp"})
+
+    ds_a_promoted = ds_a.expand_dims({"member_id": ["a"]})
+    ds_b_promoted = ds_b.expand_dims({"member_id": ["sub_something-b"]})
+
+    # testing mixed case
+    ds_dict = {"some": ds_a, "thing": ds_b}
+
+    # promote the member_id like in concat_members
+    expected = xr.concat([ds_a_promoted, ds_b_promoted], "member_id")
+
+    result = concat_members(
+        ds_dict,
+    )
+
+    xr.testing.assert_equal(
+        result["a.a.a.a"],
+        expected,
+    )
 
 
 @pytest.mark.parametrize("concat_kwargs", [{}, {"compat": "override"}])
@@ -950,7 +1056,7 @@ def test_nested_operations():
     )
     ddict = {"ds1": ds_1, "ds2": ds_2, "ds3": ds_3, "ds4": ds_4}
 
-    ddict = {k: _promote_member_id(ds) for k, ds in ddict.items()}
+    ddict = {k: _construct_and_promote_member_id(ds) for k, ds in ddict.items()}
 
     ds_expected = xr.Dataset(
         {
