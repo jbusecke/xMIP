@@ -2,9 +2,9 @@
 
 What's New
 ===========
-.. _whats-new.0.6.0:
+.. _whats-new.0.7.0:
 
-v0.6.0 (unreleased)
+v0.7.0 (2023/01/03)
 -------------------
 
 New Features
