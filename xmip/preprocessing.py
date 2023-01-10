@@ -72,7 +72,7 @@ def rename_cmip6(ds, rename_dict=None):
         for di in da.dims:
             for target, candidates in rdict.items():
                 if di in candidates:
-                    da = da.rename({di: target})
+                    da = da.swap_dims({di: target})
         return da
 
     # first take care of the dims and reconstruct a clean ds
