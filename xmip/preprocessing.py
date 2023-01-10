@@ -73,6 +73,8 @@ def rename_cmip6(ds, rename_dict=None):
             for target, candidates in rdict.items():
                 if di in candidates:
                     da = da.swap_dims({di: target})
+                    if di in da:
+                        da = da.drop_vars(di)
         return da
 
     # first take care of the dims and reconstruct a clean ds
@@ -82,6 +84,7 @@ def rename_cmip6(ds, rename_dict=None):
             for k in list(ds.data_vars) + list(set(ds.coords) - set(ds.dims))
         }
     )
+    print(ds)
 
     rename_vars = list(set(ds.coords) - set(ds.dims)) + list(ds.data_vars)
     print(set(rename_vars))
