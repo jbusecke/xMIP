@@ -60,6 +60,7 @@ def cmip6_renaming_dict():
 def rename_cmip6(ds, rename_dict=None):
     """Homogenizes cmip6 dataasets to common naming"""
     attrs = {k: v for k, v in ds.attrs.items()}
+    ds_id = cmip6_dataset_id(ds)
 
     if rename_dict is None:
         rename_dict = cmip6_renaming_dict()
@@ -93,7 +94,7 @@ def rename_cmip6(ds, rename_dict=None):
             if len(matching_candidates) > 0:
                 if len(matching_candidates) > 1:
                     warnings.warn(
-                        f"{cmip6_dataset_id(ds)}:While renaming to target `{target}`, more than one candidate was found {matching_candidates}. Renaming {matching_candidates[0]} to {target}. Please double check results."
+                        f"{ds_id}:While renaming to target `{target}`, more than one candidate was found {matching_candidates}. Renaming {matching_candidates[0]} to {target}. Please double check results."
                     )
                 ds = ds.rename({matching_candidates[0]: target})
 
