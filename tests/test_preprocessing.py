@@ -472,19 +472,51 @@ def test_combined_preprocessing_dropped_coords(add_coords, shift):
     assert "bnds" not in ds.coords
 
 
-def test_combined_preprocessing_mislabeled_coords():
-    """Test if the renaming is applied to datavariables and then if they are moved to the coords."""
+def test_rename_mislabeled_coords():
+    """Test if the renaming is applied to datavariables"""
     # create a 2d dataset
-    xlen, ylen, zlen = (10, 5, 1)
-    ds = (
-        create_test_ds("x", "y", "dummy", xlen, ylen, zlen).squeeze().drop_vars("dummy")
-    )
-    ds = ds.assign(depth=5.0)
-    ds.depth.attrs["units"] = "m"  # otherwise pint complains.
+    xlen, ylen, zlen = (10, 5, 3)
+    ds = create_test_ds("x", "y", "z", xlen, ylen, zlen).squeeze()
+    ds["nav_lon"] = ds.lon  # assign longitude as data variable
+    ds = ds.drop_vars(["lon"])
 
-    ds_pp = combined_preprocessing(ds)
-    assert "lev" in ds_pp.coords
-    np.testing.assert_allclose(ds.depth.data, ds_pp.lev.data)
+    ds_pp = rename_cmip6(ds)
+    np.testing.assert_allclose(ds.nav_lon.data, ds_pp.lon.data)
+
+
+def test_duplicate_renamed_coordinates():
+    # create a 2d dataset
+    xlen, ylen, zlen = (10, 5, 3)
+    ds = create_test_ds("x", "y", "lev", xlen, ylen, zlen)
+    ds = ds.drop_vars("lon")  # drop the original longitude
+    # assign two coordinates which should both be renamed according to the renaming dict
+    coord_da_1 = xr.DataArray(np.random.rand(xlen, ylen), dims=["x", "y"])
+    coord_da_2 = xr.DataArray(np.random.rand(xlen, ylen), dims=["x", "y"])
+    ds = ds.assign_coords(longitude=coord_da_1, nav_lon=coord_da_2)
+    print(ds)
+    with pytest.warns(
+        match="While renaming to target `lon`, more than one candidate was found"
+    ):
+        ds_pp = rename_cmip6(ds)
+
+    assert "nav_lon" in ds_pp.coords
+    xr.testing.assert_allclose(
+        ds_pp.lon.reset_coords(drop=True).drop(["x", "y"]), coord_da_1
+    )
+
+
+def test_renamed_coordinate_exists():
+    # create a 2d dataset
+    xlen, ylen, zlen = (10, 5, 3)
+    ds = create_test_ds("x", "y", "lev", xlen, ylen, zlen)
+    # assign two coordinates which should both be renamed according to the renaming dict
+    coord_da = xr.DataArray(np.random.rand(xlen, ylen), dims=["x", "y"])
+    ds = ds.assign_coords(longitude=coord_da)
+
+    ds_pp = rename_cmip6(ds)
+    # make sure the original lon is intact
+    xr.testing.assert_allclose(ds_pp.lon, ds.lon)
+    assert "longitude" in ds_pp
 
 
 def test_preserve_attrs():
