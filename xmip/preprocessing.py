@@ -7,7 +7,7 @@ import pint  # noqa: F401
 import pint_xarray  # noqa: F401
 import xarray as xr
 
-from xmip.utils import _maybe_make_list, cmip6_dataset_id
+from xmip.utils import cmip6_dataset_id
 
 
 # global object for units
@@ -57,58 +57,51 @@ def cmip6_renaming_dict():
     return rename_dict
 
 
-def _invert_dict(rdict):
-    exploded_dict = {}
-    # there is probably a more effective way to 'invert' a dictionary
-    for k, v in rdict.items():
-        v = _maybe_make_list(v)
-        for vv in v:
-            exploded_dict[vv] = k
-    return exploded_dict
-
-
 def rename_cmip6(ds, rename_dict=None):
     """Homogenizes cmip6 dataasets to common naming"""
-    ds = ds.copy()
     attrs = {k: v for k, v in ds.attrs.items()}
 
     if rename_dict is None:
         rename_dict = cmip6_renaming_dict()
 
-    inverted_rename_dict = _invert_dict(rename_dict)
+    # TODO: Be even stricter here and reset every variable except the one given in the attr
+    # as variable_id
+    # ds_reset = ds.reset_coords()
 
-    ds_reset = ds.reset_coords()
-
-    def _maybe_rename(obj, rdict):
-        return obj.rename({kk: vv for kk, vv in rdict.items() if kk in obj.dims})
+    def _maybe_rename_dims(da, rdict):
+        for di in da.dims:
+            for target, candidates in rdict.items():
+                if di in candidates:
+                    da = da.rename({di: target})
+        return da
 
     # first take care of the dims and reconstruct a clean ds
     ds = xr.Dataset(
         {
-            k: _maybe_rename(ds_reset[k], inverted_rename_dict)
-            for k in ds_reset.data_vars
+            k: _maybe_rename_dims(ds[k], rename_dict)
+            for k in list(ds.data_vars) + list(set(ds.coords) - set(ds.dims))
         }
     )
+
+    rename_vars = list(ds.coords) + list(ds.data_vars)
+
+    for target, candidates in rename_dict.items():
+        if target not in ds:
+            matching_candidates = [ca for ca in candidates if ca in rename_vars]
+            if len(matching_candidates) > 0:
+                if len(matching_candidates) > 2:
+                    raise ValueError(
+                        f"While renaming to target {target}, more than one candidate was found [{matching_candidates}]. Renaming {matching_candidates[0]} to {target}. Please double check results."
+                    )
+                ds = ds.rename({matching_candidates[0]: target})
 
     # special treatment for 'lon'/'lat' if there is no 'x'/'y' after renaming process
     for di, co in [("x", "lon"), ("y", "lat")]:
         if di not in ds.dims and co in ds.dims:
             ds = ds.rename({co: di})
 
-    # now rename the variables
-    # try and pass here, cause some of the datasets (MIROC) have like 3 times the same info
-    # e.g. lev/sigma/zlev...not sure this is the best way to handle this with
-    # a silent fail here though...
-    for va in ds.data_vars:
-        try:
-            ds = ds.rename({va: inverted_rename_dict[va]})
-        except Exception as e:
-            warnings.warn(f"Renaming failed with {e}")
-            pass
-
     # restore attributes
     ds.attrs = attrs
-
     return ds
 
 
