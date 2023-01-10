@@ -84,7 +84,7 @@ def rename_cmip6(ds, rename_dict=None):
     )
 
     rename_vars = list(set(ds.coords) - set(ds.dims)) + list(ds.data_vars)
-    print(rename_vars)
+    print(set(rename_vars))
 
     for target, candidates in rename_dict.items():
         if target not in ds:
