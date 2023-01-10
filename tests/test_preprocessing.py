@@ -493,7 +493,12 @@ def test_duplicate_renamed_coordinates():
     coord_da_1 = xr.DataArray(np.random.rand(xlen, ylen), dims=["x", "y"])
     coord_da_2 = xr.DataArray(np.random.rand(xlen, ylen), dims=["x", "y"])
     ds = ds.assign_coords(longitude=coord_da_1, nav_lon=coord_da_2)
-    ds_pp = rename_cmip6(ds)
+    print(ds)
+    with pytest.warns(
+        match="While renaming to target `lon`, more than one candidate was found"
+    ):
+        ds_pp = rename_cmip6(ds)
+
     assert "nav_lon" in ds_pp.coords
     xr.testing.assert_allclose(
         ds_pp.lon.reset_coords(drop=True).drop(["x", "y"]), coord_da_1

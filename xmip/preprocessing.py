@@ -88,10 +88,11 @@ def rename_cmip6(ds, rename_dict=None):
     for target, candidates in rename_dict.items():
         if target not in ds:
             matching_candidates = [ca for ca in candidates if ca in rename_vars]
+            print(matching_candidates)
             if len(matching_candidates) > 0:
-                if len(matching_candidates) > 2:
-                    raise ValueError(
-                        f"While renaming to target {target}, more than one candidate was found [{matching_candidates}]. Renaming {matching_candidates[0]} to {target}. Please double check results."
+                if len(matching_candidates) > 1:
+                    warnings.warn(
+                        f"{cmip6_dataset_id(ds)}:While renaming to target `{target}`, more than one candidate was found {matching_candidates}. Renaming {matching_candidates[0]} to {target}. Please double check results."
                     )
                 ds = ds.rename({matching_candidates[0]: target})
 
