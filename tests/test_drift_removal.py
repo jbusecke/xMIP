@@ -258,7 +258,6 @@ def test_unify_time_adjust_to_error():
 
 @pytest.mark.parametrize("chunk", [False, {"x": -1, "bnds": 1}])
 def test_remove_trend(chunk):
-
     # normal testing
     time = xr.cftime_range("1850-01-01", periods=5, freq="1AS")
     data = xr.DataArray(
@@ -313,7 +312,6 @@ def test_remove_trend(chunk):
 
 @pytest.mark.parametrize("chunk", [False, {"time": 2}])
 def test_remove_trend_mask_check(chunk):
-
     time = xr.cftime_range("1850-01-01", periods=5, freq="1AS")
     data = xr.DataArray(
         np.random.rand(3, 4, len(time)), dims=["x", "y", "time"], coords={"time": time}
@@ -332,7 +330,6 @@ def test_remove_trend_mask_check(chunk):
 
 @pytest.mark.parametrize("chunk", [False, {"time": 2}])
 def test_remove_trend_exceptions(chunk):
-
     # normal testing
     time = xr.cftime_range("1850-01-01", periods=5, freq="1AS")
     data = xr.DataArray(

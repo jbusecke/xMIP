@@ -82,7 +82,6 @@ def pytest_generate_tests(metafunc):
     # if the argument is specified in the list of test "fixturenames".
 
     for name in ["vi", "gl", "ei", "cat"]:
-
         option_value = getattr(metafunc.config.option, name)
 
         if isinstance(option_value, str):

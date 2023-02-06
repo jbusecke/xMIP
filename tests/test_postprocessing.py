@@ -765,7 +765,6 @@ def test_concat_experiments(concat_kwargs):
 
 
 def test_pick_first_member():
-
     attrs_a = {
         "source_id": "a",
         "grid_label": "a",

@@ -169,7 +169,6 @@ def recreate_metrics(ds, grid):
         ds.coords["dy_t"] = xr.DataArray(dist, coords=ds.lon.coords)
 
     if "lon_verticies" in ds.coords and "lat_verticies" in ds.coords:
-
         # infer dx at the north/south face
         lon0, lon1 = _parse_bounds_vertex(
             ds["lon_verticies"], dim="vertex", position=ns_vertex_idx
