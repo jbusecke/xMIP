@@ -393,7 +393,6 @@ def sort_vertex_order(ds):
         and "lon_verticies" in ds.variables
         and "lat_verticies" in ds.variables
     ):
-
         # pick a vertex in the middle of the domain, to avoid the pole areas
         x_idx = len(ds.x) // 2
         y_idx = len(ds.y) // 2

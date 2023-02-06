@@ -23,10 +23,8 @@ def test_google_cmip_col():
 
 
 def test_model_id_match():
-
     # wrong amount of elements
     with pytest.raises(ValueError):
-
         model_id_match([("A", "a", "aa"), ("A", "a", "aa", "aaa")], ("A", "a", "aa"))
 
     with pytest.raises(ValueError):

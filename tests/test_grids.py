@@ -173,7 +173,6 @@ def test_distance(lon, lat):
 @pytest.mark.parametrize("yshift", ["left", "right"])
 @pytest.mark.parametrize("z_axis", [True, False])
 def test_recreate_metrics(xshift, yshift, z_axis):
-
     # reconstruct all the metrics by hand and compare to inferred output
 
     # * For now this is a regular lon lat grid. Might need to add some tests for more complex grids.
@@ -329,7 +328,6 @@ def test_recreate_metrics(xshift, yshift, z_axis):
 @pytest.mark.parametrize("xshift", ["left", "center", "right"])
 @pytest.mark.parametrize("yshift", ["left", "center", "right"])
 def test_detect_shift(xshift, yshift):
-
     # create base dataset (tracer)
     ds_base = _test_data()
 

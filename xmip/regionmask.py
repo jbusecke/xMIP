@@ -196,7 +196,7 @@ def merged_mask(
     for ocean, small_basins in merge_dict.items():
         try:
             ocean_idx = basins.map_keys(ocean)
-        except (KeyError):
+        except KeyError:
             # The ocean key is new and cant be found in the previous keys (e.g. for Atlantic full or maritime continent)
             ocean_idx = mask.max().data + 1
         number_dict[ocean] = ocean_idx

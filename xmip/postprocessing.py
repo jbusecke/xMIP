@@ -331,7 +331,6 @@ def pick_first_member(ddict):
 def requires_xesmf(func):
     @functools.wraps(func)
     def wrapper_requires_xesmf(*args, **kwargs):
-
         # Check if xesmf is installed
         if xesmf is None:
             raise ValueError(
@@ -425,7 +424,6 @@ def _interpolate_combine_func(
     if len(grid_labels) == 1:
         return xr.merge(ds_list, **merge_kwargs)
     else:
-
         if target_grid_label not in grid_labels:
             raise ValueError(
                 f"Could not find any variable with the target_grid_label ({target_grid_label}). Found these instead: {grid_labels}"
