@@ -1,7 +1,7 @@
 import pytest
 import xarray as xr
 
-from xmip.utils import cmip6_dataset_id, google_cmip_col, model_id_match
+from xmip.utils import cmip6_dataset_id, google_cmip_col, model_id_match, instance_id_from_dataset
 
 
 def test_google_cmip_col():
@@ -68,3 +68,37 @@ def test_cmip6_dataset_id():
         cmip6_dataset_id(ds, id_attrs=["grid_label", "activity_id", "wrong_attrs"])
         == "gl.ai.none"
     )
+
+class Test_instance_id_from_dataset:
+    def test_default_cmip6(self):
+        ds = xr.Dataset(attrs = {
+            'mip_era': 'a',
+            'grid_label':'b',
+            'version':'c',
+            'activity_id':'d', 
+            'institution_id':'e', 
+            'source_id':'f', 
+            'experiment_id': 'g',
+            'member_id': 'h', 
+            'table_id': 'i', 
+            'variable_id': 'j',
+        })
+        assert instance_id_from_dataset(ds) == 'a.d.e.f.g.h.i.j.b.c'
+    
+    def test_custom_schema():
+        ds = xr.Dataset(attrs={'some':'thing', 'totally':'unrelated'})
+        assert instance_id_from_dataset(ds, id_schema='some.totally') == 'thing.unrelated'
+    
+    def test_missing_attrs_warning():
+        ds = xr.Dataset(attrs = {
+            'mip_era': 'a',
+            'activity_id':'d', 
+            'institution_id':'e', 
+            'source_id':'f', 
+            'experiment_id': 'g',
+            'member_id': 'h', 
+            'table_id': 'i', 
+            'variable_id': 'j',
+        })
+        with pytest.warns(UserWarning, match="Could not find dataset attributes for facets: \['grid_label', 'version'\]"):
+            instance_id_from_dataset(ds)
