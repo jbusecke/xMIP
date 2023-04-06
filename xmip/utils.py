@@ -2,8 +2,9 @@ try:
     import intake
 except ImportError:
     intake = None
-    
+
 import warnings
+
 import xarray as xr
 
 
@@ -61,18 +62,23 @@ def model_id_match(match_list, id_tuple):
 def _key_from_attrs(ds, attrs, sep="."):
     return sep.join([ds.attrs[i] if i in ds.attrs.keys() else "none" for i in attrs])
 
-cmip_instance_id_schema = 'mip_era.activity_id.institution_id.source_id.experiment_id.member_id.table_id.variable_id.grid_label.version'
 
-def instance_id_from_dataset(ds: xr.Dataset, id_schema:str=None) -> str:
+cmip_instance_id_schema = "mip_era.activity_id.institution_id.source_id.experiment_id.member_id.table_id.variable_id.grid_label.version"
+
+
+def instance_id_from_dataset(ds: xr.Dataset, id_schema: str = None) -> str:
     if id_schema is None:
         id_schema = cmip_instance_id_schema
-    facets = id_schema.split('.')
-    missing_value = 'none'
-    facet_dict = {k:ds.attrs.get(k, missing_value) for k in facets}
-    missing_value_dict = {k:v for k,v in facet_dict.items() if v==missing_value}
-    if len(missing_value_dict.keys())>0:
-        warnings.warn(f'Could not find dataset attributes for facets: {list(missing_value_dict.keys())}')
-    return '.'.join([facet_dict[f] for f in facets])
+    facets = id_schema.split(".")
+    missing_value = "none"
+    facet_dict = {k: ds.attrs.get(k, missing_value) for k in facets}
+    missing_value_dict = {k: v for k, v in facet_dict.items() if v == missing_value}
+    if len(missing_value_dict.keys()) > 0:
+        warnings.warn(
+            f"Could not find dataset attributes for facets: {list(missing_value_dict.keys())}"
+        )
+    return ".".join([facet_dict[f] for f in facets])
+
 
 def cmip6_dataset_id(
     ds,
