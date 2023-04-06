@@ -93,13 +93,13 @@ class Test_instance_id_from_dataset:
         )
         assert instance_id_from_dataset(ds) == "a.d.e.f.g.h.i.j.b.c"
 
-    def test_custom_schema():
+    def test_custom_schema(self):
         ds = xr.Dataset(attrs={"some": "thing", "totally": "unrelated"})
         assert (
             instance_id_from_dataset(ds, id_schema="some.totally") == "thing.unrelated"
         )
 
-    def test_missing_attrs_warning():
+    def test_missing_attrs_warning(self):
         ds = xr.Dataset(
             attrs={
                 "mip_era": "a",
