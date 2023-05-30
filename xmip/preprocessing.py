@@ -137,9 +137,8 @@ def broadcast_lonlat(ds, verbose=True):
 def _interp_nominal_lon(lon_1d):
     x = np.arange(len(lon_1d))
     idx = np.isnan(lon_1d)
-    # Assume that longitudes are cyclic
-    ret = np.interp(x, x[~idx], lon_1d[~idx], period=len(lon_1d))
-    return ret
+    # Assume that longitudes are cyclic (i.e. that the period equals the length of lon)
+    return np.interp(x, x[~idx], lon_1d[~idx], period=len(lon_1d))
 
 
 def replace_x_y_nominal_lat_lon(ds):
