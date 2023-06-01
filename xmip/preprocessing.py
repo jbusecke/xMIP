@@ -44,7 +44,7 @@ def cmip6_renaming_dict():
             "lon_bnds",
             "x_bnds",
             "vertices_longitude",
-            'longitude_bnds',
+            "longitude_bnds",
         ],
         "lat_bounds": [
             "bounds_lat",
@@ -52,7 +52,7 @@ def cmip6_renaming_dict():
             "lat_bnds",
             "y_bnds",
             "vertices_latitude",
-            'latitude_bnds',
+            "latitude_bnds",
         ],
         "time_bounds": ["time_bnds"],
     }
