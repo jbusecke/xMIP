@@ -2,6 +2,16 @@
 
 What's New
 ===========
+.. _whats-new.0.7.2:
+
+v0.7.2 (unreleased)
+-------------------
+
+Internal Changes
+~~~~~~~~~~~~~~~~
+- Added PR template (:pull:`304`). By `Julius Busecke <https://github.com/jbusecke>`
+
+
 .. _whats-new.0.7.0:
 
 v0.7.0 (2023/01/03)
