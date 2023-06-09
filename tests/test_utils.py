@@ -114,6 +114,6 @@ class Test_instance_id_from_dataset:
         )
         with pytest.warns(
             UserWarning,
-            match="Could not find dataset attributes for facets: \['grid_label', 'version'\]",
+            match=r"Could not find dataset attributes for facets: \['grid_label', 'version'\]",
         ):
             instance_id_from_dataset(ds)
