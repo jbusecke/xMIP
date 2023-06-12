@@ -10,6 +10,7 @@ v0.7.2 (unreleased)
 Internal Changes
 ~~~~~~~~~~~~~~~~
 - Added PR template (:pull:`304`). By `Julius Busecke <https://github.com/jbusecke>`
+- Add `longitude_bnds` and `latitude_bnds` to `cmip_renaming_dict` (:pull:`300`). By `Joran Angevaare <https://github.com/JoranAngevaare>`
 
 
 .. _whats-new.0.7.0:
