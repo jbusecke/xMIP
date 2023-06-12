@@ -12,7 +12,7 @@ dependencies:
   - cartopy
   - xesmf
   - esmf<=8.3.1 #See https://github.com/pangeo-data/xESMF/issues/246
-  - xarrayutils #TODO remove when the new xarray polyfit is implemented
+  - xarrayutils>=2.0.0 #TODO remove when the new xarray polyfit is implemented
   - pint
   - cf_xarray>=0.6.0
   - pint-xarray>=0.2.1
