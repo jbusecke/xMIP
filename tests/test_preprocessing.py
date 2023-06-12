@@ -218,8 +218,7 @@ def test_correct_coordinates(coord):
 
 
 @pytest.mark.parametrize(
-    'bad_coord',
-        [v for values in cmip6_renaming_dict().values() for v in values]
+    "bad_coord", [v for values in cmip6_renaming_dict().values() for v in values]
 )
 def test_renamed_coordinates(bad_coord):
     xlen, ylen, zlen = (10, 5, 6)
