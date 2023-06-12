@@ -45,7 +45,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Create conda environment
-        uses: mamba-org/provision-with-micromamba@main
+        uses: mamba-org/setup-micromamba@v1.4.2
         with:
           cache-downloads: true
           cache-env: true
@@ -61,7 +61,7 @@ jobs:
         run: |
           pytest -n auto --cov=./ --cov-report=xml --ignore=tests/test_preprocessing_cloud.py
       - name: Upload code coverage to Codecov
-        uses: codecov/codecov-action@v3.1.3
+        uses: codecov/codecov-action@v3.1.4
         with:
           file: ./coverage.xml
           flags: unittests
@@ -96,7 +96,7 @@ jobs:
         run: |
           pytest -n auto --cov=./ --cov-report=xml --ignore=tests/test_preprocessing_cloud.py
       - name: Upload code coverage to Codecov
-        uses: codecov/codecov-action@v3.1.3
+        uses: codecov/codecov-action@v3.1.4
         with:
           file: ./coverage.xml
           flags: unittests
@@ -142,7 +142,7 @@ jobs:
         run: |
           pytest -n auto --cov=./ --cov-report=xml --ignore=tests/test_preprocessing_cloud.py
       - name: Upload code coverage to Codecov
-        uses: codecov/codecov-action@v3.1.3
+        uses: codecov/codecov-action@v3.1.4
         with:
           file: ./coverage.xml
           flags: unittests
