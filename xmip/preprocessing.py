@@ -27,7 +27,7 @@ def cmip6_renaming_dict():
         "x": ["i", "ni", "xh", "nlon"],
         "y": ["j", "nj", "yh", "nlat"],
         "lev": ["deptht", "olevel", "zlev", "olev", "depth"],
-        "bnds": ["axis_nbounds", "d2"],
+        "bnds": ["bnds", "axis_nbounds", "d2"],
         "vertex": ["vertex", "nvertex", "vertices"],
         # coordinate labels
         "lon": ["longitude", "nav_lon"],
