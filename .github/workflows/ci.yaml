@@ -45,7 +45,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Create conda environment
-        uses: mamba-org/setup-micromamba@v1.4.2
+        uses: mamba-org/setup-micromamba@v1.4.3
         with:
           cache-downloads: true
           cache-env: true
