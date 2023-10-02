@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Busecke"
+  given-names: "Julius J. M."
+  orcid: "https://orcid.org/0000-0001-8571-865X"
+title: "xMIP"
+url: "https://github.com/jbusecke/xMIP"
+# version and doi are completed by Zenodo automatically, do not provide here.
