@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Busecke"
+  given-names: "Julius J. M."
+  orcid: "https://orcid.org/0000-0001-8571-865X"
+- family-names: "Spring"
+  given-names: "Aaron"
+  orcid: "https://orcid.org/0000-0003-0216-2241"
+- family-names: "Maroon"
+  given-names: "Elizabeth"
+  orcid: "https://orcid.org/0000-0002-1660-7822"
+- family-names: "Nicholas"
+  given-names: "Thomas"
+  orcid: "0000-0002-2176-0530
+- family-names: "Magin"
+  given-names: "Justus"
+  orcid: "https://orcid.org/0000-0002-4254-8002"
+  affiliation: "IFREMER"
+- family-names: "Ritschel"
+  given-names: "Markus"
+  orcid: "https://orcid.org/0000-0001-7464-7075"
+  affiliation: "Universität Hamburg, Germany"
+
+title: "xMIP"
+url: "https://github.com/jbusecke/xMIP"
+# version and doi are completed by Zenodo automatically, do not provide here.
