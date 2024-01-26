@@ -12,6 +12,7 @@ from xmip.preprocessing import (
     correct_coordinates,
     correct_lon,
     correct_units,
+    fix_attrs,
     fix_metadata,
     maybe_convert_bounds_to_vertex,
     maybe_convert_vertex_to_bounds,
@@ -535,3 +536,27 @@ def test_preserve_attrs():
 
     ds_pp = combined_preprocessing(ds)
     assert ds_pp.attrs["preserve_this"] == "here"
+
+
+def test_fix_attrs():
+    # create a 2d dataset
+    xlen, ylen, zlen = (10, 5, 1)
+    ds = (
+        create_test_ds("x", "y", "dummy", xlen, ylen, zlen).squeeze().drop_vars("dummy")
+    )
+    ds['test'].attrs['units'] = 1
+    ds['x'].attrs['units'] = 1
+    fix_attrs(ds)
+    # this will fail without the fix_attrs call
+    correct_units(ds)
+
+def test_fix_attrs_end_to_end():
+        # create a 2d dataset
+    xlen, ylen, zlen = (10, 5, 1)
+    ds = (
+        create_test_ds("x", "y", "dummy", xlen, ylen, zlen).squeeze().drop_vars("dummy")
+    )
+    ds['test'].attrs['units'] = 1
+    ds['x'].attrs['units'] = 1
+    # this will fail without the fix_attrs call
+    combined_preprocessing(ds)
