@@ -20,10 +20,10 @@ _drop_coords = ["bnds", "vertex"]
 
 def fix_attrs(ds):
     for va in ds.variables:
-        if 'units' in ds[va].attrs.keys():
-            if isinstance(ds[va].attrs['units'], int):
+        if "units" in ds[va].attrs.keys():
+            if isinstance(ds[va].attrs["units"], int):
                 # Fix integer units (example: https://github.com/jbusecke/xMIP/issues/322)
-                ds[va].attrs['units'] = str(ds[va].attrs['units'])
+                ds[va].attrs["units"] = str(ds[va].attrs["units"])
     return ds
 
 
