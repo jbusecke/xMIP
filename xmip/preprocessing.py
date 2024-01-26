@@ -17,6 +17,7 @@ _unit_overrides = {name: None for name in ["so"]}
 
 _drop_coords = ["bnds", "vertex"]
 
+
 def fix_attrs(ds):
     for va in ds.variables:
         if 'units' in ds[va].attrs.keys():
@@ -24,6 +25,7 @@ def fix_attrs(ds):
                 # Fix integer units (example: https://github.com/jbusecke/xMIP/issues/322)
                 ds[va].attrs['units'] = str(ds[va].attrs['units'])
     return ds
+
 
 def cmip6_renaming_dict():
     """a universal renaming dict. Keys correspond to source id (model name)
