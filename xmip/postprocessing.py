@@ -595,9 +595,9 @@ def _parse_metric(ds, metric, dim_length_conflict="error"):
     metric_stripped = metric.reset_coords(drop=True)
 
     # add attributes
-    metric_stripped.attrs[
-        "parsed_with"
-    ] = f"xmip/postprocessing/{inspect.currentframe().f_code.co_name}"
+    metric_stripped.attrs["parsed_with"] = (
+        f"xmip/postprocessing/{inspect.currentframe().f_code.co_name}"
+    )
     # TODO: Get the package and module name without hardcoding.
 
     ds = ds.assign_coords({metric_stripped.name: metric_stripped})

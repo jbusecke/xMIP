@@ -364,9 +364,9 @@ def remove_trend(ds, ds_slope, variable, ref_date, check_mask=True):
             "`ds_slope` did not have information about the time over which the slope was calculated. Check the input."
         )
 
-    detrended.attrs[
-        "drift_removed"
-    ] = f"linear_trend_{cmip6_dataset_id(ds_slope)}_{trend_start}_{trend_stop}"
+    detrended.attrs["drift_removed"] = (
+        f"linear_trend_{cmip6_dataset_id(ds_slope)}_{trend_start}_{trend_stop}"
+    )
 
     return detrended
 
