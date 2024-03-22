@@ -217,6 +217,25 @@ def test_correct_coordinates(coord):
     assert coord in list(ds_corrected.coords)
 
 
+@pytest.mark.parametrize(
+    "bad_coord",
+    [
+        v
+        for values in cmip6_renaming_dict().values()
+        for v in values
+        if v not in cmip6_renaming_dict().keys()
+    ],
+)
+def test_renamed_coordinates(bad_coord):
+    xlen, ylen, zlen = (10, 5, 6)
+    ds = create_test_ds("xx", "yy", "zz", xlen, ylen, zlen)
+    # set a new variable which we want to rename
+    ds = ds.assign({bad_coord: ds.test})
+
+    ds_corrected = correct_coordinates(ds)
+    assert bad_coord not in list(ds_corrected.coords)
+
+
 def test_parse_lon_lat_bounds():
     lon = np.arange(0, 10)
     lat = np.arange(20, 30)
