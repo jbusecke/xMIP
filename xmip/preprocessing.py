@@ -75,7 +75,8 @@ def rename_cmip6(ds, rename_dict=None):
                 if di in candidates:
                     da = da.swap_dims({di: target})
                     if di in da.coords:
-                        da = da.drop_vars(di)
+                        if not di==target:
+                            da = da.rename({di: target}).set_xindex(target)
         return da
 
     # first take care of the dims and reconstruct a clean ds
