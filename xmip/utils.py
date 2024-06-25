@@ -66,12 +66,17 @@ def _key_from_attrs(ds, attrs, sep="."):
 cmip_instance_id_schema = "mip_era.activity_id.institution_id.source_id.experiment_id.member_id.table_id.variable_id.grid_label.version"
 
 
-def instance_id_from_dataset(ds: xr.Dataset, id_schema: str = None) -> str:
+def instance_id_from_dataset(ds: xr.Dataset, id_schema: str = None, print_missing=True, missing_value="none") -> str:
+    """
+    Formats a CMIP6 compatible instance id from `ds` attributes according to `id_schema` (defaults to official CMIP naming schema). 
+    If `print_missing` is true missing facets as replaced with `missing_value`, otherwise missing facets are omitted.
+    """
     if id_schema is None:
         id_schema = cmip_instance_id_schema
     facets = id_schema.split(".")
-    missing_value = "none"
     facet_dict = {k: ds.attrs.get(k, missing_value) for k in facets}
+    if not print_missing:
+        facets = [f for f in facets if facet_dict[f] != missing_value]
     missing_value_dict = {k: v for k, v in facet_dict.items() if v == missing_value}
     if len(missing_value_dict.keys()) > 0:
         warnings.warn(
