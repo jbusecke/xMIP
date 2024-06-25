@@ -15,6 +15,10 @@ Internal Changes
 - Added 'nvertices' -> 'vertex' to renaming preprocessor (:pull:`357`). By `Julius Busecke <https://github.com/jbusecke>`
 - Updated mamba CI + testing py311/py312 (:issue:`360`, :pull:`362`). By `Julius Busecke <https://github.com/jbusecke>`
 
+Bugfixes
+~~~~~~~~
+- Fixed cyclic interpolation in `_interp_nominal_lon` (:issue:`295`, :pull:`296`). By `Joran Angevaare <https://github.com/JoranAngevaare>`
+
 .. _whats-new.0.7.2:
 
 v0.7.3 (unreleased)
