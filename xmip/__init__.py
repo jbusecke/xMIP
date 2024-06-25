@@ -1,13 +1,7 @@
-try:
-    from importlib.metadata import (  # only works for python 3.8 and upwards
-        PackageNotFoundError,
-        version,
-    )
-except:
-    from importlib_metadata import (  # works for python <3.8
-        PackageNotFoundError,
-        version,
-    )
+from importlib.metadata import (  # only works for python 3.8 and upwards
+    PackageNotFoundError,
+    version,
+)
 
 try:
     __version__ = version("xmip")

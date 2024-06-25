@@ -446,9 +446,7 @@ def _interpolate_combine_func(
                         print(gl)
                     source_grid = [
                         dss for dss in ds_list if dss.attrs["grid_label"] == gl
-                    ][
-                        0
-                    ]  # again just take the first one available
+                    ][0]  # again just take the first one available
                     regridder_dict[gl] = _clean_regridder(
                         source_grid, target_grid, method, **xesmf_kwargs
                     )
@@ -595,9 +593,9 @@ def _parse_metric(ds, metric, dim_length_conflict="error"):
     metric_stripped = metric.reset_coords(drop=True)
 
     # add attributes
-    metric_stripped.attrs[
-        "parsed_with"
-    ] = f"xmip/postprocessing/{inspect.currentframe().f_code.co_name}"
+    metric_stripped.attrs["parsed_with"] = (
+        f"xmip/postprocessing/{inspect.currentframe().f_code.co_name}"
+    )
     # TODO: Get the package and module name without hardcoding.
 
     ds = ds.assign_coords({metric_stripped.name: metric_stripped})
