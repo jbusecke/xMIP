@@ -23,7 +23,7 @@ os.environ["PYTHONPATH"] = str(root)
 sys.path.insert(0, str(root))
 
 import xmip  # noqa
-from importlib.metadata import version  # isort:skip
+from importlib.metadata import version  # noqa
 
 release = version("xmip")
 # for example take major/minor/patch
