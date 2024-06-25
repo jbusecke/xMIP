@@ -2,9 +2,19 @@
 
 What's New
 ===========
+.. _whats-new.0.8.0:
+
+v0.8.0 (unreleased)
+-------------------
+
+Internal Changes
+~~~~~~~~~~~~~~~~
+- Add `longitude_bnds` and `latitude_bnds` to `cmip_renaming_dict` (:pull:`300`). By `Joran Angevaare <https://github.com/JoranAngevaare>`
+
+
 .. _whats-new.0.7.2:
 
-v0.7.2 (unreleased)
+v0.7.3 (unreleased)
 -------------------
 
 Internal Changes
