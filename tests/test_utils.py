@@ -104,7 +104,7 @@ class Test_instance_id_from_dataset:
         ds = xr.Dataset(
             attrs={
                 "a": "a",
-                "b": "d",
+                "b": "b",
             }
         )
         iid = instance_id_from_dataset(ds, id_schema="a.b.c", print_missing=True)
