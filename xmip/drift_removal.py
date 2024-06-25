@@ -214,7 +214,7 @@ def calculate_drift(
         if len(reference_cut.time) < trend_years * 12:
             if compute_short_trends:
                 warnings.warn(
-                    f"reference dataset does not have the full {trend_years} years to calculate trend. Using {int(len(reference_cut.time)/12)} years only"
+                    f"reference dataset does not have the full {trend_years} years to calculate trend. Using {int(len(reference_cut.time) / 12)} years only"
                 )
             else:
                 raise RuntimeError(
