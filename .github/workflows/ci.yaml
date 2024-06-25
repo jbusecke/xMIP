@@ -21,7 +21,7 @@ jobs:
     outputs:
       triggered: ${{ steps.detect-trigger.outputs.trigger-found }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 2
       - uses: xarray-contrib/ci-trigger@v1
@@ -43,9 +43,9 @@ jobs:
         os: ["ubuntu-latest"]
         python-version: ["3.8", "3.9", "3.10"]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Create conda environment
-        uses: mamba-org/setup-micromamba@v1.4.2
+        uses: mamba-org/setup-micromamba@v1.8.1
         with:
           cache-downloads: true
           cache-env: true
@@ -61,7 +61,7 @@ jobs:
         run: |
           pytest -n auto --cov=./ --cov-report=xml --ignore=tests/test_preprocessing_cloud.py
       - name: Upload code coverage to Codecov
-        uses: codecov/codecov-action@v3.1.4
+        uses: codecov/codecov-action@v4.1.1
         with:
           file: ./coverage.xml
           flags: unittests
@@ -78,7 +78,7 @@ jobs:
       run:
         shell: bash -l {0}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Create conda environment
         uses: mamba-org/provision-with-micromamba@main
         with:
@@ -96,7 +96,7 @@ jobs:
         run: |
           pytest -n auto --cov=./ --cov-report=xml --ignore=tests/test_preprocessing_cloud.py
       - name: Upload code coverage to Codecov
-        uses: codecov/codecov-action@v3.1.4
+        uses: codecov/codecov-action@v4.1.1
         with:
           file: ./coverage.xml
           flags: unittests
@@ -124,7 +124,7 @@ jobs:
       run:
         shell: bash -l {0}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Create conda environment
         uses: mamba-org/provision-with-micromamba@main
         with:
@@ -142,7 +142,7 @@ jobs:
         run: |
           pytest -n auto --cov=./ --cov-report=xml --ignore=tests/test_preprocessing_cloud.py
       - name: Upload code coverage to Codecov
-        uses: codecov/codecov-action@v3.1.4
+        uses: codecov/codecov-action@v4.1.1
         with:
           file: ./coverage.xml
           flags: unittests

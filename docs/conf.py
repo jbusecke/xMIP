@@ -22,8 +22,8 @@ root = pathlib.Path(__file__).parent.parent.absolute()
 os.environ["PYTHONPATH"] = str(root)
 sys.path.insert(0, str(root))
 
-import xmip  # isort:skip
-from importlib.metadata import version  # isort:skip
+import xmip  # noqa
+from importlib.metadata import version  # noqa
 
 release = version("xmip")
 # for example take major/minor/patch

@@ -9,10 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     if: github.repository == 'jbusecke/xmip'
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         name: Install Python
         with:
           python-version: 3.8
@@ -41,7 +41,7 @@ jobs:
           else
             echo "✅ Looks good"
           fi
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: releases
           path: dist
@@ -49,11 +49,11 @@ jobs:
     needs: build-artifacts
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         name: Install Python
         with:
           python-version: 3.8
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: releases
           path: dist
@@ -65,12 +65,12 @@ jobs:
     needs: test-built-dist
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: releases
           path: dist
       - name: Publish package to TestPyPI
-        uses: pypa/gh-action-pypi-publish@v1.8.6
+        uses: pypa/gh-action-pypi-publish@v1.8.14
         with:
           user: __token__
           repository_url: https://test.pypi.org/legacy/
@@ -81,12 +81,12 @@ jobs:
     if: "!github.event.release.prerelease"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: releases
           path: dist
       - name: Publish package to PyPI
-        uses: pypa/gh-action-pypi-publish@v1.8.6
+        uses: pypa/gh-action-pypi-publish@v1.8.14
         with:
           user: __token__
           password: ${{ secrets.PYPI_TOKEN }}
