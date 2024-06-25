@@ -2,6 +2,15 @@
 
 What's New
 ===========
+.. _whats-new.0.8.0:
+
+v0.8.0 (unreleased)
+-------------------
+
+Internal Changes
+~~~~~~~~~~~~~~~~
+- Corrected grid orientations (:pull:`223`). By `Dianne Deauna <https://github.com/jdldeauna>
+
 .. _whats-new.0.6.0:
 
 v0.6.0 (unreleased)
