@@ -185,7 +185,7 @@ def calculate_drift(
     # Check if the parent member id matches
     match_attrs = ["source_id", "variant_label"]
     for ma in match_attrs:
-        if not ds.attrs[f"parent_{ma}"] in reference.attrs[ma]:
+        if ds.attrs[f"parent_{ma}"] not in reference.attrs[ma]:
             raise ValueError(
                 f'`ds_parent` {ma} ({reference.attrs[ma]}) not compatible with `ds` parent_{ma} ({ds.attrs[f"parent_{ma}"]})'
             )
@@ -214,7 +214,7 @@ def calculate_drift(
         if len(reference_cut.time) < trend_years * 12:
             if compute_short_trends:
                 warnings.warn(
-                    f"reference dataset does not have the full {trend_years} years to calculate trend. Using {int(len(reference_cut.time)/12)} years only"
+                    f"reference dataset does not have the full {trend_years} years to calculate trend. Using {int(len(reference_cut.time) / 12)} years only"
                 )
             else:
                 raise RuntimeError(
