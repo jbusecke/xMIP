@@ -22,7 +22,7 @@ root = pathlib.Path(__file__).parent.parent.absolute()
 os.environ["PYTHONPATH"] = str(root)
 sys.path.insert(0, str(root))
 
-import xmip # noqa
+import xmip  # noqa
 from importlib.metadata import version  # isort:skip
 
 release = version("xmip")
