@@ -100,10 +100,8 @@ class Test_instance_id_from_dataset:
                 "b": "b",
             }
         )
-        iid = instance_id_from_dataset(
-            ds, id_schema="a.b", sep='-'
-        )
-        assert iid == f"a-b"
+        iid = instance_id_from_dataset(ds, id_schema="a.b", sep="-")
+        assert iid == "a-b"
 
     def test_custom_schema(self):
         ds = xr.Dataset(attrs={"some": "thing", "totally": "unrelated"})
