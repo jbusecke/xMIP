@@ -13,6 +13,7 @@ Internal Changes
 - Updated pre-commit linting to use ruff (:pull:`359`). By `Julius Busecke <https://github.com/jbusecke>`
 - Modernized packaging workflow, that runs on each PR (:pull:`361`). By `Julius Busecke <https://github.com/jbusecke>`
 - Added 'nvertices' -> 'vertex' to renaming preprocessor (:pull:`357`). By `Julius Busecke <https://github.com/jbusecke>`
+- Updated mamba CI + testing py311/py312 (:issue:`360`, :pull:`362`). By `Julius Busecke <https://github.com/jbusecke>`
 
 .. _whats-new.0.7.2:
 
