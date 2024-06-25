@@ -1,4 +1,4 @@
-name: Release Python Package
+name: Build and Upload xmip to PyPI
 on:
   push:
     branches:
@@ -11,9 +11,9 @@ on:
       - published
 
 jobs:
-  deploy:
+  build-artifacts:
     runs-on: ubuntu-latest
-    if: github.repository == 'leap-stc/leap-data-management-utils'
+    if: github.repository == 'jbusecke/xmip'
     steps:
       - uses: actions/checkout@v4
         with:
