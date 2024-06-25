@@ -2,6 +2,21 @@
 
 What's New
 ===========
+.. _whats-new.0.8.0:
+
+v0.8.0 (unreleased)
+-------------------
+
+Internal Changes
+~~~~~~~~~~~~~~~~
+- Add `longitude_bnds` and `latitude_bnds` to `cmip_renaming_dict` (:pull:`300`). By `Joran Angevaare <https://github.com/JoranAngevaare>`
+- Updated pre-commit linting to use ruff (:pull:`359`). By `Julius Busecke <https://github.com/jbusecke>`
+- Added 'nvertices' -> 'vertex' to renaming preprocessor (:pull:`357`). By `Julius Busecke <https://github.com/jbusecke>`
+
+Bugfixes
+~~~~~~~~
+- Fixed cyclic interpolation in `_interp_nominal_lon` (:issue:`295`, :pull:`296`). By `Joran Angevaare <https://github.com/JoranAngevaare>`
+
 .. _whats-new.0.7.2:
 
 v0.7.2 (unreleased)
