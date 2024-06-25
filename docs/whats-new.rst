@@ -9,17 +9,18 @@ v0.8.0 (unreleased)
 
 Internal Changes
 ~~~~~~~~~~~~~~~~
+- Add `longitude_bnds` and `latitude_bnds` to `cmip_renaming_dict` (:pull:`300`). By `Joran Angevaare <https://github.com/JoranAngevaare>`
 - Updated pre-commit linting to use ruff (:pull:`359`). By `Julius Busecke <https://github.com/jbusecke>`
 
 .. _whats-new.0.7.2:
 
-v0.7.2 (unreleased)
+v0.7.3 (unreleased)
 -------------------
 
 Internal Changes
 ~~~~~~~~~~~~~~~~
 - Added PR template (:pull:`304`). By `Julius Busecke <https://github.com/jbusecke>`
-
+- Add `longitude_bnds` and `latitude_bnds` to `cmip_renaming_dict` (:pull:`300`). By `Joran Angevaare <https://github.com/JoranAngevaare>`
 
 .. _whats-new.0.7.0:
 
