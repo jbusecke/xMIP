@@ -99,6 +99,19 @@ class Test_instance_id_from_dataset:
             instance_id_from_dataset(ds, id_schema="some.totally") == "thing.unrelated"
         )
 
+    @pytest.mark.parametrize("missing_value", "none", "some")
+    def test_missing_attrs_print_missing(self, missing_value):
+        ds = xr.Dataset(
+            attrs={
+                "a": "a",
+                "b": "d",
+            }
+        )
+        iid = instance_id_from_dataset(ds, id_schema='a.b.c', print_missing=True)
+        assert iid == f"a.b.{missing_value}"
+        iid_omit = instance_id_from_dataset(ds, id_schema='a.b.c', print_missing=False)
+        assert iid == "a.b"
+
     def test_missing_attrs_warning(self):
         ds = xr.Dataset(
             attrs={
