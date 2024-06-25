@@ -116,6 +116,7 @@ def cmip6_dataset_id(
     str
         Concatenated
     """
+    raise
     return _key_from_attrs(ds, id_attrs, sep=sep)
 
 
