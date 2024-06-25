@@ -68,7 +68,11 @@ cmip_instance_id_schema = "mip_era.activity_id.institution_id.source_id.experime
 
 
 def instance_id_from_dataset(
-    ds: xr.Dataset, id_schema: str = None, print_missing=True, missing_value="none", sep=".",
+    ds: xr.Dataset,
+    id_schema: str = None,
+    print_missing=True,
+    missing_value="none",
+    sep=".",
 ) -> str:
     """
     Formats a CMIP6 compatible instance id from `ds` attributes according to `id_schema` (defaults to official CMIP naming schema).
