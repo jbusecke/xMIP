@@ -8,7 +8,6 @@ dependencies:
   - pip
   - cartopy #installing this without conda is a nightmare, so ill leave it here
   - xesmf # same here
-  - esmf<=8.3.1 #See https://github.com/pangeo-data/xESMF/issues/246
   - rasterio # Trying to get around an apparent bug with py 3.10 + pip + rasterio (https://github.com/jbusecke/cmip6_preprocessing/pull/231#issuecomment-1132190649)
   - pip:
     - codecov
