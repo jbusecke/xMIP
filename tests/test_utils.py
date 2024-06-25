@@ -107,7 +107,9 @@ class Test_instance_id_from_dataset:
                 "b": "b",
             }
         )
-        iid = instance_id_from_dataset(ds, id_schema="a.b.c", print_missing=True, missing_value=missing_value)
+        iid = instance_id_from_dataset(
+            ds, id_schema="a.b.c", print_missing=True, missing_value=missing_value
+        )
         assert iid == f"a.b.{missing_value}"
 
     def test_missing_attrs_omit(self):
