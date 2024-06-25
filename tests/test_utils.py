@@ -107,8 +107,16 @@ class Test_instance_id_from_dataset:
                 "b": "b",
             }
         )
-        iid = instance_id_from_dataset(ds, id_schema="a.b.c", print_missing=True)
+        iid = instance_id_from_dataset(ds, id_schema="a.b.c", print_missing=True, missing_value=missing_value)
         assert iid == f"a.b.{missing_value}"
+    
+    def test_missing_attrs_omit(self)
+        ds = xr.Dataset(
+            attrs={
+                "a": "a",
+                "b": "b",
+            }
+        )
         iid_omit = instance_id_from_dataset(ds, id_schema="a.b.c", print_missing=False)
         assert iid_omit == "a.b"
 
