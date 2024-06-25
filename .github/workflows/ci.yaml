@@ -48,7 +48,7 @@ jobs:
         uses: mamba-org/setup-micromamba@v1
         with:
           cache-environment: true
-          cache-downloads: true 
+          cache-downloads: true
           micromamba-version: 'latest'
           environment-file: ci/environment.yml
           create-args: >-
@@ -83,7 +83,7 @@ jobs:
         uses: mamba-org/setup-micromamba@v1
         with:
           cache-environment: true
-          cache-downloads: true 
+          cache-downloads: true
           micromamba-version: 'latest'
           environment-file: ci/environment-upstream-dev.yml
           create-args: >-
@@ -127,7 +127,7 @@ jobs:
         uses: mamba-org/setup-micromamba@v1
         with:
           cache-environment: true
-          cache-downloads: true 
+          cache-downloads: true
           micromamba-version: 'latest'
           environment-file: ci/environment.yml
           create-args: >-
