@@ -2,6 +2,15 @@
 
 What's New
 ===========
+.. _whats-new.0.8.0:
+
+v0.8.0 (unreleased)
+-------------------
+
+Internal Changes
+~~~~~~~~~~~~~~~~
+- Updated pre-commit linting to use ruff (:pull:`359`). By `Julius Busecke <https://github.com/jbusecke>`
+
 .. _whats-new.0.7.2:
 
 v0.7.2 (unreleased)

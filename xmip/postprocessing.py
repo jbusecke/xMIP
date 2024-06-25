@@ -446,9 +446,7 @@ def _interpolate_combine_func(
                         print(gl)
                     source_grid = [
                         dss for dss in ds_list if dss.attrs["grid_label"] == gl
-                    ][
-                        0
-                    ]  # again just take the first one available
+                    ][0]  # again just take the first one available
                     regridder_dict[gl] = _clean_regridder(
                         source_grid, target_grid, method, **xesmf_kwargs
                     )
