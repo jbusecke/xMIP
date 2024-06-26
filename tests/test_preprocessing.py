@@ -198,29 +198,27 @@ class TestReplaceXYNominalLatLon(TestCase):
     Reproduce the issue as in https://github.com/jbusecke/xMIP/issues/295 and assert that the fix
     of https://github.com/jbusecke/xMIP/pull/296 does the job
     """
-    
-    
+
     def test_old_fails(self):
         lons = self._get_dummy_longitude()
         lons_parsed = self._interp_nominal_lon_old(lons)
         with self.assertRaises(ValueError):
             if not self._lons_parsed_make_sense(lons, lons_parsed):
-                raise ValueError('Parsed lons are gibberish')
-    
+                raise ValueError("Parsed lons are gibberish")
+
     def test_new_works(self):
         lons = self._get_dummy_longitude()
         lons_parsed = _interp_nominal_lon(lons)
         self.assertTrue(self._lons_parsed_make_sense(lons, lons_parsed))
-        
-    
+
     @staticmethod
-    def _get_dummy_longitude()->np.ndarray:
+    def _get_dummy_longitude() -> np.ndarray:
         # Totally arbitrary data (although len(lon) has to be > 360 to see the issue)
-        lon=np.linspace(0,360, 513)[:-1]
-       
+        lon = np.linspace(0, 360, 513)[:-1]
+
         # Add some NaN values just as an example
         # lon[:, :, len(lon)//2+30: len(lon)//2+50] = np.nan
-        lon[2+30: len(lon)//2+50] = np.nan
+        lon[2 + 30 : len(lon) // 2 + 50] = np.nan
         return lon
 
     @staticmethod
@@ -228,16 +226,22 @@ class TestReplaceXYNominalLatLon(TestCase):
         x = np.arange(len(lon_1d))
         idx = np.isnan(lon_1d)
         return np.interp(x, x[~idx], lon_1d[~idx], period=360)
-    
-    def _lons_parsed_make_sense(self, input_lons:np.ndarray, lons_parsed:np.ndarray)-> bool:
+
+    def _lons_parsed_make_sense(
+        self, input_lons: np.ndarray, lons_parsed: np.ndarray
+    ) -> bool:
         """
         Check if the parsed longitudes make sense.
-        
+
         Since we know that the input-lons are all monotonically increasing, the parsed lons should also do that.
         """
-        accepted_differences_between_lon_coords =  [np.array([1, np.nan]), np.ones(1)]
-        if len(accepted_differences_between_lon_coords := np.unique(np.diff(input_lons))) not in [1,2]:
-            raise RuntimeError(f'Cannot work with changed format of inputdata {accepted_differences_between_lon_coords}')
+        accepted_differences_between_lon_coords = [np.array([1, np.nan]), np.ones(1)]
+        if len(
+            accepted_differences_between_lon_coords := np.unique(np.diff(input_lons))
+        ) not in [1, 2]:
+            raise RuntimeError(
+                f"Cannot work with changed format of inputdata {accepted_differences_between_lon_coords}"
+            )
         diff_pars_lons = np.unique(np.diff(lons_parsed))
         # assert False, diff_pars_lons
         return diff_pars_lons in accepted_differences_between_lon_coords
