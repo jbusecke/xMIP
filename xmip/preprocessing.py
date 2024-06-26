@@ -137,7 +137,7 @@ def broadcast_lonlat(ds, verbose=True):
     return ds
 
 
-def _interp_nominal_lon(lon_1d):
+def _interp_nominal_lon(lon_1d: np.ndarray) -> np.ndarray:
     x = np.arange(len(lon_1d))
     idx = np.isnan(lon_1d)
     # Assume that longitudes are cyclic (i.e. that the period equals the length of lon)
