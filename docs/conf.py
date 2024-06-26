@@ -70,8 +70,8 @@ exclude_patterns = ["_build", "**.ipynb_checkpoints", "Thumbs.db", ".DS_Store"]
 
 # link to github issues
 extlinks = {
-    "issue": ("https://github.com/jbusecke/xmip/issues/%s", "GH#"),
-    "pull": ("https://github.com/jbusecke/xmip/issues/%s", "GH#"),
+    "issue": ("https://github.com/jbusecke/xmip/issues/%s", "GH#%s"),
+    "pull": ("https://github.com/jbusecke/xmip/pull/%s", "GH#%s"),
 }
 
 # -- Options for HTML output -------------------------------------------------
