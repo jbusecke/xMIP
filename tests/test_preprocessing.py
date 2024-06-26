@@ -234,10 +234,8 @@ class TestReplaceXYNominalLatLon(TestCase):
 
         Since we know that the input-lons are all monotonically increasing, the parsed lons should also do that.
         """
-        accepted_differences_between_lon_coords = [np.array([1, np.nan]), np.ones(1)]
-        if len(
-            accepted_differences_between_lon_coords := np.unique(np.diff(input_lons))
-        ) not in [1, 2]:
+        accepted_differences_between_lon_coords = np.unique(np.diff(input_lons))
+        if len(accepted_differences_between_lon_coords) not in [1, 2]:
             raise RuntimeError(
                 f"Cannot work with changed format of inputdata {accepted_differences_between_lon_coords}"
             )
