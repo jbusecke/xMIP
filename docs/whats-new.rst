@@ -9,15 +9,16 @@ v0.8.0 (unreleased)
 
 Internal Changes
 ~~~~~~~~~~~~~~~~
-- Add `longitude_bnds` and `latitude_bnds` to `cmip_renaming_dict` (:pull:`300`). By `Joran Angevaare <https://github.com/JoranAngevaare>`
-- Updated pre-commit linting to use ruff (:pull:`359`). By `Julius Busecke <https://github.com/jbusecke>`
-- Modernized packaging workflow, that runs on each PR (:pull:`361`). By `Julius Busecke <https://github.com/jbusecke>`
-- Added 'nvertices' -> 'vertex' to renaming preprocessor (:pull:`357`). By `Julius Busecke <https://github.com/jbusecke>`
-- Updated mamba CI + testing py311/py312 (:issue:`360`, :pull:`362`). By `Julius Busecke <https://github.com/jbusecke>`
+- Add `longitude_bnds` and `latitude_bnds` to `cmip_renaming_dict` (:pull:`300`). By `Joran Angevaare <https://github.com/JoranAngevaare>`_
+- Updated pre-commit linting to use ruff (:pull:`359`). By `Julius Busecke <https://github.com/jbusecke>`_
+- Modernized packaging workflow, that runs on each PR (:pull:`361`). By `Julius Busecke <https://github.com/jbusecke>`_
+- Added 'nvertices' -> 'vertex' to renaming preprocessor (:pull:`357`). By `Julius Busecke <https://github.com/jbusecke>`_
+- Updated mamba CI + testing py311/py312 (:issue:`360`, :pull:`362`). By `Julius Busecke <https://github.com/jbusecke>`_
 
 Bugfixes
 ~~~~~~~~
-- Fixed cyclic interpolation in `_interp_nominal_lon` (:issue:`295`, :pull:`296`). By `Joran Angevaare <https://github.com/JoranAngevaare>`
+- Fixed cyclic interpolation in `_interp_nominal_lon` (:issue:`295`, :pull:`296`). By `Joran Angevaare <https://github.com/JoranAngevaare>`_
+- Fix formatting `whats-new.rst` for doc-building (:pull:`366`). By `Joran Angevaare <https://github.com/JoranAngevaare>`_
 
 .. _whats-new.0.7.2:
 
@@ -26,8 +27,8 @@ v0.7.3 (unreleased)
 
 Internal Changes
 ~~~~~~~~~~~~~~~~
-- Added PR template (:pull:`304`). By `Julius Busecke <https://github.com/jbusecke>`
-- Add `longitude_bnds` and `latitude_bnds` to `cmip_renaming_dict` (:pull:`300`). By `Joran Angevaare <https://github.com/JoranAngevaare>`
+- Added PR template (:pull:`304`). By `Julius Busecke <https://github.com/jbusecke>`_
+- Add `longitude_bnds` and `latitude_bnds` to `cmip_renaming_dict` (:pull:`300`). By `Joran Angevaare <https://github.com/JoranAngevaare>`_
 
 .. _whats-new.0.7.0:
 
