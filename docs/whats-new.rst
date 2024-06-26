@@ -18,7 +18,7 @@ Internal Changes
 Bugfixes
 ~~~~~~~~
 - Fixed cyclic interpolation in `_interp_nominal_lon` (:issue:`295`, :pull:`296`). By `Joran Angevaare <https://github.com/JoranAngevaare>`_
-- Fix formatting `whatsnew.rst` for doc-building (:pull:`366`). By `Joran Angevaare <https://github.com/JoranAngevaare>`_
+- Fix formatting `whats-new.rst` for doc-building (:pull:`366`). By `Joran Angevaare <https://github.com/JoranAngevaare>`_
 
 .. _whats-new.0.7.2:
 
