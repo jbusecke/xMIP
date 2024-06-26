@@ -243,7 +243,7 @@ class TestReplaceXYNominalLatLon(TestCase):
                 f"Cannot work with changed format of inputdata {accepted_differences_between_lon_coords}"
             )
         diff_pars_lons = np.unique(np.diff(lons_parsed))
-        # assert False, diff_pars_lons
+
         return diff_pars_lons in accepted_differences_between_lon_coords
 
 
