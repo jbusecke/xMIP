@@ -217,7 +217,6 @@ class TestReplaceXYNominalLatLon(TestCase):
         lon = np.linspace(0, 360, 513)[:-1]
 
         # Add some NaN values just as an example
-        # lon[:, :, len(lon)//2+30: len(lon)//2+50] = np.nan
         lon[2 + 30 : len(lon) // 2 + 50] = np.nan
         return lon
 
