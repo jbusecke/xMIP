@@ -22,7 +22,6 @@ from xmip.preprocessing import (
     sort_vertex_order,
     _interp_nominal_lon,
 )
-from unittest import TestCase
 
 
 def create_test_ds(xname, yname, zname, xlen, ylen, zlen):
@@ -193,7 +192,7 @@ def test_replace_x_y_nominal_lat_lon(dask, nans):
     assert set(replaced_ds.lat.dims) == set(["x", "y"])
 
 
-class TestReplaceXYNominalLatLon(TestCase):
+class TestReplaceXYNominalLatLon:
     """
     Reproduce the issue as in https://github.com/jbusecke/xMIP/issues/295 and assert that the fix
     of https://github.com/jbusecke/xMIP/pull/296 does the job
@@ -202,14 +201,16 @@ class TestReplaceXYNominalLatLon(TestCase):
     def test_old_fails(self):
         lons = self._get_dummy_longitude()
         lons_parsed = self._interp_nominal_lon_old(lons)
-        with self.assertRaises(ValueError):
-            if not self._lons_parsed_make_sense(lons, lons_parsed):
-                raise ValueError("Parsed lons are gibberish")
+        if self._lons_parsed_make_sense(lons, lons_parsed):
+            raise ValueError(
+                "Parsed lons should be gibberish, but somehow the old implementation also works?"
+            )
 
     def test_new_works(self):
         lons = self._get_dummy_longitude()
         lons_parsed = _interp_nominal_lon(lons)
-        self.assertTrue(self._lons_parsed_make_sense(lons, lons_parsed))
+        if not self._lons_parsed_make_sense(lons, lons_parsed):
+            raise ValueError("Parsed lons after the fix of #296 are still bad?")
 
     @staticmethod
     def _get_dummy_longitude() -> np.ndarray:
@@ -240,8 +241,9 @@ class TestReplaceXYNominalLatLon(TestCase):
                 f"Cannot work with changed format of inputdata {accepted_differences_between_lon_coords}"
             )
         diff_pars_lons = np.unique(np.diff(lons_parsed))
-
-        return diff_pars_lons in accepted_differences_between_lon_coords
+        return np.all(
+            [x in accepted_differences_between_lon_coords for x in diff_pars_lons]
+        )
 
 
 @pytest.mark.parametrize(
