@@ -20,6 +20,7 @@ from xmip.preprocessing import (
     rename_cmip6,
     replace_x_y_nominal_lat_lon,
     sort_vertex_order,
+    _interp_nominal_lon,
 )
 
 
@@ -189,6 +190,44 @@ def test_replace_x_y_nominal_lat_lon(dask, nans):
     assert len(replaced_ds.lat.shape) == 2
     assert set(replaced_ds.lon.dims) == set(["x", "y"])
     assert set(replaced_ds.lat.dims) == set(["x", "y"])
+
+
+def test_interp_nominal_lon():
+    """
+    Check that https://github.com/jbusecke/xMIP/issues/295 was fixed in https://github.com/jbusecke/xMIP/pull/296
+
+    In https://github.com/jbusecke/xMIP/blob/0270f4b4977d512adc2337d4a547b39e25d2f2da/tests/test_preprocessing.py,
+    the old issue was replicated (and illustrated that the tests would have failed then).
+    """
+
+    def _get_dummy_longitude() -> np.ndarray:
+        # Totally arbitrary data (although len(lon) has to be > 360 to see the issue)
+        lon = np.linspace(0, 360, 513)[:-1]
+
+        # Add some NaN values just as an example
+        lon[2 + 30 : len(lon) // 2 + 50] = np.nan
+        return lon
+
+    def _lons_parsed_make_sense(
+        input_lons: np.ndarray, lons_parsed: np.ndarray
+    ) -> bool:
+        """
+        Check if the parsed longitudes make sense.
+        Since we know that the input-lons are all monotonically increasing, the parsed lons should also do that.
+        """
+        accepted_differences_between_lon_coords = np.unique(np.diff(input_lons))
+        if len(accepted_differences_between_lon_coords) not in [1, 2]:
+            raise RuntimeError(
+                f"Cannot work with changed format of inputdata {accepted_differences_between_lon_coords}"
+            )
+        diff_pars_lons = np.unique(np.diff(lons_parsed))
+        return np.all(
+            [x in accepted_differences_between_lon_coords for x in diff_pars_lons]
+        )
+
+    lons = _get_dummy_longitude()
+    lons_parsed = _interp_nominal_lon(lons)
+    assert _lons_parsed_make_sense(lons, lons_parsed)
 
 
 @pytest.mark.parametrize(
