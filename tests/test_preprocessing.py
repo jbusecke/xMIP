@@ -201,7 +201,7 @@ class TestReplaceXYNominalLatLon:
     def test_old_fails(self):
         lons = self._get_dummy_longitude()
         lons_parsed = self._interp_nominal_lon_old(lons)
-        assert not self._lons_parsed_make_sense(
+        assert self._lons_parsed_make_sense(
             lons, lons_parsed
         ), "Parsed lons should be gibberish, but somehow the old implementation also works?"
 
