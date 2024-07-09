@@ -227,9 +227,7 @@ def test_interp_nominal_lon():
 
     lons = _get_dummy_longitude()
     lons_parsed = _interp_nominal_lon(lons)
-    assert _lons_parsed_make_sense(
-        lons, lons_parsed
-    ), "Parsed lons after the fix of #296 are still bad?"
+    assert _lons_parsed_make_sense(lons, lons_parsed)
 
 
 @pytest.mark.parametrize(
