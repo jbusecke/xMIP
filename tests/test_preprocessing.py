@@ -192,27 +192,14 @@ def test_replace_x_y_nominal_lat_lon(dask, nans):
     assert set(replaced_ds.lat.dims) == set(["x", "y"])
 
 
-class TestReplaceXYNominalLatLon:
+def test_interp_nominal_lon():
     """
-    Reproduce the issue as in https://github.com/jbusecke/xMIP/issues/295 and assert that the fix
-    of https://github.com/jbusecke/xMIP/pull/296 does the job
+    Check that https://github.com/jbusecke/xMIP/issues/295 was fixed in https://github.com/jbusecke/xMIP/pull/296
+
+    In https://github.com/jbusecke/xMIP/blob/0270f4b4977d512adc2337d4a547b39e25d2f2da/tests/test_preprocessing.py,
+    the old issue was replicated (and illustrated that the tests would have failed then).
     """
 
-    def test_old_fails(self):
-        lons = self._get_dummy_longitude()
-        lons_parsed = self._interp_nominal_lon_old(lons)
-        assert self._lons_parsed_make_sense(
-            lons, lons_parsed
-        ), "Parsed lons should be gibberish, but somehow the old implementation also works?"
-
-    def test_new_works(self):
-        lons = self._get_dummy_longitude()
-        lons_parsed = _interp_nominal_lon(lons)
-        assert self._lons_parsed_make_sense(
-            lons, lons_parsed
-        ), "Parsed lons after the fix of #296 are still bad?"
-
-    @staticmethod
     def _get_dummy_longitude() -> np.ndarray:
         # Totally arbitrary data (although len(lon) has to be > 360 to see the issue)
         lon = np.linspace(0, 360, 513)[:-1]
@@ -221,18 +208,11 @@ class TestReplaceXYNominalLatLon:
         lon[2 + 30 : len(lon) // 2 + 50] = np.nan
         return lon
 
-    @staticmethod
-    def _interp_nominal_lon_old(lon_1d: np.ndarray) -> np.ndarray:
-        x = np.arange(len(lon_1d))
-        idx = np.isnan(lon_1d)
-        return np.interp(x, x[~idx], lon_1d[~idx], period=360)
-
     def _lons_parsed_make_sense(
-        self, input_lons: np.ndarray, lons_parsed: np.ndarray
+        input_lons: np.ndarray, lons_parsed: np.ndarray
     ) -> bool:
         """
         Check if the parsed longitudes make sense.
-
         Since we know that the input-lons are all monotonically increasing, the parsed lons should also do that.
         """
         accepted_differences_between_lon_coords = np.unique(np.diff(input_lons))
@@ -244,6 +224,12 @@ class TestReplaceXYNominalLatLon:
         return np.all(
             [x in accepted_differences_between_lon_coords for x in diff_pars_lons]
         )
+
+    lons = _get_dummy_longitude()
+    lons_parsed = _interp_nominal_lon(lons)
+    assert _lons_parsed_make_sense(
+        lons, lons_parsed
+    ), "Parsed lons after the fix of #296 are still bad?"
 
 
 @pytest.mark.parametrize(
