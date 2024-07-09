@@ -201,16 +201,16 @@ class TestReplaceXYNominalLatLon:
     def test_old_fails(self):
         lons = self._get_dummy_longitude()
         lons_parsed = self._interp_nominal_lon_old(lons)
-        if self._lons_parsed_make_sense(lons, lons_parsed):
-            raise ValueError(
-                "Parsed lons should be gibberish, but somehow the old implementation also works?"
-            )
+        assert not self._lons_parsed_make_sense(
+            lons, lons_parsed
+        ), "Parsed lons should be gibberish, but somehow the old implementation also works?"
 
     def test_new_works(self):
         lons = self._get_dummy_longitude()
         lons_parsed = _interp_nominal_lon(lons)
-        if not self._lons_parsed_make_sense(lons, lons_parsed):
-            raise ValueError("Parsed lons after the fix of #296 are still bad?")
+        assert self._lons_parsed_make_sense(
+            lons, lons_parsed
+        ), "Parsed lons after the fix of #296 are still bad?"
 
     @staticmethod
     def _get_dummy_longitude() -> np.ndarray:
