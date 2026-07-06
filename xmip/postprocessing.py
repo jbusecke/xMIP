@@ -438,7 +438,7 @@ def _interpolate_combine_func(
             regridder_dict = {}
             if verbose:
                 print(
-                    f'Constructing regridders for source_id {target_grid.attrs["source_id"]} ...'
+                    f"Constructing regridders for source_id {target_grid.attrs['source_id']} ..."
                 )
             for gl in grid_labels:
                 if gl != target_grid_label:
