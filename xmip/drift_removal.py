@@ -187,7 +187,7 @@ def calculate_drift(
     for ma in match_attrs:
         if ds.attrs[f"parent_{ma}"] not in reference.attrs[ma]:
             raise ValueError(
-                f'`ds_parent` {ma} ({reference.attrs[ma]}) not compatible with `ds` parent_{ma} ({ds.attrs[f"parent_{ma}"]})'
+                f"`ds_parent` {ma} ({reference.attrs[ma]}) not compatible with `ds` parent_{ma} ({ds.attrs[f'parent_{ma}']})"
             )
 
     # find the branch date in the control run
