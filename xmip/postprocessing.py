@@ -1,14 +1,12 @@
 import functools
 import inspect
 import warnings
-
-from typing import List, Mapping
+from collections.abc import Mapping
 
 import numpy as np
 import xarray as xr
 
 from xmip.utils import _key_from_attrs, _maybe_make_list, cmip6_dataset_id
-
 
 try:
     import xesmf
@@ -77,8 +75,8 @@ def _match_datasets(ds, ds_dict, match_attrs, pop=True, nomatch="ignore", unique
 
 
 def _prune_match_attrs_to_available(
-    match_attrs: List[str], ds_dict: Mapping[str, xr.Dataset]
-) -> List[str]:
+    match_attrs: list[str], ds_dict: Mapping[str, xr.Dataset]
+) -> list[str]:
     """prune a set of attrs to only the ones available in every dataset"""
     missing_match_attrs = []
     for ma in match_attrs:
@@ -438,7 +436,7 @@ def _interpolate_combine_func(
             regridder_dict = {}
             if verbose:
                 print(
-                    f'Constructing regridders for source_id {target_grid.attrs["source_id"]} ...'
+                    f"Constructing regridders for source_id {target_grid.attrs['source_id']} ..."
                 )
             for gl in grid_labels:
                 if gl != target_grid_label:

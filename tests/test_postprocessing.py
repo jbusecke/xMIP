@@ -466,7 +466,7 @@ def test_combine_datasets_merge(combine_func_kwargs):
         xr.merge,
         combine_func_kwargs=combine_func_kwargs,
     )
-    for k in expected.keys():
+    for k in expected:
         assert k in list(result.keys())
         xr.testing.assert_equal(result[k], xr.merge(expected[k], **combine_func_kwargs))
 
@@ -511,17 +511,15 @@ def test_merge_variables():
 
     result = merge_variables(ds_dict)
 
-    for k in expected.keys():
+    for k in expected:
         assert k in list(result.keys())
         xr.testing.assert_equal(
             result[k],
             xr.merge(
                 expected[k],
-                **{
-                    "compat": "override",
-                    "join": "exact",
-                    "combine_attrs": "drop_conflicts",
-                },
+                compat="override",
+                join="exact",
+                combine_attrs="drop_conflicts",
             ),
         )
 
@@ -570,7 +568,7 @@ def test_concat_members(concat_kwargs):
         ds_dict,
         concat_kwargs=concat_kwargs,
     )
-    for k in expected.keys():
+    for k in expected:
         assert k in list(result.keys())
         xr.testing.assert_equal(
             result[k],
@@ -735,7 +733,7 @@ def test_concat_experiments(concat_kwargs):
         ds_dict,
         concat_kwargs=concat_kwargs,
     )
-    for k in expected.keys():
+    for k in expected:
         assert k in list(result.keys())
         xr.testing.assert_equal(
             result[k], xr.concat(expected[k], "time", **concat_kwargs)
@@ -808,7 +806,7 @@ def test_pick_first_member():
     )
     print(result)
     print(result.keys())
-    for k in expected.keys():
+    for k in expected:
         assert k in list(result.keys())
         xr.testing.assert_equal(result[k], expected[k])
 

@@ -10,7 +10,6 @@ from xmip.grids import combine_staggered_grid
 from xmip.preprocessing import _desired_units, _drop_coords, combined_preprocessing
 from xmip.utils import google_cmip_col, model_id_match
 
-
 pytest.importorskip("gcsfs")
 
 
@@ -453,7 +452,6 @@ def test_check_grid(
     staggered_grid, ds_staggered = combine_staggered_grid(ds, recalculate_metrics=True)
 
     assert ds_staggered is not None
-    #
     if "lev" in ds_staggered.dims:
         assert "bnds" in ds_staggered.lev_bounds.dims
 

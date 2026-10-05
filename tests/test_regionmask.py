@@ -4,7 +4,6 @@ import xarray as xr
 
 from xmip.regionmask import _default_merge_dict, merged_mask
 
-
 regionmask = pytest.importorskip(
     "regionmask", minversion="0.5.0+dev"
 )  # All tests get skipped if the version of regionmask is not > 0.5.0

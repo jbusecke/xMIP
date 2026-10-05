@@ -1,7 +1,6 @@
 import numpy as np
 import pytest
 import xarray as xr
-
 from xgcm import Grid
 from xgcm.autogenerate import generate_grid_ds
 
