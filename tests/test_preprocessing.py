@@ -6,6 +6,7 @@ import xarray as xr
 
 from xmip.postprocessing import EXACT_ATTRS
 from xmip.preprocessing import (
+    _interp_nominal_lon,
     broadcast_lonlat,
     cmip6_renaming_dict,
     combined_preprocessing,
@@ -20,7 +21,6 @@ from xmip.preprocessing import (
     rename_cmip6,
     replace_x_y_nominal_lat_lon,
     sort_vertex_order,
-    _interp_nominal_lon,
 )
 
 

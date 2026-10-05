@@ -9,7 +9,6 @@ import xarray as xr
 
 from xmip.utils import cmip6_dataset_id
 
-
 # global object for units
 _desired_units = {"lev": "m"}
 _unit_overrides = {name: None for name in ["so"]}

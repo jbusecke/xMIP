@@ -4,10 +4,8 @@ import numpy as np
 import pkg_resources
 import xarray as xr
 import yaml
-
 from xgcm import Grid
 from xgcm.autogenerate import generate_grid_ds
-
 
 path = "specs/staggered_grid_config.yaml"  # always use slash
 grid_spec = pkg_resources.resource_filename(__name__, path)
@@ -66,7 +64,7 @@ def distance_deg(lon0, lat0, lon1, lat1):
     )  # , np.nan, delta_lat)
 
     #     # some bounds are wrapped aroud the lon discontinuty.
-    delta_lon = np.where(delta_lon < (-small_crit * 2), 360 + delta_lon, delta_lon)  #
+    delta_lon = np.where(delta_lon < (-small_crit * 2), 360 + delta_lon, delta_lon)
     delta_lon = np.where(
         delta_lon > (360 + small_crit * 2), -360 + delta_lon, delta_lon
     )
