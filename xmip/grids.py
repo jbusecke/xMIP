@@ -1,7 +1,7 @@
+import os
 import warnings
 
 import numpy as np
-import pkg_resources
 import xarray as xr
 import yaml
 
@@ -9,8 +9,9 @@ from xgcm import Grid
 from xgcm.autogenerate import generate_grid_ds
 
 
-path = "specs/staggered_grid_config.yaml"  # always use slash
-grid_spec = pkg_resources.resource_filename(__name__, path)
+grid_spec = os.path.join(
+    os.path.dirname(__file__), "specs", "staggered_grid_config.yaml"
+)
 
 
 def _parse_bounds_vertex(da, dim="bnds", position=[0, 1]):

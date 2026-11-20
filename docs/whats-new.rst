@@ -19,6 +19,7 @@ Bugfixes
 ~~~~~~~~
 - Fixed cyclic interpolation in `_interp_nominal_lon` (:issue:`295`, :pull:`296`). By `Joran Angevaare <https://github.com/JoranAngevaare>`_
 - Fix formatting `whats-new.rst` for doc-building (:pull:`366`). By `Joran Angevaare <https://github.com/JoranAngevaare>`_
+- `xmip.grids` no longer imports `pkg_resources`, which was removed in setuptools 82 (:pull:`381`). By `yarrrly <https://github.com/yarrrly>`_
 
 .. _whats-new.0.7.2:
 
